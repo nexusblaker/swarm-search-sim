@@ -1,0 +1,1 @@
+#create environment, create drone, create heatmap, call renderer
