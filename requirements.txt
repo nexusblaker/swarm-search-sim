@@ -1,6 +1,8 @@
 numpy
-matplotlib
 scipy
+matplotlib
 pandas
+pyyaml
 streamlit
 pytest
+imageio
