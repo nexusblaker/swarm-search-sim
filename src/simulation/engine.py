@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace as dataclass_replace
 from pathlib import Path
 from typing import Any
 
@@ -160,6 +160,11 @@ class SimulationEngine:
         self.reroute_count = 0
         self.global_objectives: dict[int, Position] = {}
         self.last_objectives: dict[int, Position] = {}
+        self.paused = False
+        self.manual_targets: dict[int, Position] = {}
+        self.forced_return_overrides: set[int] = set()
+        self.priority_zones: list[dict[str, Any]] = []
+        self.exclusion_zones: list[dict[str, Any]] = []
         self.history: list[dict[str, Any]] = []
         self.reset()
 
@@ -231,13 +236,18 @@ class SimulationEngine:
         self.reroute_count = 0
         self.global_objectives = {}
         self.last_objectives = {}
+        self.paused = False
+        self.manual_targets = {}
+        self.forced_return_overrides = set()
+        self.priority_zones = []
+        self.exclusion_zones = []
         self.logger = EventLogger()
         self.history = []
         self._update_metrics()
         self._record_history()
 
     def step(self) -> dict[str, Any]:
-        if self.done:
+        if self.done or self.paused:
             return self.get_state_snapshot()
 
         assert self.environment is not None
@@ -276,6 +286,7 @@ class SimulationEngine:
             probability_map=self.probability_map,
             step_index=self.current_step,
         )
+        proposed_goals = self._apply_operator_guidance(proposed_goals)
         self.global_objectives = self._derive_global_objectives(proposed_goals)
         resolved_goals = self._apply_battery_policy(self.global_objectives)
         self._plan_and_execute_routes(resolved_goals)
@@ -394,6 +405,55 @@ class SimulationEngine:
             self.step()
         return self.metrics
 
+    def apply_intervention(self, action: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Apply an operator intervention to the active mission."""
+
+        payload = payload or {}
+        normalized_action = action.lower()
+        if normalized_action == "pause":
+            self.paused = True
+        elif normalized_action == "resume":
+            self.paused = False
+        elif normalized_action == "force_return":
+            drone_id = int(payload["drone_id"])
+            self.forced_return_overrides.add(drone_id)
+            drone = self._get_drone(drone_id)
+            drone.returning_to_base = True
+            drone.forced_return_triggered = True
+        elif normalized_action == "assign_waypoint":
+            drone_id = int(payload["drone_id"])
+            waypoint = self._normalize_position(payload["position"])
+            self.manual_targets[drone_id] = self._resolve_open_cell(waypoint)
+        elif normalized_action == "set_priority_zone":
+            self.priority_zones.append(self._normalize_zone(payload))
+        elif normalized_action == "set_exclusion_zone":
+            self.exclusion_zones.append(self._normalize_zone(payload))
+        elif normalized_action == "switch_strategy":
+            strategy_name = str(payload["strategy"])
+            self.config = dataclass_replace(self.config, strategy=strategy_name)
+            self.strategy = self._build_strategy(strategy_name)
+            assert self.environment is not None
+            self.strategy.reset(self.environment, self.drones)
+        else:
+            raise ValueError(f"Unsupported intervention action: {action}")
+
+        self.logger.record(
+            "operator_intervention",
+            self.current_step,
+            action=normalized_action,
+            payload=payload,
+        )
+        self._record_history()
+        return {
+            "action": normalized_action,
+            "paused": self.paused,
+            "manual_targets": dict(self.manual_targets),
+            "forced_return_overrides": sorted(self.forced_return_overrides),
+            "priority_zones": list(self.priority_zones),
+            "exclusion_zones": list(self.exclusion_zones),
+            "strategy": self.config.strategy,
+        }
+
     def get_state_snapshot(self) -> dict[str, Any]:
         assert self.environment is not None
         assert self.probability_map is not None
@@ -402,6 +462,7 @@ class SimulationEngine:
         return {
             "step": self.current_step,
             "done": self.done,
+            "paused": self.paused,
             "weather": self.config.weather,
             "strategy": self.config.strategy,
             "coordination_mode": self.config.coordination_mode,
@@ -421,6 +482,10 @@ class SimulationEngine:
             "communication_links": list(self.communication_links),
             "reserved_paths": {drone_id: list(path) for drone_id, path in self.reserved_paths.items()},
             "global_objectives": dict(self.global_objectives),
+            "manual_targets": dict(self.manual_targets),
+            "forced_return_overrides": sorted(self.forced_return_overrides),
+            "priority_zones": list(self.priority_zones),
+            "exclusion_zones": list(self.exclusion_zones),
             "returning_drones": [drone.id for drone in self.drones if drone.returning_to_base],
             "detection_event": dict(self.last_detection_event) if self.last_detection_event else None,
             "drones": [
@@ -530,11 +595,15 @@ class SimulationEngine:
         if not self.config.hierarchical_planning_enabled:
             return dict(proposed_goals)
 
+        prioritized_cells = self._priority_cells(limit=self.config.hierarchical_objective_count * 2)
         objective_candidates = BaseStrategy.top_candidate_cells(
             self.environment,
             self.probability_map,
             limit=self.config.hierarchical_objective_count,
         )
+        for candidate in prioritized_cells:
+            if candidate not in objective_candidates:
+                objective_candidates.insert(0, candidate)
         for proposed_goal in proposed_goals.values():
             if proposed_goal not in objective_candidates:
                 objective_candidates.append(proposed_goal)
@@ -547,14 +616,17 @@ class SimulationEngine:
             for candidate in objective_candidates:
                 if candidate in claimed:
                     continue
+                if self._is_excluded(candidate):
+                    continue
                 route_cost = path_cost(
                     self.environment,
                     astar_path(self.environment, drone.position, candidate),
                 )
                 belief = self.probability_map.value_at(candidate)
                 alignment_bonus = 5.0 if candidate == proposed_goal else -0.18 * self._distance(candidate, proposed_goal)
+                priority_bonus = 3.0 if self._is_priority(candidate) else 0.0
                 overlap_penalty = 1.4 if candidate in claimed else 0.0
-                score = 20.0 * belief - 0.18 * route_cost + alignment_bonus - overlap_penalty
+                score = 20.0 * belief - 0.18 * route_cost + alignment_bonus + priority_bonus - overlap_penalty
                 if score > best_score:
                     best_score = score
                     best_objective = candidate
@@ -570,7 +642,11 @@ class SimulationEngine:
             proposed_goal = proposed_goals.get(drone.id, drone.position)
             path_home = astar_path(self.environment, drone.position, drone.base_position)
             cost_home = path_cost(self.environment, path_home)
-            if drone.returning_to_base or drone.battery <= cost_home + self.config.return_to_base_threshold:
+            if (
+                drone.id in self.forced_return_overrides
+                or drone.returning_to_base
+                or drone.battery <= cost_home + self.config.return_to_base_threshold
+            ):
                 if not drone.forced_return_triggered:
                     drone.forced_return_triggered = True
                     drone.returning_to_base = True
@@ -652,6 +728,57 @@ class SimulationEngine:
             drone.return_completed = True
             self.successful_return_events += 1
             self.logger.record("return_to_base", self.current_step, drone_id=drone.id)
+
+    def _apply_operator_guidance(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
+        adjusted = dict(proposed_goals)
+        for drone in self.drones:
+            if drone.id in self.manual_targets:
+                adjusted[drone.id] = self.manual_targets[drone.id]
+            if drone.id in self.forced_return_overrides:
+                adjusted[drone.id] = drone.base_position
+            if self._is_excluded(adjusted.get(drone.id, drone.position)):
+                adjusted[drone.id] = drone.base_position if drone.id in self.forced_return_overrides else drone.position
+        return adjusted
+
+    def _priority_cells(self, limit: int) -> list[Position]:
+        assert self.environment is not None
+        if not self.priority_zones:
+            return []
+        weighted_cells: list[tuple[float, Position]] = []
+        for position in self.environment.iter_traversable_cells():
+            if not self._is_priority(position) or self._is_excluded(position):
+                continue
+            score = self.probability_map.value_at(position)
+            weighted_cells.append((score, position))
+        weighted_cells.sort(reverse=True, key=lambda item: item[0])
+        return [position for _, position in weighted_cells[:limit]]
+
+    def _is_priority(self, position: Position) -> bool:
+        return any(self._position_in_zone(position, zone) for zone in self.priority_zones)
+
+    def _is_excluded(self, position: Position) -> bool:
+        return any(self._position_in_zone(position, zone) for zone in self.exclusion_zones)
+
+    @staticmethod
+    def _position_in_zone(position: Position, zone: dict[str, Any]) -> bool:
+        center = tuple(zone["center"])
+        radius = float(zone.get("radius", 1))
+        return float(np.hypot(position[0] - center[0], position[1] - center[1])) <= radius
+
+    def _normalize_zone(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "center": self._resolve_open_cell(self._normalize_position(payload["center"])),
+            "radius": float(payload.get("radius", 2)),
+            "label": str(payload.get("label", "")),
+        }
+
+    @staticmethod
+    def _normalize_position(position: Any) -> Position:
+        x, y = position
+        return (int(x), int(y))
+
+    def _get_drone(self, drone_id: int) -> Drone:
+        return next(drone for drone in self.drones if drone.id == drone_id)
 
     def _refresh_communication_links(self) -> None:
         self.communication_links = []

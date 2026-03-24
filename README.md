@@ -1,78 +1,58 @@
 # Swarm Search Sim
 
-Swarm Search Sim is a modular Python platform for research-oriented multi-drone search coordination under uncertainty. Phase 4 upgrades the existing simulator into a belief-driven autonomy core with entropy-aware planning, hierarchical coordination, external map-layer ingestion, and replayable experiment artifacts.
+Swarm Search Sim is a modular local mission planning and review platform for multi-drone search coordination under uncertainty. The `src/` package remains the simulation core, while Phase 5 adds product-facing backend and frontend layers for scenario management, mission execution, replay, experiments, operator interventions, and report generation.
 
-## Phase 4 Capabilities
+## Product Architecture
 
-- belief-state target tracking with motion propagation and positive/negative evidence updates
-- entropy-aware uncertainty maps and expected information-gain utilities
-- terrain-aware A* routing with obstacles, slope penalties, trails, and wind effects
-- communication radius, packet loss, latency, and centralized or decentralized coordination
-- battery-aware return-to-base behavior with forced-return tracking
-- multiple target behavior modes:
-  - `random_walk`
-  - `terrain_biased`
-  - `trail_biased`
-  - `injured_slow`
-  - `stationary_intervals`
-- multi-channel lightweight sensing with thermal plus visual-proxy fusion
-- five coordination strategies:
-  - `random_sweep`
-  - `sector_search`
-  - `probability_greedy`
-  - `auction_based`
-  - `information_gain`
-- hierarchical coordination where global objectives are assigned and local path planning executes them
-- event logging and replay artifact export for completed runs
-- grouped robustness experiments across scenario families, comms modes, battery budgets, and sensor modes
+### Simulation Core
 
-## Current Architecture
+- `src/scenarios/scenario.py`: scenario configuration and family presets
+- `src/environment/grid.py`: terrain, obstacle, trail, elevation, and wind support
+- `src/probability/heatmap.py`: compatibility probability-map layer
+- `src/probability/belief.py`: belief-state propagation, entropy, and information gain
+- `src/coordination/`: five coordination strategies plus shared interfaces
+- `src/simulation/planning.py`: terrain-aware A* path planning
+- `src/simulation/engine.py`: belief-driven mission loop, comms, battery policy, interventions, replay history
+- `src/visualisation/renderer.py`: terrain, belief heatmap, replay, and artifact rendering
 
-- `src/scenarios/scenario.py`: `ScenarioConfig`, YAML parsing, scenario-family presets, Phase 4 config fields
-- `src/environment/grid.py`: synthetic generation, external layer loading, terrain costs, trails, elevation, wind, LOS helpers
-- `src/agents/drone.py`: drone state, local/shared knowledge, path history, battery and return state
-- `src/probability/heatmap.py`: probability-map compatibility layer, suppression and diffusion helpers
-- `src/probability/belief.py`: belief-state propagation, entropy maps, expected information gain
-- `src/sensors/thermal.py`: thermal plus visual-proxy footprint sensing with weather and LOS effects
-- `src/coordination/`: shared strategy interface plus five strategy implementations
-- `src/simulation/planning.py`: reusable A* path planning helper
-- `src/simulation/engine.py`: mission loop, target motion, belief updates, comms queue, routing, metrics, event logging, replay history
-- `src/visualisation/renderer.py`: terrain, belief heatmap, trails, scan footprints, comm links, objectives, reserved paths
-- `benchmark.py`: standard benchmark plus grouped Phase 4 experiment runner
-- `data/sample_layers/`: lightweight CSV terrain, obstacle, trail, elevation, and wind layers
+### Product Layer
 
-## Belief-State and Information-Gain Model
+- `app/backend/server.py`: thin local JSON API
+- `app/backend/services.py`: scenario, mission, experiment, and report services
+- `app/backend/reporting.py`: HTML mission report generation
+- `app/frontend/app.py`: local mission dashboard UI
+- `app/storage/`: saved scenarios, mission runs, experiments, and reports
 
-- The simulator maintains a normalized belief distribution over target location.
-- Belief is propagated every step using a configurable motion model tied to the selected target behavior mode.
-- Negative scans suppress belief over the observed footprint, while repeated scans suppress local belief more strongly.
-- Positive detections contribute soft evidence that sharpens the belief peak over time.
-- Entropy is derived from the belief state and exposed to strategies.
-- The `information_gain` strategy scores candidate objectives using expected uncertainty reduction, route cost, battery state, and overlap penalties.
+## Phase 5 Capabilities
 
-## Comms and Battery Constraints
+- local backend API for scenarios, mission runs, replay, events, experiments, and reports
+- saved scenario management with YAML-compatible payloads
+- mission dashboard support for live run status and snapshot polling
+- local frontend for:
+  - scenario editing
+  - mission launch and monitoring
+  - replay browsing
+  - experiment browsing
+- operator-in-the-loop controls:
+  - pause and resume
+  - force return-to-base
+  - manual waypoint assignment
+  - priority zone assignment
+  - exclusion zone assignment
+  - strategy switching
+- mission summary report export to HTML
+- organized local storage for scenarios, runs, experiments, and reports
 
-- In `centralized` mode, drones synchronize through the base station.
-- In `decentralized` mode, drones exchange state directly when within communication range.
-- Packet loss and latency delay belief sharing, searched-cell updates, and teammate intent.
-- Drones track stale information windows, and poor comms measurably degrade coordination quality.
-- Drones trigger return-to-base when their remaining battery is no longer safe relative to the planned path home plus the configured return threshold.
+## Storage Layout
 
-## External Scenario Layers
+Phase 5 keeps the legacy `outputs/` artifacts intact and adds product storage under `app/storage/`:
 
-The simulator can run on synthetic terrain or on externally defined map layers.
+- `app/storage/scenarios/`
+- `app/storage/runs/<run_id>/`
+- `app/storage/experiments/<experiment_id>/`
+- `app/storage/reports/<run_id>.html`
 
-Supported layer types:
-
-- terrain layer
-- obstacle layer
-- trail layer
-- elevation layer
-- optional wind layer
-
-The default repo includes a lightweight example under `data/sample_layers/`. You can point `configs/default.yaml` at your own `.csv`, `.json`, or `.npy` layer files using `layer_paths`.
-
-## Run One Simulation
+## Run the Core Simulator
 
 From the repo root:
 
@@ -80,74 +60,150 @@ From the repo root:
 python main.py
 ```
 
-Outputs are written under `outputs/`:
+This still runs the core simulator directly and writes artifacts under `outputs/`.
 
-- `final_state.png`
-- `frames/`
-- `run_events.jsonl`
-- `run_replay.json`
-
-## Run Benchmarks and Experiments
+## Run the Backend API
 
 From the repo root:
+
+```bash
+python -m app.backend.server --host 127.0.0.1 --port 8000
+```
+
+Useful API routes:
+
+- `GET /api/health`
+- `GET /api/presets`
+- `GET /api/scenarios`
+- `POST /api/scenarios`
+- `GET /api/scenarios/{scenario_id}`
+- `POST /api/runs`
+- `GET /api/runs`
+- `GET /api/runs/{run_id}`
+- `GET /api/runs/{run_id}/replay`
+- `GET /api/runs/{run_id}/events`
+- `POST /api/runs/{run_id}/interventions`
+- `POST /api/runs/{run_id}/report`
+- `POST /api/experiments`
+- `GET /api/experiments`
+- `GET /api/experiments/{experiment_id}`
+- `GET /api/experiments/{experiment_id}/summary`
+
+## Run the Frontend
+
+The local MVP frontend is implemented with Streamlit so it runs cleanly in this environment without a Node toolchain.
+
+From the repo root:
+
+```bash
+python -m streamlit run app/frontend/app.py
+```
+
+If your backend is not on the default port, set:
+
+```bash
+set SWARM_API_BASE_URL=http://127.0.0.1:8000
+```
+
+Then start the frontend.
+
+## Using the Scenario Editor
+
+In the frontend:
+
+1. Open `Scenarios`.
+2. Load an existing scenario or start with defaults.
+3. Edit:
+   - map size and family
+   - layer paths
+   - drone count and specs
+   - strategy
+   - comms settings
+   - battery threshold
+   - target behavior
+   - sensor settings
+   - belief and planner settings
+4. Save the scenario.
+
+Validation is currently handled through constrained numeric inputs and bounded select options.
+
+## Running Missions
+
+In the frontend:
+
+1. Open `Mission Run`.
+2. Choose a saved scenario.
+3. Launch a mission.
+4. Poll the latest state, metrics, and artifacts.
+5. Use operator controls to:
+   - pause or resume
+   - force a drone return
+   - assign a waypoint
+   - create priority or exclusion zones
+   - switch strategy
+
+All interventions are recorded in the event log and replay history.
+
+## Replay and Review
+
+In the frontend:
+
+1. Open `Replay`.
+2. Select a completed or in-progress run.
+3. Scrub through the replay timeline.
+4. Inspect step-by-step mission state and the events that occurred at each step.
+
+Replay data is sourced directly from the generated `run_replay.json` and `run_events.jsonl` artifacts.
+
+## Experiments and Benchmarks
+
+The core benchmark entrypoint still works:
 
 ```bash
 python benchmark.py
 ```
 
-Outputs include:
+You can also launch smaller experiment batches from the frontend or via `POST /api/experiments`.
 
-- `benchmark_results.csv`
-- `benchmark_summary.csv`
-- `benchmark_comparison.png`
-- `experiment_results.csv`
-- `experiment_summary.csv`
-- `plot_success_by_strategy_family.png`
-- `plot_time_by_strategy_comms.png`
-- `plot_overlap_by_strategy.png`
-- `plot_entropy_reduction_by_strategy.png`
-- `plot_confirmed_detection_time_by_strategy.png`
-- `plot_coordination_efficiency_vs_drone_count.png`
+Experiment outputs include:
 
-## Metrics Tracked
+- raw benchmark CSVs
+- grouped experiment CSVs
+- summary CSVs
+- comparison plots
 
-- `time_to_detection`
-- `area_covered_pct`
-- `probability_mass_covered`
-- `overlap_ratio`
-- `battery_used`
-- `successful_returns_to_base`
-- `forced_low_battery_returns`
-- `comms_failures`
-- `stale_information_events`
-- `path_efficiency`
-- `average_overlap_per_step`
-- `entropy_reduction_over_time`
-- `information_gain_per_step`
-- `belief_peak_accuracy`
-- `time_to_first_candidate_detection`
-- `time_to_confirmed_detection`
-- `false_alarm_count`
-- `reroute_count`
-- `coordination_efficiency`
-- `return_to_base_efficiency`
-- `mission_success`
+## Report Generation
+
+Mission reports can be generated from the frontend or via:
+
+```bash
+POST /api/runs/{run_id}/report
+```
+
+The current HTML report includes:
+
+- scenario metadata
+- strategy and run summary
+- metrics table
+- key event counts
+- artifact references
+- event timeline samples
 
 ## Tests
 
-Run the test suite from the repo root:
+Run the full suite from the repo root:
 
 ```bash
 pytest
 ```
 
-The current tests cover:
+Current coverage includes:
 
-- belief normalization after propagation and evidence updates
-- external map layer loading
-- information-gain and hierarchical-coordination smoke execution
-- low-battery return behavior
-- communication degradation effects
-- event logging and replay artifact creation
-- benchmark and grouped experiment outputs
-- A* validity on the layered map
+- belief normalization and Phase 4 simulation behavior
+- local API smoke tests
+- scenario save and load
+- mission run request flow
+- replay and event fetch flow
+- operator intervention handling
+- report generation
+- experiment artifact creation

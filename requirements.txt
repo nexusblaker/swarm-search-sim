@@ -3,6 +3,7 @@ scipy
 matplotlib
 pandas
 pyyaml
+jinja2
 streamlit
 pytest
 imageio

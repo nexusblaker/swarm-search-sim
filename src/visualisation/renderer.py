@@ -32,6 +32,7 @@ class SimulationRenderer:
         snapshot: dict[str, Any],
         output_path: str | Path | None = None,
         show: bool = False,
+        close_figure: bool = True,
     ) -> tuple[plt.Figure, plt.Axes]:
         """Render a single state snapshot and optionally save it."""
 
@@ -52,6 +53,8 @@ class SimulationRenderer:
         returning_drones = set(snapshot.get("returning_drones", []))
         base_position = tuple(snapshot.get("base_position", (0, 0)))
         global_objectives = dict(snapshot.get("global_objectives", {}))
+        priority_zones = list(snapshot.get("priority_zones", []))
+        exclusion_zones = list(snapshot.get("exclusion_zones", []))
 
         fig, ax = plt.subplots(figsize=(10, 7))
         ax.imshow(terrain_grid, cmap=SimulationRenderer.TERRAIN_CMAP, origin="upper")
@@ -143,6 +146,16 @@ class SimulationRenderer:
                 label="Objectives",
             )
 
+        for zone in priority_zones:
+            center = tuple(zone["center"])
+            radius = float(zone.get("radius", 1.0))
+            ax.add_patch(plt.Circle(center, radius=radius, fill=False, color="#80ed99", linewidth=1.8, alpha=0.75))
+
+        for zone in exclusion_zones:
+            center = tuple(zone["center"])
+            radius = float(zone.get("radius", 1.0))
+            ax.add_patch(plt.Circle(center, radius=radius, fill=False, color="#ef476f", linewidth=1.8, alpha=0.75))
+
         if len(target_trail) >= 2:
             target_x = [position[0] for position in target_trail]
             target_y = [position[1] for position in target_trail]
@@ -197,7 +210,7 @@ class SimulationRenderer:
 
         if show:
             plt.show()
-        else:
+        elif close_figure:
             plt.close(fig)
 
         return fig, ax
