@@ -20,6 +20,7 @@ class Drone:
     sensor_range: float
     fov: float
     visited_cells: set[Position] = field(default_factory=set)
+    path_history: list[Position] = field(default_factory=list)
     detections: list[dict[str, Any]] = field(default_factory=list)
     comms_online: bool = True
     initial_battery: float = field(init=False)
@@ -27,12 +28,14 @@ class Drone:
     def __post_init__(self) -> None:
         self.initial_battery = self.battery
         self.visited_cells.add(self.position)
+        self.path_history.append(self.position)
 
     def move_to(self, position: Position, movement_cost: float) -> None:
         """Move the drone and reduce its remaining battery budget."""
 
         self.position = position
         self.visited_cells.add(position)
+        self.path_history.append(position)
         self.battery = max(0.0, self.battery - movement_cost)
 
     def record_detection(
@@ -58,3 +61,9 @@ class Drone:
         """Return battery consumed since the start of the mission."""
 
         return self.initial_battery - self.battery
+
+    @property
+    def is_operational(self) -> bool:
+        """Return whether the drone can continue moving and scanning."""
+
+        return self.battery > 0.0

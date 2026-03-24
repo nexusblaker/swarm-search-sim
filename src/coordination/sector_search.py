@@ -19,13 +19,16 @@ class SectorSearchStrategy(BaseStrategy):
     def __init__(self, rng=None) -> None:
         super().__init__(rng=rng)
         self._sector_paths: dict[int, list[Position]] = {}
+        self._sector_bounds: dict[int, tuple[int, int]] = {}
 
     def reset(self, environment: GridEnvironment, drones: list[Drone]) -> None:
         self._sector_paths = {}
+        self._sector_bounds = {}
         sector_width = max(1, environment.width // max(len(drones), 1))
         for index, drone in enumerate(drones):
             start_x = index * sector_width
             end_x = environment.width if index == len(drones) - 1 else min(environment.width, start_x + sector_width)
+            self._sector_bounds[drone.id] = (start_x, end_x)
             path: list[Position] = []
             for y in range(environment.height):
                 x_values = range(start_x, end_x)
@@ -46,13 +49,45 @@ class SectorSearchStrategy(BaseStrategy):
     ) -> dict[int, Position]:
         moves: dict[int, Position] = {}
         for drone in drones:
+            if not drone.is_operational:
+                moves[drone.id] = drone.position
+                continue
+
             planned_path = self._sector_paths.get(drone.id, [])
-            target = next(
-                (cell for cell in planned_path if cell not in drone.visited_cells),
-                drone.position,
+            sector_cells = [
+                cell
+                for cell in planned_path
+                if cell not in drone.visited_cells
+            ]
+            target = sector_cells[0] if sector_cells else self._best_local_probability_cell(
+                drone=drone,
+                environment=environment,
+                probability_map=probability_map,
             )
             moves[drone.id] = self._step_towards(drone.position, target, environment)
         return moves
+
+    def _best_local_probability_cell(
+        self,
+        drone: Drone,
+        environment: GridEnvironment,
+        probability_map: ProbabilityMap,
+    ) -> Position:
+        start_x, end_x = self._sector_bounds.get(drone.id, (0, environment.width))
+        best_cell = drone.position
+        best_score = float("-inf")
+        for y in range(environment.height):
+            for x in range(start_x, end_x):
+                candidate = (x, y)
+                if environment.is_obstacle(candidate):
+                    continue
+                score = probability_map.value_at(candidate) - 0.01 * (
+                    abs(x - drone.position[0]) + abs(y - drone.position[1])
+                )
+                if score > best_score:
+                    best_score = score
+                    best_cell = candidate
+        return best_cell
 
     @staticmethod
     def _step_towards(current: Position, target: Position, environment: GridEnvironment) -> Position:

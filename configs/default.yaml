@@ -1,34 +1,49 @@
 scenario:
-  map_size: [40, 30]
-  weather: clear
+  map_size: [48, 36]
+  weather: windy
   num_drones: 4
-  last_known_position: [20, 15]
-  target_initial_position: [24, 17]
-  max_steps: 60
+  last_known_position: [24, 18]
+  max_steps: 80
   strategy: probability_greedy
   seed: 11
+  target_start_radius: 4
+  target_spread_sigma: 6.0
+  probability_diffusion: 0.08
+  negative_search_suppression: 0.18
   target_assumptions:
     mobility: medium
-    drift_sigma: 5.5
-    target_move_probability: 0.4
+    drift_sigma: 6.0
+    target_move_probability: 0.55
+    target_speed: 1
+    behavior: terrain_biased_random_walk
   drone:
-    battery: 125.0
+    battery: 150.0
     speed: 1
-    sensor_range: 5.0
+    sensor_range: 5.5
     fov: 120.0
   terrain:
-    obstacle_ratio: 0.05
+    obstacle_ratio: 0.08
     distribution:
-      plain: 0.45
-      forest: 0.2
-      hill: 0.15
-      urban: 0.15
-      water: 0.05
+      plain: 0.40
+      forest: 0.24
+      hill: 0.16
+      urban: 0.14
+      water: 0.06
   sensor:
     false_positive_rate: 0.02
-    false_negative_rate: 0.08
+    false_negative_rate: 0.10
     weather_modifiers:
       clear: 1.0
-      windy: 0.9
-      rain: 0.75
+      windy: 0.88
+      rain: 0.72
       storm: 0.55
+  render:
+    save_frames: true
+    frame_stride: 2
+  benchmark:
+    num_seeds: 30
+    output_dir: outputs
+    strategies:
+      - random_sweep
+      - sector_search
+      - probability_greedy

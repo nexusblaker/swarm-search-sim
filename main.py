@@ -1,4 +1,4 @@
-"""Entrypoint for the Swarm Coordination Simulator Phase 1 demo."""
+"""Entrypoint for the Swarm Coordination Simulator Phase 2 demo."""
 
 from __future__ import annotations
 
@@ -17,11 +17,20 @@ def main() -> None:
     engine = SimulationEngine(config)
     metrics = engine.run()
 
-    output_path = Path("outputs") / "final_state.png"
+    output_dir = Path(config.benchmark_output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "final_state.png"
     snapshot = engine.get_state_snapshot()
     SimulationRenderer.render_static(snapshot, output_path=output_path, show=False)
+    if config.save_frames:
+        SimulationRenderer.render_frames(
+            engine.history,
+            output_dir=output_dir / "frames",
+            step_stride=config.frame_stride,
+        )
 
     print("Swarm Coordination Simulator for Search Coverage Optimization")
+    print("Phase: 2 simulation core")
     print(f"Strategy: {config.strategy}")
     print(f"Weather: {config.weather}")
     print(f"Rendered final state to: {output_path.resolve()}")

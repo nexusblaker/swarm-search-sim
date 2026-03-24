@@ -22,6 +22,7 @@ class ScanResult:
     probability: float
     confidence: float
     false_positive: bool
+    true_positive: bool
     scanned_cells: set[Position]
 
 
@@ -57,7 +58,7 @@ class ThermalSensorModel:
         if distance > sensor_range:
             return 0.0
 
-        distance_factor = max(0.0, 1.0 - distance / max(sensor_range, 1e-6))
+        distance_factor = 0.15 + 0.85 * max(0.0, 1.0 - distance / max(sensor_range, 1e-6))
         weather_factor = self.weather_modifiers.get(weather, 0.85)
         probability = distance_factor * terrain_modifier * weather_factor
         probability *= 1.0 - self.false_negative_rate
@@ -82,19 +83,25 @@ class ThermalSensorModel:
             sensor_range=drone.sensor_range,
         )
         scanned_cells = self._visible_cells(drone, environment)
-        true_detection = rng.random() < probability
+        target_visible = target_position in scanned_cells
+        true_detection = target_visible and rng.random() < probability
         false_positive = False
 
-        if not true_detection and rng.random() < self.false_positive_rate:
+        false_positive_rate = self.false_positive_rate / max(
+            self.weather_modifiers.get(weather, 0.85),
+            0.25,
+        )
+        if not true_detection and rng.random() < false_positive_rate:
             true_detection = True
             false_positive = True
 
-        confidence = probability if not false_positive else self.false_positive_rate
+        confidence = probability if not false_positive else false_positive_rate
         return ScanResult(
             detected=true_detection,
             probability=probability,
             confidence=float(confidence),
             false_positive=false_positive,
+            true_positive=bool(true_detection and not false_positive and target_visible),
             scanned_cells=scanned_cells,
         )
 

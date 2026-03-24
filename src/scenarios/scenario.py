@@ -36,10 +36,26 @@ class ScenarioConfig:
         }
     )
     target_initial_position: Position | None = None
+    target_start_radius: int = 3
     target_spread_sigma: float = 5.0
     target_move_probability: float = 0.35
+    target_speed: int = 1
+    target_behavior: str = "terrain_biased_random_walk"
+    probability_diffusion: float = 0.08
+    negative_search_suppression: float = 0.2
     false_positive_rate: float = 0.02
     false_negative_rate: float = 0.08
+    save_frames: bool = True
+    frame_stride: int = 3
+    benchmark_num_seeds: int = 30
+    benchmark_strategies: list[str] = field(
+        default_factory=lambda: [
+            "random_sweep",
+            "sector_search",
+            "probability_greedy",
+        ]
+    )
+    benchmark_output_dir: str = "outputs"
     weather_modifiers: dict[str, float] = field(
         default_factory=lambda: {
             "clear": 1.0,
@@ -56,7 +72,9 @@ class ScenarioConfig:
         scenario_data = data.get("scenario", data)
         drone_data = scenario_data.get("drone", {})
         terrain_data = scenario_data.get("terrain", {})
+        render_data = scenario_data.get("render", {})
         sensor_data = scenario_data.get("sensor", {})
+        benchmark_data = scenario_data.get("benchmark", {})
 
         target_assumptions = dict(scenario_data.get("target_assumptions", {}))
         target_move_probability = float(
@@ -97,6 +115,7 @@ class ScenarioConfig:
                 if scenario_data.get("target_initial_position") is not None
                 else None
             ),
+            target_start_radius=int(scenario_data.get("target_start_radius", 3)),
             target_spread_sigma=float(
                 target_assumptions.get(
                     "drift_sigma",
@@ -104,8 +123,34 @@ class ScenarioConfig:
                 )
             ),
             target_move_probability=target_move_probability,
+            target_speed=int(
+                target_assumptions.get(
+                    "target_speed",
+                    scenario_data.get("target_speed", 1),
+                )
+            ),
+            target_behavior=str(
+                target_assumptions.get(
+                    "behavior",
+                    scenario_data.get("target_behavior", "terrain_biased_random_walk"),
+                )
+            ),
+            probability_diffusion=float(scenario_data.get("probability_diffusion", 0.08)),
+            negative_search_suppression=float(
+                scenario_data.get("negative_search_suppression", 0.2)
+            ),
             false_positive_rate=float(sensor_data.get("false_positive_rate", 0.02)),
             false_negative_rate=float(sensor_data.get("false_negative_rate", 0.08)),
+            save_frames=bool(render_data.get("save_frames", True)),
+            frame_stride=int(render_data.get("frame_stride", 3)),
+            benchmark_num_seeds=int(benchmark_data.get("num_seeds", 30)),
+            benchmark_strategies=list(
+                benchmark_data.get(
+                    "strategies",
+                    ["random_sweep", "sector_search", "probability_greedy"],
+                )
+            ),
+            benchmark_output_dir=str(benchmark_data.get("output_dir", "outputs")),
             weather_modifiers=dict(
                 sensor_data.get(
                     "weather_modifiers",

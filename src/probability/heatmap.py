@@ -58,6 +58,42 @@ class ProbabilityMap:
         self.values *= terrain_weight
         self.normalize()
 
+    def diffuse(self, environment: GridEnvironment, diffusion_rate: float = 0.08) -> None:
+        """Diffuse probability mass over traversable neighboring cells."""
+
+        if diffusion_rate <= 0.0:
+            return
+
+        next_values = np.zeros_like(self.values)
+        for position in environment.iter_traversable_cells():
+            x, y = position
+            neighbors = environment.get_neighbors(position, diagonal=True)
+            retained_mass = self.values[y, x] * (1.0 - diffusion_rate)
+            next_values[y, x] += retained_mass
+
+            transferred_mass = self.values[y, x] * diffusion_rate
+            if not neighbors:
+                next_values[y, x] += transferred_mass
+                continue
+
+            weights = np.array(
+                [
+                    (1.0 / environment.get_movement_cost(neighbor))
+                    * (1.2 - environment.get_detection_modifier(neighbor))
+                    for neighbor in neighbors
+                ],
+                dtype=float,
+            )
+            weights = np.clip(weights, 1e-3, None)
+            weights /= weights.sum()
+            for neighbor, weight in zip(neighbors, weights):
+                nx, ny = neighbor
+                next_values[ny, nx] += transferred_mass * weight
+
+        next_values[environment.obstacle_mask] = 0.0
+        self.values = next_values
+        self.normalize()
+
     def update_after_negative_search(
         self,
         searched_cells: Iterable[Position],
@@ -68,6 +104,7 @@ class ProbabilityMap:
         for x, y in searched_cells:
             if 0 <= y < self.values.shape[0] and 0 <= x < self.values.shape[1]:
                 self.values[y, x] *= suppression
+        self.values = np.clip(self.values, 0.0, None)
         self.normalize()
 
     def value_at(self, position: Position) -> float:
