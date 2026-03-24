@@ -1,4 +1,4 @@
-"""Entrypoint for the Swarm Coordination Simulator Phase 2 demo."""
+"""Entrypoint for the Swarm Coordination Simulator Phase 4 demo."""
 
 from __future__ import annotations
 
@@ -28,14 +28,17 @@ def main() -> None:
             output_dir=output_dir / "frames",
             step_stride=config.frame_stride,
         )
+    artifacts = engine.save_run_artifacts(output_dir)
 
     print("Swarm Coordination Simulator for Search Coverage Optimization")
-    print("Phase: 3 research-grade coordination core")
+    print("Phase: 4 belief-driven autonomy core")
     print(f"Strategy: {config.strategy}")
     print(f"Scenario family: {config.scenario_family}")
     print(f"Coordination mode: {config.coordination_mode}")
     print(f"Weather: {config.weather}")
     print(f"Rendered final state to: {output_path.resolve()}")
+    print(f"Event log: {artifacts['events'].resolve()}")
+    print(f"Replay log: {artifacts['replay'].resolve()}")
     for metric_name, metric_value in asdict(metrics).items():
         print(f"{metric_name}: {metric_value}")
 

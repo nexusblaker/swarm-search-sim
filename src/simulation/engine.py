@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -19,10 +20,12 @@ from src.coordination import (
     SectorSearchStrategy,
 )
 from src.environment.grid import GridEnvironment, TerrainType
+from src.probability.belief import BeliefState
 from src.probability.heatmap import ProbabilityMap
 from src.scenarios.scenario import ScenarioConfig
 from src.sensors.thermal import ThermalSensorModel
 from src.simulation.planning import astar_path, path_cost
+from src.utils.event_logger import EventLogger
 
 
 Position = tuple[int, int]
@@ -98,7 +101,8 @@ class TargetState:
         elif self.behavior == "terrain_biased":
             weight = movement_weight * concealment_weight
         elif self.behavior == "trail_biased":
-            weight = movement_weight * (1.4 if terrain in (TerrainType.PLAIN, TerrainType.URBAN) else 0.7)
+            trail_bonus = 1.6 if environment.has_trail(candidate) else 1.0
+            weight = movement_weight * trail_bonus * (1.3 if terrain in (TerrainType.PLAIN, TerrainType.URBAN) else 0.7)
         elif self.behavior == "injured_slow":
             weight = movement_weight * 1.1
         else:
@@ -121,6 +125,7 @@ class SimulationEngine:
         self.strategy: BaseStrategy | None = None
         self.target: TargetState | None = None
         self.metrics = SimulationMetrics()
+        self.logger = EventLogger()
         self.current_step = 0
         self.done = False
         self.message_queue: list[CommunicationMessage] = []
@@ -145,20 +150,34 @@ class SimulationEngine:
         self.step_overlap_history: list[float] = []
         self.total_path_cost = 0.0
         self.total_direct_cost = 0.0
+        self.initial_entropy = 0.0
+        self.entropy_history: list[float] = []
+        self.information_gain_history: list[float] = []
+        self.candidate_scores: Counter[Position] = Counter()
+        self.first_candidate_step: int | None = None
+        self.confirmed_detection_step: int | None = None
+        self.false_alarm_count = 0
+        self.reroute_count = 0
+        self.global_objectives: dict[int, Position] = {}
+        self.last_objectives: dict[int, Position] = {}
         self.history: list[dict[str, Any]] = []
         self.reset()
 
     def reset(self) -> None:
         width, height = self.config.map_size
         self.rng = np.random.default_rng(self.config.seed)
-        self.environment = GridEnvironment.generate(
-            width=width,
-            height=height,
-            rng=self.rng,
-            obstacle_ratio=self.config.obstacle_ratio,
-            terrain_distribution=self.config.terrain_distribution,
+        self.environment = (
+            GridEnvironment.load_layers(self.config.layer_paths)
+            if self.config.use_external_layers and self.config.layer_paths
+            else GridEnvironment.generate(
+                width=width,
+                height=height,
+                rng=self.rng,
+                obstacle_ratio=self.config.obstacle_ratio,
+                terrain_distribution=self.config.terrain_distribution,
+            )
         )
-        self.probability_map = ProbabilityMap(
+        self.probability_map = BeliefState(
             grid_shape=self.environment.shape,
             last_known_position=self._resolve_open_cell(self.config.last_known_position),
             sigma=self.config.target_spread_sigma,
@@ -168,6 +187,10 @@ class SimulationEngine:
         self.sensor_model = ThermalSensorModel(
             false_positive_rate=self.config.false_positive_rate,
             false_negative_rate=self.config.false_negative_rate,
+            visual_range_factor=self.config.visual_range_factor,
+            visual_false_positive_rate=self.config.visual_false_positive_rate,
+            visual_false_negative_rate=self.config.visual_false_negative_rate,
+            sensor_mode=self.config.sensor_mode,
             weather_modifiers=self.config.weather_modifiers,
         )
         self.drones = self._build_drones()
@@ -198,6 +221,17 @@ class SimulationEngine:
         self.step_overlap_history = []
         self.total_path_cost = 0.0
         self.total_direct_cost = 0.0
+        self.initial_entropy = self.probability_map.total_entropy()
+        self.entropy_history = [self.initial_entropy]
+        self.information_gain_history = []
+        self.candidate_scores = Counter()
+        self.first_candidate_step = None
+        self.confirmed_detection_step = None
+        self.false_alarm_count = 0
+        self.reroute_count = 0
+        self.global_objectives = {}
+        self.last_objectives = {}
+        self.logger = EventLogger()
         self.history = []
         self._update_metrics()
         self._record_history()
@@ -216,16 +250,23 @@ class SimulationEngine:
         self.last_detection_event = None
         self.last_searched_cells = set()
         self.last_scan_footprints = {}
+        pre_entropy = self.probability_map.total_entropy()
 
         self._deliver_pending_messages()
         self._refresh_communication_links()
-        self._diffuse_beliefs()
+        self._propagate_beliefs()
         self.target.advance(self.environment, self.rng)
 
         for drone in self.drones:
             if self.current_step - drone.last_successful_sync_step > self.config.communication_latency:
                 drone.stale_steps += 1
                 self.stale_information_events += 1
+                self.logger.record(
+                    "stale_info_use",
+                    self.current_step,
+                    drone_id=drone.id,
+                    stale_steps=drone.stale_steps,
+                )
             else:
                 drone.stale_steps = 0
 
@@ -235,7 +276,8 @@ class SimulationEngine:
             probability_map=self.probability_map,
             step_index=self.current_step,
         )
-        resolved_goals = self._apply_battery_policy(proposed_goals)
+        self.global_objectives = self._derive_global_objectives(proposed_goals)
+        resolved_goals = self._apply_battery_policy(self.global_objectives)
         self._plan_and_execute_routes(resolved_goals)
 
         step_scanned_events = 0
@@ -253,11 +295,20 @@ class SimulationEngine:
             drone.searched_cells.update(scan_result.scanned_cells)
             drone.local_known_searched.update(scan_result.scanned_cells)
             self.drone_search_counts[drone.id].update(scan_result.scanned_cells)
-            drone.local_probability_map = ProbabilityMap.suppress_values(
+            drone.local_probability_map = BeliefState.update_values(
                 drone.local_probability_map,
-                scan_result.scanned_cells,
-                self.config.negative_search_suppression,
-                dict(self.drone_search_counts[drone.id]),
+                scanned_cells=scan_result.scanned_cells,
+                positive_cells=scan_result.candidate_scores,
+                suppression=self.config.negative_search_suppression,
+                positive_gain=self.config.belief_positive_gain,
+                search_counts=dict(self.drone_search_counts[drone.id]),
+            )
+            self.probability_map.update_from_observations(
+                scanned_cells=scan_result.scanned_cells,
+                positive_cells=scan_result.candidate_scores if drone.comms_online else None,
+                suppression=self.config.negative_search_suppression,
+                positive_gain=self.config.belief_positive_gain,
+                search_counts=dict(self.shared_search_counts),
             )
 
             self.last_scan_footprints[drone.id] = set(scan_result.scanned_cells)
@@ -266,6 +317,29 @@ class SimulationEngine:
             step_scanned_unique.update(scan_result.scanned_cells)
             step_scanned_events += len(scan_result.scanned_cells)
             self.cumulative_scanned_events += len(scan_result.scanned_cells)
+            self.logger.record(
+                "scan_event",
+                self.current_step,
+                drone_id=drone.id,
+                scanned_cell_count=len(scan_result.scanned_cells),
+                candidate_scores=scan_result.candidate_scores,
+            )
+
+            if scan_result.candidate_scores:
+                if self.first_candidate_step is None:
+                    self.first_candidate_step = self.current_step
+                for candidate_position, score in scan_result.candidate_scores.items():
+                    self.candidate_scores[candidate_position] += score
+                    self.logger.record(
+                        "detection_candidate",
+                        self.current_step,
+                        drone_id=drone.id,
+                        position=candidate_position,
+                        score=score,
+                        channels=scan_result.channel_scores,
+                    )
+                if scan_result.false_positive:
+                    self.false_alarm_count += 1
 
             if scan_result.detected:
                 drone.record_detection(
@@ -274,22 +348,37 @@ class SimulationEngine:
                     confidence=scan_result.confidence,
                     is_true_positive=scan_result.true_positive,
                 )
-                if scan_result.true_positive and self.last_detection_event is None:
+                if (
+                    scan_result.true_positive
+                    and self.candidate_scores[self.target.position]
+                    >= self.config.candidate_confirmation_threshold
+                    and self.last_detection_event is None
+                ):
                     self.target.detected = True
                     self.metrics.time_to_detection = self.current_step
                     self.metrics.mission_success = True
+                    self.confirmed_detection_step = self.current_step
                     self.last_detection_event = {
                         "step": self.current_step,
                         "drone_id": drone.id,
                         "position": self.target.position,
                         "confidence": scan_result.confidence,
                     }
+                    self.logger.record(
+                        "confirmed_detection",
+                        self.current_step,
+                        drone_id=drone.id,
+                        position=self.target.position,
+                        confidence=scan_result.confidence,
+                    )
                     self.done = True
 
         if step_scanned_events > 0:
             self.step_overlap_history.append(
                 max(0.0, (step_scanned_events - len(step_scanned_unique)) / step_scanned_events)
             )
+        self.information_gain_history.append(max(0.0, pre_entropy - self.probability_map.total_entropy()))
+        self.entropy_history.append(self.probability_map.total_entropy())
 
         self._enqueue_communications()
 
@@ -321,6 +410,7 @@ class SimulationEngine:
             "obstacle_mask": self.environment.obstacle_mask.copy(),
             "probability_map": self.probability_map.values.copy(),
             "shared_searched_cells": set(self.shared_searched_cells),
+            "entropy_map": self.probability_map.entropy_map().copy(),
             "target_position": self.target.position,
             "target_trail": list(self.target.path_history),
             "target_detected": self.target.detected,
@@ -330,6 +420,7 @@ class SimulationEngine:
             "scan_footprints": {drone_id: set(cells) for drone_id, cells in self.last_scan_footprints.items()},
             "communication_links": list(self.communication_links),
             "reserved_paths": {drone_id: list(path) for drone_id, path in self.reserved_paths.items()},
+            "global_objectives": dict(self.global_objectives),
             "returning_drones": [drone.id for drone in self.drones if drone.returning_to_base],
             "detection_event": dict(self.last_detection_event) if self.last_detection_event else None,
             "drones": [
@@ -416,17 +507,60 @@ class SimulationEngine:
         }
         return strategy_registry.get(strategy_name.lower(), ProbabilityGreedyStrategy)(rng=self.rng)
 
-    def _diffuse_beliefs(self) -> None:
+    def _propagate_beliefs(self) -> None:
         assert self.environment is not None
         assert self.probability_map is not None
 
-        self.probability_map.diffuse(self.environment, diffusion_rate=self.config.probability_diffusion)
+        self.probability_map.propagate(
+            self.environment,
+            target_behavior=self.config.target_behavior,
+            motion_strength=self.config.belief_motion_strength,
+        )
         for drone in self.drones:
-            drone.local_probability_map = ProbabilityMap.diffuse_values(
+            drone.local_probability_map = BeliefState.propagate_values(
                 drone.local_probability_map,
                 self.environment,
-                self.config.probability_diffusion,
+                target_behavior=self.config.target_behavior,
+                motion_strength=self.config.belief_motion_strength,
             )
+
+    def _derive_global_objectives(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
+        """Derive high-value global objectives for hierarchical coordination."""
+
+        if not self.config.hierarchical_planning_enabled:
+            return dict(proposed_goals)
+
+        objective_candidates = BaseStrategy.top_candidate_cells(
+            self.environment,
+            self.probability_map,
+            limit=self.config.hierarchical_objective_count,
+        )
+        for proposed_goal in proposed_goals.values():
+            if proposed_goal not in objective_candidates:
+                objective_candidates.append(proposed_goal)
+        assignments: dict[int, Position] = {}
+        claimed: set[Position] = set()
+        for drone in self.drones:
+            proposed_goal = proposed_goals.get(drone.id, drone.position)
+            best_objective = proposed_goal
+            best_score = float("-inf")
+            for candidate in objective_candidates:
+                if candidate in claimed:
+                    continue
+                route_cost = path_cost(
+                    self.environment,
+                    astar_path(self.environment, drone.position, candidate),
+                )
+                belief = self.probability_map.value_at(candidate)
+                alignment_bonus = 5.0 if candidate == proposed_goal else -0.18 * self._distance(candidate, proposed_goal)
+                overlap_penalty = 1.4 if candidate in claimed else 0.0
+                score = 20.0 * belief - 0.18 * route_cost + alignment_bonus - overlap_penalty
+                if score > best_score:
+                    best_score = score
+                    best_objective = candidate
+            claimed.add(best_objective)
+            assignments[drone.id] = best_objective
+        return assignments
 
     def _apply_battery_policy(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
         assert self.environment is not None
@@ -441,6 +575,13 @@ class SimulationEngine:
                     drone.forced_return_triggered = True
                     drone.returning_to_base = True
                     self.forced_return_events += 1
+                    self.logger.record(
+                        "low_battery_return",
+                        self.current_step,
+                        drone_id=drone.id,
+                        battery=drone.battery,
+                        cost_home=cost_home,
+                    )
                 resolved_goal = drone.base_position
             else:
                 resolved_goal = proposed_goal
@@ -456,15 +597,32 @@ class SimulationEngine:
         ordered_drones = sorted(self.drones, key=lambda drone: (not drone.returning_to_base, drone.id))
         for drone in ordered_drones:
             goal = goals.get(drone.id, drone.position)
+            previous_goal = self.last_objectives.get(drone.id)
+            if previous_goal is not None and previous_goal != goal:
+                self.reroute_count += 1
+                self.logger.record(
+                    "task_reassignment",
+                    self.current_step,
+                    drone_id=drone.id,
+                    previous_goal=previous_goal,
+                    new_goal=goal,
+                )
             path = astar_path(self.environment, drone.position, goal, blocked=set(reserved_cells))
             if len(path) == 1 and goal != drone.position and reserved_cells:
                 path = astar_path(self.environment, drone.position, goal)
+                self.logger.record(
+                    "reroute",
+                    self.current_step,
+                    drone_id=drone.id,
+                    goal=goal,
+                )
             drone.planned_path = path
             drone.reserved_goal = goal
             self.reserved_paths[drone.id] = path[: min(len(path), 6)]
             reserved_cells.update(path[1 : min(len(path), 4)])
             self.total_direct_cost += self.environment.estimate_cost(drone.position, goal)
             self.total_path_cost += path_cost(self.environment, path)
+            self.last_objectives[drone.id] = goal
 
         for drone in ordered_drones:
             self._move_drone_along_path(drone)
@@ -483,6 +641,7 @@ class SimulationEngine:
             if steps_taken >= max(drone.speed, 1) or self.environment.is_obstacle(next_position):
                 break
             movement_cost = self.environment.get_movement_cost(next_position)
+            movement_cost += 0.2 * self.environment.get_wind_factor(next_position)
             if drone.battery < movement_cost:
                 break
             drone.move_to(next_position, movement_cost)
@@ -492,6 +651,7 @@ class SimulationEngine:
         if drone.returning_to_base and drone.position == drone.base_position and not drone.return_completed:
             drone.return_completed = True
             self.successful_return_events += 1
+            self.logger.record("return_to_base", self.current_step, drone_id=drone.id)
 
     def _refresh_communication_links(self) -> None:
         self.communication_links = []
@@ -515,9 +675,11 @@ class SimulationEngine:
             for drone in self.drones:
                 if self._distance(drone.position, drone.base_position) > self.config.communication_radius:
                     self.comms_failures += 1
+                    self.logger.record("comms_failure", self.current_step, drone_id=drone.id, mode="out_of_range")
                     continue
                 if self.rng.random() < self.config.packet_loss_probability:
                     self.comms_failures += 1
+                    self.logger.record("comms_failure", self.current_step, drone_id=drone.id, mode="packet_loss")
                     continue
                 self.message_queue.append(
                     CommunicationMessage(
@@ -532,10 +694,12 @@ class SimulationEngine:
                 for drone_b in self.drones[index + 1 :]:
                     if self._distance(drone_a.position, drone_b.position) > self.config.communication_radius:
                         self.comms_failures += 2
+                        self.logger.record("comms_failure", self.current_step, drone_a=drone_a.id, drone_b=drone_b.id, mode="out_of_range")
                         continue
                     for sender, recipient in ((drone_a, drone_b), (drone_b, drone_a)):
                         if self.rng.random() < self.config.packet_loss_probability:
                             self.comms_failures += 1
+                            self.logger.record("comms_failure", self.current_step, drone_id=sender.id, recipient_id=recipient.id, mode="packet_loss")
                             continue
                         payload = self._build_drone_payload(sender)
                         payload["sender_id"] = sender.id
@@ -658,6 +822,35 @@ class SimulationEngine:
         self.metrics.path_efficiency = self.total_direct_cost / self.total_path_cost if self.total_path_cost > 0 else 1.0
         self.metrics.average_overlap_per_step = float(np.mean(self.step_overlap_history)) if self.step_overlap_history else 0.0
         self.metrics.detection_under_comms_mode = self.config.coordination_mode
+        current_entropy = self.probability_map.total_entropy()
+        self.metrics.entropy_reduction_over_time = max(0.0, self.initial_entropy - current_entropy)
+        self.metrics.information_gain_per_step = (
+            float(np.mean(self.information_gain_history)) if self.information_gain_history else 0.0
+        )
+        self.metrics.belief_peak_accuracy = self.probability_map.value_at(self.target.position)
+        self.metrics.time_to_first_candidate_detection = self.first_candidate_step
+        self.metrics.time_to_confirmed_detection = self.confirmed_detection_step
+        self.metrics.false_alarm_count = self.false_alarm_count
+        self.metrics.reroute_count = self.reroute_count
+        self.metrics.coordination_efficiency = max(
+            0.0,
+            self.metrics.area_covered_pct / 100.0
+            - self.metrics.overlap_ratio * 0.5
+            - min(self.metrics.comms_failures / max(self.current_step + 1, 1), 1.0) * 0.1,
+        )
+        self.metrics.return_to_base_efficiency = (
+            self.successful_return_events / self.forced_return_events
+            if self.forced_return_events > 0
+            else 1.0
+        )
 
     def _record_history(self) -> None:
         self.history.append(self.get_state_snapshot())
+
+    def save_run_artifacts(self, output_dir: str | Path) -> dict[str, Path]:
+        """Persist event logs and replay history for a completed run."""
+
+        output_path = Path(output_dir)
+        events_path = self.logger.save_jsonl(output_path / "run_events.jsonl")
+        replay_path = self.logger.save_replay(self.history, output_path / "run_replay.json")
+        return {"events": events_path, "replay": replay_path}

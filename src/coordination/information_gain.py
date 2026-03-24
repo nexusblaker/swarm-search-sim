@@ -45,9 +45,18 @@ class InformationGainStrategy(BaseStrategy):
                 route_cost = self.route_cost(environment, drone.position, candidate)
                 belief = self.belief_value(drone, probability_map, candidate)
                 local_entropy = self._local_entropy(probability_map.values, candidate)
+                footprint = self._candidate_footprint(environment, candidate)
+                expected_gain = self._expected_information_gain(
+                    probability_map,
+                    environment,
+                    footprint,
+                    fallback=local_entropy,
+                )
                 overlap_penalty = self.overlap_penalty(drone, candidate)
                 reservation_penalty = 1.6 if drone.comms_online and candidate in reserved_cells else 0.0
-                score = 18.0 * belief + 12.0 * local_entropy - 0.16 * route_cost
+                battery_factor = max(drone.battery / max(drone.initial_battery, 1.0), 0.1)
+                score = 10.0 * belief + 15.0 * expected_gain + 6.0 * local_entropy
+                score = battery_factor * score - 0.16 * route_cost
                 score -= overlap_penalty + reservation_penalty
                 if score > best_score:
                     best_score = score
@@ -71,3 +80,31 @@ class InformationGainStrategy(BaseStrategy):
         if flattened.size == 0:
             return 0.0
         return float(-(flattened * np.log(flattened)).sum())
+
+    @staticmethod
+    def _candidate_footprint(
+        environment: GridEnvironment,
+        position: Position,
+        radius: int = 2,
+    ) -> set[Position]:
+        x0, y0 = position
+        cells: set[Position] = set()
+        for y in range(max(0, y0 - radius), min(environment.height, y0 + radius + 1)):
+            for x in range(max(0, x0 - radius), min(environment.width, x0 + radius + 1)):
+                candidate = (x, y)
+                if environment.is_obstacle(candidate):
+                    continue
+                if (x - x0) ** 2 + (y - y0) ** 2 <= radius**2:
+                    cells.add(candidate)
+        return cells
+
+    @staticmethod
+    def _expected_information_gain(
+        probability_map: ProbabilityMap,
+        environment: GridEnvironment,
+        footprint: set[Position],
+        fallback: float,
+    ) -> float:
+        if hasattr(probability_map, "expected_information_gain"):
+            return float(probability_map.expected_information_gain(environment, footprint))
+        return fallback

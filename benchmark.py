@@ -63,6 +63,8 @@ def run_grouped_experiments(
     target_behaviors: list[str] | None = None,
     coordination_modes: list[str] | None = None,
     drone_counts: list[int] | None = None,
+    battery_budgets: list[float] | None = None,
+    sensor_modes: list[str] | None = None,
 ) -> pd.DataFrame:
     """Run grouped robustness experiments across scenario and policy dimensions."""
 
@@ -76,6 +78,8 @@ def run_grouped_experiments(
     experiment_behaviors = target_behaviors or config.benchmark_target_behaviors
     experiment_modes = coordination_modes or config.benchmark_coordination_modes
     experiment_drone_counts = drone_counts or config.benchmark_drone_counts
+    experiment_battery_budgets = battery_budgets or config.benchmark_battery_budgets
+    experiment_sensor_modes = sensor_modes or config.benchmark_sensor_modes
 
     records: list[dict[str, object]] = []
     for family in experiment_families:
@@ -83,27 +87,33 @@ def run_grouped_experiments(
         for behavior in experiment_behaviors:
             for coordination_mode in experiment_modes:
                 for drone_count in experiment_drone_counts:
-                    for strategy in experiment_strategies:
-                        for seed in range(experiment_seeds):
-                            run_config = replace(
-                                family_config,
-                                strategy=strategy,
-                                seed=seed,
-                                target_behavior=behavior,
-                                coordination_mode=coordination_mode,
-                                num_drones=drone_count,
-                            )
-                            engine = SimulationEngine(run_config)
-                            metrics = engine.run()
-                            record = asdict(metrics)
-                            record["strategy"] = strategy
-                            record["seed"] = seed
-                            record["scenario_family"] = family
-                            record["target_behavior"] = behavior
-                            record["coordination_mode"] = coordination_mode
-                            record["drone_count"] = drone_count
-                            record["steps_completed"] = engine.current_step
-                            records.append(record)
+                    for battery_budget in experiment_battery_budgets:
+                        for sensor_mode in experiment_sensor_modes:
+                            for strategy in experiment_strategies:
+                                for seed in range(experiment_seeds):
+                                    run_config = replace(
+                                        family_config,
+                                        strategy=strategy,
+                                        seed=seed,
+                                        target_behavior=behavior,
+                                        coordination_mode=coordination_mode,
+                                        num_drones=drone_count,
+                                        drone_battery=battery_budget,
+                                        sensor_mode=sensor_mode,
+                                    )
+                                    engine = SimulationEngine(run_config)
+                                    metrics = engine.run()
+                                    record = asdict(metrics)
+                                    record["strategy"] = strategy
+                                    record["seed"] = seed
+                                    record["scenario_family"] = family
+                                    record["target_behavior"] = behavior
+                                    record["coordination_mode"] = coordination_mode
+                                    record["drone_count"] = drone_count
+                                    record["battery_budget"] = battery_budget
+                                    record["sensor_mode"] = sensor_mode
+                                    record["steps_completed"] = engine.current_step
+                                    records.append(record)
 
     results = pd.DataFrame.from_records(records)
     results.to_csv(experiment_output_dir / "experiment_results.csv", index=False)
@@ -113,6 +123,9 @@ def run_grouped_experiments(
     _plot_success_by_family(results, experiment_output_dir / "plot_success_by_strategy_family.png")
     _plot_time_by_comms(results, experiment_output_dir / "plot_time_by_strategy_comms.png")
     _plot_overlap_by_strategy(results, experiment_output_dir / "plot_overlap_by_strategy.png")
+    _plot_entropy_reduction(results, experiment_output_dir / "plot_entropy_reduction_by_strategy.png")
+    _plot_confirmed_detection_time(results, experiment_output_dir / "plot_confirmed_detection_time_by_strategy.png")
+    _plot_coordination_efficiency(results, experiment_output_dir / "plot_coordination_efficiency_vs_drone_count.png")
     return results
 
 
@@ -137,7 +150,15 @@ def _summarize_grouped_experiments(results: pd.DataFrame) -> pd.DataFrame:
     grouped["effective_time_to_detection"] = grouped["time_to_detection"].fillna(grouped["steps_completed"])
     return (
         grouped.groupby(
-            ["strategy", "scenario_family", "coordination_mode", "target_behavior", "drone_count"],
+            [
+                "strategy",
+                "scenario_family",
+                "coordination_mode",
+                "target_behavior",
+                "drone_count",
+                "battery_budget",
+                "sensor_mode",
+            ],
             as_index=False,
         )
         .agg(
@@ -148,6 +169,9 @@ def _summarize_grouped_experiments(results: pd.DataFrame) -> pd.DataFrame:
             mean_overlap_ratio=("overlap_ratio", "mean"),
             std_overlap_ratio=("overlap_ratio", "std"),
             mean_path_efficiency=("path_efficiency", "mean"),
+            mean_entropy_reduction=("entropy_reduction_over_time", "mean"),
+            mean_confirmed_detection_time=("time_to_confirmed_detection", "mean"),
+            mean_coordination_efficiency=("coordination_efficiency", "mean"),
         )
     )
 
@@ -221,6 +245,63 @@ def _plot_overlap_by_strategy(results: pd.DataFrame, output_path: Path) -> None:
     plt.close(fig)
 
 
+def _plot_entropy_reduction(results: pd.DataFrame, output_path: Path) -> None:
+    grouped = results.groupby("strategy", as_index=False).agg(
+        mean_entropy=("entropy_reduction_over_time", "mean"),
+        std_entropy=("entropy_reduction_over_time", "std"),
+    )
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.bar(grouped["strategy"], grouped["mean_entropy"], yerr=grouped["std_entropy"], capsize=4, color="#8338ec")
+    ax.set_ylabel("Entropy reduction")
+    ax.set_title("Entropy Reduction by Strategy")
+    ax.tick_params(axis="x", rotation=20)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=160)
+    plt.close(fig)
+
+
+def _plot_confirmed_detection_time(results: pd.DataFrame, output_path: Path) -> None:
+    time_results = results.copy()
+    time_results["confirmed_detection_time"] = time_results["time_to_confirmed_detection"].fillna(time_results["steps_completed"])
+    grouped = time_results.groupby("strategy", as_index=False).agg(
+        mean_time=("confirmed_detection_time", "mean"),
+        std_time=("confirmed_detection_time", "std"),
+    )
+    fig, ax = plt.subplots(figsize=(9, 5))
+    ax.bar(grouped["strategy"], grouped["mean_time"], yerr=grouped["std_time"], capsize=4, color="#fb5607")
+    ax.set_ylabel("Steps")
+    ax.set_title("Confirmed Detection Time by Strategy")
+    ax.tick_params(axis="x", rotation=20)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=160)
+    plt.close(fig)
+
+
+def _plot_coordination_efficiency(results: pd.DataFrame, output_path: Path) -> None:
+    grouped = results.groupby(["strategy", "drone_count"], as_index=False).agg(
+        mean_efficiency=("coordination_efficiency", "mean"),
+        std_efficiency=("coordination_efficiency", "std"),
+    )
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for strategy in grouped["strategy"].unique():
+        subset = grouped[grouped["strategy"] == strategy]
+        ax.errorbar(
+            subset["drone_count"],
+            subset["mean_efficiency"],
+            yerr=subset["std_efficiency"],
+            marker="o",
+            capsize=4,
+            label=strategy,
+        )
+    ax.set_xlabel("Drone count")
+    ax.set_ylabel("Coordination efficiency")
+    ax.set_title("Coordination Efficiency vs Drone Count")
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=160)
+    plt.close(fig)
+
+
 def main() -> None:
     config = load_scenario_config()
     standard_results = run_benchmarks()
@@ -234,7 +315,16 @@ def main() -> None:
     print(f"Grouped experiment CSV: {(output_dir / 'experiment_results.csv')}")
     print(f"Standard summary CSV: {(output_dir / 'benchmark_summary.csv')}")
     print(f"Grouped summary CSV: {(output_dir / 'experiment_summary.csv')}")
-    print(f"Plots: {(output_dir / 'benchmark_comparison.png')}, {(output_dir / 'plot_success_by_strategy_family.png')}, {(output_dir / 'plot_time_by_strategy_comms.png')}, {(output_dir / 'plot_overlap_by_strategy.png')}")
+    print(
+        "Plots: "
+        f"{(output_dir / 'benchmark_comparison.png')}, "
+        f"{(output_dir / 'plot_success_by_strategy_family.png')}, "
+        f"{(output_dir / 'plot_time_by_strategy_comms.png')}, "
+        f"{(output_dir / 'plot_overlap_by_strategy.png')}, "
+        f"{(output_dir / 'plot_entropy_reduction_by_strategy.png')}, "
+        f"{(output_dir / 'plot_confirmed_detection_time_by_strategy.png')}, "
+        f"{(output_dir / 'plot_coordination_efficiency_vs_drone_count.png')}"
+    )
 
 
 if __name__ == "__main__":

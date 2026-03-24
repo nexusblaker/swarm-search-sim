@@ -1,0 +1,509 @@
+{"event_type": "scan_event", "step": 1, "drone_id": 0, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 1, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 3, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 4, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 1, "drone_id": 1, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 1, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 2, "drone_id": 1, "stale_steps": 1}
+{"event_type": "stale_info_use", "step": 2, "drone_id": 4, "stale_steps": 1}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 0, "previous_goal": [7, 5], "new_goal": [12, 8]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 1, "previous_goal": [9, 5], "new_goal": [12, 10]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 2, "previous_goal": [8, 5], "new_goal": [11, 9]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 3, "previous_goal": [8, 4], "new_goal": [12, 9]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 4, "previous_goal": [12, 8], "new_goal": [10, 6]}
+{"event_type": "scan_event", "step": 2, "drone_id": 0, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 1, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 3, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 4, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 2, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 3, "drone_id": 4, "stale_steps": 2}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 0, "previous_goal": [12, 8], "new_goal": [12, 10]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 1, "previous_goal": [12, 10], "new_goal": [13, 9]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 2, "previous_goal": [11, 9], "new_goal": [12, 8]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 4, "previous_goal": [10, 6], "new_goal": [11, 9]}
+{"event_type": "scan_event", "step": 3, "drone_id": 0, "scanned_cell_count": 18, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 1, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 3, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 4, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 3, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 4, "drone_id": 4, "stale_steps": 3}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 1, "previous_goal": [13, 9], "new_goal": [11, 10]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 2, "previous_goal": [12, 8], "new_goal": [11, 11]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 3, "previous_goal": [12, 9], "new_goal": [12, 11]}
+{"event_type": "scan_event", "step": 4, "drone_id": 0, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 1, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 2, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 4, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 4, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 5, "drone_id": 4, "stale_steps": 4}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 0, "previous_goal": [12, 10], "new_goal": [11, 11]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 1, "previous_goal": [11, 10], "new_goal": [12, 11]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 2, "previous_goal": [11, 11], "new_goal": [11, 10]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 3, "previous_goal": [12, 11], "new_goal": [12, 10]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 4, "previous_goal": [11, 9], "new_goal": [10, 11]}
+{"event_type": "scan_event", "step": 5, "drone_id": 0, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 1, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 2, "scanned_cell_count": 24, "candidate_scores": {"8,7": 0.114345}}
+{"event_type": "detection_candidate", "step": 5, "drone_id": 2, "position": [8, 7], "score": 0.114345, "channels": {"thermal": 0.3436200000000001, "visual": 0.32670000000000005}}
+{"event_type": "scan_event", "step": 5, "drone_id": 3, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 4, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 5, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 6, "drone_id": 4, "stale_steps": 5}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 0, "previous_goal": [11, 11], "new_goal": [11, 12]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 1, "previous_goal": [12, 11], "new_goal": [11, 11]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 2, "previous_goal": [11, 10], "new_goal": [12, 11]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 3, "previous_goal": [12, 10], "new_goal": [10, 11]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 4, "previous_goal": [10, 11], "new_goal": [11, 10]}
+{"event_type": "scan_event", "step": 6, "drone_id": 0, "scanned_cell_count": 30, "candidate_scores": {"8,6": 0.06237}}
+{"event_type": "detection_candidate", "step": 6, "drone_id": 0, "position": [8, 6], "score": 0.06237, "channels": {"thermal": 0.36064, "visual": 0.17820000000000003}}
+{"event_type": "scan_event", "step": 6, "drone_id": 1, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 3, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 4, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 6, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 6, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 7, "drone_id": 4, "stale_steps": 6}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 2, "previous_goal": [12, 11], "new_goal": [12, 12]}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 3, "previous_goal": [10, 11], "new_goal": [11, 10]}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 4, "previous_goal": [11, 10], "new_goal": [7, 12]}
+{"event_type": "scan_event", "step": 7, "drone_id": 0, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 1, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 2, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 3, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 4, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 7, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 7, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 8, "drone_id": 4, "stale_steps": 7}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 1, "previous_goal": [11, 11], "new_goal": [10, 12]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 2, "previous_goal": [12, 12], "new_goal": [11, 10]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 3, "previous_goal": [11, 10], "new_goal": [11, 11]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 4, "previous_goal": [7, 12], "new_goal": [10, 11]}
+{"event_type": "scan_event", "step": 8, "drone_id": 0, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 1, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 3, "scanned_cell_count": 32, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 4, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 8, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 8, "drone_id": 2, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 8, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 8, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 9, "drone_id": 3, "stale_steps": 1}
+{"event_type": "stale_info_use", "step": 9, "drone_id": 4, "stale_steps": 8}
+{"event_type": "task_reassignment", "step": 9, "drone_id": 0, "previous_goal": [11, 12], "new_goal": [8, 12]}
+{"event_type": "task_reassignment", "step": 9, "drone_id": 1, "previous_goal": [10, 12], "new_goal": [7, 12]}
+{"event_type": "task_reassignment", "step": 9, "drone_id": 2, "previous_goal": [11, 10], "new_goal": [7, 11]}
+{"event_type": "task_reassignment", "step": 9, "drone_id": 3, "previous_goal": [11, 11], "new_goal": [8, 13]}
+{"event_type": "task_reassignment", "step": 9, "drone_id": 4, "previous_goal": [10, 11], "new_goal": [11, 12]}
+{"event_type": "scan_event", "step": 9, "drone_id": 0, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 9, "drone_id": 1, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 9, "drone_id": 2, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 9, "drone_id": 3, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 9, "drone_id": 4, "scanned_cell_count": 21, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 9, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 9, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 9, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 9, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 10, "drone_id": 3, "stale_steps": 2}
+{"event_type": "stale_info_use", "step": 10, "drone_id": 4, "stale_steps": 9}
+{"event_type": "task_reassignment", "step": 10, "drone_id": 0, "previous_goal": [8, 12], "new_goal": [2, 9]}
+{"event_type": "task_reassignment", "step": 10, "drone_id": 1, "previous_goal": [7, 12], "new_goal": [2, 10]}
+{"event_type": "task_reassignment", "step": 10, "drone_id": 2, "previous_goal": [7, 11], "new_goal": [14, 12]}
+{"event_type": "task_reassignment", "step": 10, "drone_id": 3, "previous_goal": [8, 13], "new_goal": [13, 0]}
+{"event_type": "task_reassignment", "step": 10, "drone_id": 4, "previous_goal": [11, 12], "new_goal": [8, 12]}
+{"event_type": "scan_event", "step": 10, "drone_id": 0, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 10, "drone_id": 1, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 10, "drone_id": 2, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 10, "drone_id": 3, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 10, "drone_id": 4, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 10, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 10, "drone_id": 2, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 10, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 10, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 11, "drone_id": 1, "stale_steps": 1}
+{"event_type": "stale_info_use", "step": 11, "drone_id": 3, "stale_steps": 3}
+{"event_type": "stale_info_use", "step": 11, "drone_id": 4, "stale_steps": 10}
+{"event_type": "task_reassignment", "step": 11, "drone_id": 0, "previous_goal": [2, 9], "new_goal": [1, 9]}
+{"event_type": "task_reassignment", "step": 11, "drone_id": 1, "previous_goal": [2, 10], "new_goal": [1, 11]}
+{"event_type": "task_reassignment", "step": 11, "drone_id": 2, "previous_goal": [14, 12], "new_goal": [13, 0]}
+{"event_type": "task_reassignment", "step": 11, "drone_id": 3, "previous_goal": [13, 0], "new_goal": [13, 1]}
+{"event_type": "task_reassignment", "step": 11, "drone_id": 4, "previous_goal": [8, 12], "new_goal": [7, 12]}
+{"event_type": "scan_event", "step": 11, "drone_id": 0, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 11, "drone_id": 1, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 11, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 11, "drone_id": 3, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 11, "drone_id": 4, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 11, "drone_id": 2, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 11, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 11, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 12, "drone_id": 3, "stale_steps": 4}
+{"event_type": "stale_info_use", "step": 12, "drone_id": 4, "stale_steps": 11}
+{"event_type": "task_reassignment", "step": 12, "drone_id": 0, "previous_goal": [1, 9], "new_goal": [13, 0]}
+{"event_type": "task_reassignment", "step": 12, "drone_id": 1, "previous_goal": [1, 11], "new_goal": [16, 12]}
+{"event_type": "task_reassignment", "step": 12, "drone_id": 2, "previous_goal": [13, 0], "new_goal": [14, 0]}
+{"event_type": "task_reassignment", "step": 12, "drone_id": 3, "previous_goal": [13, 1], "new_goal": [3, 11]}
+{"event_type": "task_reassignment", "step": 12, "drone_id": 4, "previous_goal": [7, 12], "new_goal": [6, 3]}
+{"event_type": "scan_event", "step": 12, "drone_id": 0, "scanned_cell_count": 23, "candidate_scores": {"9,7": 0.1003538611703199}}
+{"event_type": "detection_candidate", "step": 12, "drone_id": 0, "position": [9, 7], "score": 0.1003538611703199, "channels": {"thermal": 0.154390555646646, "visual": 0.0}}
+{"event_type": "scan_event", "step": 12, "drone_id": 1, "scanned_cell_count": 21, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 12, "drone_id": 2, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 12, "drone_id": 3, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 12, "drone_id": 4, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 12, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 12, "drone_id": 2, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 12, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 12, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 13, "drone_id": 2, "stale_steps": 1}
+{"event_type": "stale_info_use", "step": 13, "drone_id": 3, "stale_steps": 5}
+{"event_type": "stale_info_use", "step": 13, "drone_id": 4, "stale_steps": 12}
+{"event_type": "task_reassignment", "step": 13, "drone_id": 1, "previous_goal": [16, 12], "new_goal": [14, 0]}
+{"event_type": "task_reassignment", "step": 13, "drone_id": 2, "previous_goal": [14, 0], "new_goal": [13, 1]}
+{"event_type": "scan_event", "step": 13, "drone_id": 0, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 13, "drone_id": 1, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 13, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 13, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 13, "drone_id": 4, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 13, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 13, "drone_id": 2, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 13, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 13, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 14, "drone_id": 2, "stale_steps": 2}
+{"event_type": "stale_info_use", "step": 14, "drone_id": 3, "stale_steps": 6}
+{"event_type": "stale_info_use", "step": 14, "drone_id": 4, "stale_steps": 13}
+{"event_type": "task_reassignment", "step": 14, "drone_id": 0, "previous_goal": [13, 0], "new_goal": [14, 0]}
+{"event_type": "task_reassignment", "step": 14, "drone_id": 1, "previous_goal": [14, 0], "new_goal": [13, 0]}
+{"event_type": "task_reassignment", "step": 14, "drone_id": 4, "previous_goal": [6, 3], "new_goal": [6, 2]}
+{"event_type": "scan_event", "step": 14, "drone_id": 0, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 14, "drone_id": 1, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 14, "drone_id": 2, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 14, "drone_id": 3, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 14, "drone_id": 4, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 14, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 14, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 14, "drone_id": 2, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 14, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 14, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 15, "drone_id": 1, "stale_steps": 1}
+{"event_type": "stale_info_use", "step": 15, "drone_id": 2, "stale_steps": 3}
+{"event_type": "stale_info_use", "step": 15, "drone_id": 3, "stale_steps": 7}
+{"event_type": "stale_info_use", "step": 15, "drone_id": 4, "stale_steps": 14}
+{"event_type": "task_reassignment", "step": 15, "drone_id": 3, "previous_goal": [3, 11], "new_goal": [12, 0]}
+{"event_type": "scan_event", "step": 15, "drone_id": 0, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 15, "drone_id": 1, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 15, "drone_id": 2, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 15, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 15, "drone_id": 4, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 15, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 15, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 15, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 16, "drone_id": 1, "stale_steps": 2}
+{"event_type": "stale_info_use", "step": 16, "drone_id": 3, "stale_steps": 8}
+{"event_type": "stale_info_use", "step": 16, "drone_id": 4, "stale_steps": 15}
+{"event_type": "task_reassignment", "step": 16, "drone_id": 0, "previous_goal": [14, 0], "new_goal": [5, 0]}
+{"event_type": "task_reassignment", "step": 16, "drone_id": 1, "previous_goal": [13, 0], "new_goal": [16, 12]}
+{"event_type": "task_reassignment", "step": 16, "drone_id": 2, "previous_goal": [13, 1], "new_goal": [14, 1]}
+{"event_type": "task_reassignment", "step": 16, "drone_id": 3, "previous_goal": [12, 0], "new_goal": [13, 0]}
+{"event_type": "scan_event", "step": 16, "drone_id": 0, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 16, "drone_id": 1, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 16, "drone_id": 2, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 16, "drone_id": 3, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 16, "drone_id": 4, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 16, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 16, "drone_id": 2, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 16, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 16, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 17, "drone_id": 1, "stale_steps": 3}
+{"event_type": "stale_info_use", "step": 17, "drone_id": 3, "stale_steps": 9}
+{"event_type": "stale_info_use", "step": 17, "drone_id": 4, "stale_steps": 16}
+{"event_type": "task_reassignment", "step": 17, "drone_id": 0, "previous_goal": [5, 0], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 17, "drone_id": 1, "previous_goal": [16, 12], "new_goal": [1, 11]}
+{"event_type": "task_reassignment", "step": 17, "drone_id": 2, "previous_goal": [14, 1], "new_goal": [12, 0]}
+{"event_type": "task_reassignment", "step": 17, "drone_id": 3, "previous_goal": [13, 0], "new_goal": [0, 12]}
+{"event_type": "scan_event", "step": 17, "drone_id": 0, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 17, "drone_id": 1, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 17, "drone_id": 2, "scanned_cell_count": 11, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 17, "drone_id": 3, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 17, "drone_id": 4, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 17, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 17, "drone_id": 2, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 17, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 18, "drone_id": 1, "stale_steps": 4}
+{"event_type": "stale_info_use", "step": 18, "drone_id": 3, "stale_steps": 10}
+{"event_type": "task_reassignment", "step": 18, "drone_id": 3, "previous_goal": [0, 12], "new_goal": [3, 11]}
+{"event_type": "scan_event", "step": 18, "drone_id": 0, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 18, "drone_id": 1, "scanned_cell_count": 16, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 18, "drone_id": 2, "scanned_cell_count": 6, "candidate_scores": {"14,0": 0.02}}
+{"event_type": "detection_candidate", "step": 18, "drone_id": 2, "position": [14, 0], "score": 0.02, "channels": {"thermal": 0.0, "visual": 0.0}}
+{"event_type": "scan_event", "step": 18, "drone_id": 3, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 18, "drone_id": 4, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 18, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 18, "drone_id": 2, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 18, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 19, "drone_id": 1, "stale_steps": 5}
+{"event_type": "stale_info_use", "step": 19, "drone_id": 2, "stale_steps": 1}
+{"event_type": "stale_info_use", "step": 19, "drone_id": 3, "stale_steps": 11}
+{"event_type": "task_reassignment", "step": 19, "drone_id": 0, "previous_goal": [1, 12], "new_goal": [0, 12]}
+{"event_type": "task_reassignment", "step": 19, "drone_id": 1, "previous_goal": [1, 11], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 19, "drone_id": 2, "previous_goal": [12, 0], "new_goal": [1, 11]}
+{"event_type": "task_reassignment", "step": 19, "drone_id": 3, "previous_goal": [3, 11], "new_goal": [5, 0]}
+{"event_type": "task_reassignment", "step": 19, "drone_id": 4, "previous_goal": [6, 2], "new_goal": [1, 1]}
+{"event_type": "scan_event", "step": 19, "drone_id": 0, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 19, "drone_id": 1, "scanned_cell_count": 12, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 19, "drone_id": 2, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 19, "drone_id": 3, "scanned_cell_count": 32, "candidate_scores": {"9,7": 0.2822754691528828}}
+{"event_type": "detection_candidate", "step": 19, "drone_id": 3, "position": [9, 7], "score": 0.2822754691528828, "channels": {"thermal": 0.3343437983827871, "visual": 0.18557714344020343}}
+{"event_type": "scan_event", "step": 19, "drone_id": 4, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 19, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 19, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 20, "drone_id": 1, "stale_steps": 6}
+{"event_type": "stale_info_use", "step": 20, "drone_id": 3, "stale_steps": 12}
+{"event_type": "task_reassignment", "step": 20, "drone_id": 3, "previous_goal": [5, 0], "new_goal": [0, 11]}
+{"event_type": "task_reassignment", "step": 20, "drone_id": 4, "previous_goal": [1, 1], "new_goal": [5, 0]}
+{"event_type": "scan_event", "step": 20, "drone_id": 0, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 20, "drone_id": 1, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 20, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 20, "drone_id": 3, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 20, "drone_id": 4, "scanned_cell_count": 16, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 20, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 20, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 21, "drone_id": 1, "stale_steps": 7}
+{"event_type": "stale_info_use", "step": 21, "drone_id": 3, "stale_steps": 13}
+{"event_type": "task_reassignment", "step": 21, "drone_id": 0, "previous_goal": [0, 12], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 21, "drone_id": 1, "previous_goal": [1, 12], "new_goal": [1, 11]}
+{"event_type": "task_reassignment", "step": 21, "drone_id": 2, "previous_goal": [1, 11], "new_goal": [0, 12]}
+{"event_type": "task_reassignment", "step": 21, "drone_id": 4, "previous_goal": [5, 0], "new_goal": [1, 1]}
+{"event_type": "scan_event", "step": 21, "drone_id": 0, "scanned_cell_count": 10, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 21, "drone_id": 1, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 21, "drone_id": 2, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 21, "drone_id": 3, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 21, "drone_id": 4, "scanned_cell_count": 12, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 21, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "stale_info_use", "step": 22, "drone_id": 3, "stale_steps": 14}
+{"event_type": "task_reassignment", "step": 22, "drone_id": 1, "previous_goal": [1, 11], "new_goal": [1, 1]}
+{"event_type": "task_reassignment", "step": 22, "drone_id": 2, "previous_goal": [0, 12], "new_goal": [1, 0]}
+{"event_type": "task_reassignment", "step": 22, "drone_id": 3, "previous_goal": [0, 11], "new_goal": [1, 11]}
+{"event_type": "task_reassignment", "step": 22, "drone_id": 4, "previous_goal": [1, 1], "new_goal": [0, 1]}
+{"event_type": "scan_event", "step": 22, "drone_id": 0, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 22, "drone_id": 1, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 22, "drone_id": 2, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 22, "drone_id": 3, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 22, "drone_id": 4, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 22, "drone_id": 3, "mode": "packet_loss"}
+{"event_type": "stale_info_use", "step": 23, "drone_id": 3, "stale_steps": 15}
+{"event_type": "task_reassignment", "step": 23, "drone_id": 0, "previous_goal": [1, 12], "new_goal": [1, 1]}
+{"event_type": "task_reassignment", "step": 23, "drone_id": 1, "previous_goal": [1, 1], "new_goal": [0, 1]}
+{"event_type": "task_reassignment", "step": 23, "drone_id": 4, "previous_goal": [0, 1], "new_goal": [2, 1]}
+{"event_type": "scan_event", "step": 23, "drone_id": 0, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 23, "drone_id": 1, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 23, "drone_id": 2, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 23, "drone_id": 3, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 23, "drone_id": 4, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 24, "drone_id": 0, "previous_goal": [1, 1], "new_goal": [0, 1]}
+{"event_type": "task_reassignment", "step": 24, "drone_id": 1, "previous_goal": [0, 1], "new_goal": [1, 0]}
+{"event_type": "task_reassignment", "step": 24, "drone_id": 2, "previous_goal": [1, 0], "new_goal": [0, 0]}
+{"event_type": "task_reassignment", "step": 24, "drone_id": 3, "previous_goal": [1, 11], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 24, "drone_id": 4, "previous_goal": [2, 1], "new_goal": [0, 2]}
+{"event_type": "scan_event", "step": 24, "drone_id": 0, "scanned_cell_count": 11, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 24, "drone_id": 1, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 24, "drone_id": 2, "scanned_cell_count": 13, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 24, "drone_id": 3, "scanned_cell_count": 11, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 24, "drone_id": 4, "scanned_cell_count": 26, "candidate_scores": {"3,5": 0.02}}
+{"event_type": "detection_candidate", "step": 24, "drone_id": 4, "position": [3, 5], "score": 0.02, "channels": {"thermal": 0.0, "visual": 0.0}}
+{"event_type": "comms_failure", "step": 24, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "task_reassignment", "step": 25, "drone_id": 1, "previous_goal": [1, 0], "new_goal": [1, 1]}
+{"event_type": "task_reassignment", "step": 25, "drone_id": 3, "previous_goal": [1, 12], "new_goal": [1, 0]}
+{"event_type": "task_reassignment", "step": 25, "drone_id": 4, "previous_goal": [0, 2], "new_goal": [0, 3]}
+{"event_type": "scan_event", "step": 25, "drone_id": 0, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 25, "drone_id": 1, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 25, "drone_id": 2, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 25, "drone_id": 3, "scanned_cell_count": 18, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 25, "drone_id": 4, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 25, "drone_id": 3, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 26, "drone_id": 0, "previous_goal": [0, 1], "new_goal": [1, 13]}
+{"event_type": "task_reassignment", "step": 26, "drone_id": 1, "previous_goal": [1, 1], "new_goal": [0, 13]}
+{"event_type": "task_reassignment", "step": 26, "drone_id": 2, "previous_goal": [0, 0], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 26, "drone_id": 3, "previous_goal": [1, 0], "new_goal": [0, 12]}
+{"event_type": "task_reassignment", "step": 26, "drone_id": 4, "previous_goal": [0, 3], "new_goal": [0, 1]}
+{"event_type": "scan_event", "step": 26, "drone_id": 0, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 26, "drone_id": 1, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 26, "drone_id": 2, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 26, "drone_id": 3, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 26, "drone_id": 4, "scanned_cell_count": 9, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 27, "drone_id": 0, "previous_goal": [1, 13], "new_goal": [0, 13]}
+{"event_type": "task_reassignment", "step": 27, "drone_id": 1, "previous_goal": [0, 13], "new_goal": [1, 13]}
+{"event_type": "task_reassignment", "step": 27, "drone_id": 2, "previous_goal": [1, 12], "new_goal": [0, 0]}
+{"event_type": "scan_event", "step": 27, "drone_id": 0, "scanned_cell_count": 5, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 27, "drone_id": 1, "scanned_cell_count": 16, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 27, "drone_id": 2, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 27, "drone_id": 3, "scanned_cell_count": 5, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 27, "drone_id": 4, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 27, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "task_reassignment", "step": 28, "drone_id": 1, "previous_goal": [1, 13], "new_goal": [0, 12]}
+{"event_type": "task_reassignment", "step": 28, "drone_id": 2, "previous_goal": [0, 0], "new_goal": [1, 13]}
+{"event_type": "task_reassignment", "step": 28, "drone_id": 3, "previous_goal": [0, 12], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 28, "drone_id": 4, "previous_goal": [0, 1], "new_goal": [0, 0]}
+{"event_type": "scan_event", "step": 28, "drone_id": 0, "scanned_cell_count": 6, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 28, "drone_id": 1, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 28, "drone_id": 2, "scanned_cell_count": 18, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 28, "drone_id": 3, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 28, "drone_id": 4, "scanned_cell_count": 6, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 28, "drone_id": 2, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 28, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "task_reassignment", "step": 29, "drone_id": 1, "previous_goal": [0, 12], "new_goal": [1, 13]}
+{"event_type": "task_reassignment", "step": 29, "drone_id": 2, "previous_goal": [1, 13], "new_goal": [0, 0]}
+{"event_type": "task_reassignment", "step": 29, "drone_id": 4, "previous_goal": [0, 0], "new_goal": [0, 1]}
+{"event_type": "scan_event", "step": 29, "drone_id": 0, "scanned_cell_count": 4, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 29, "drone_id": 1, "scanned_cell_count": 10, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 29, "drone_id": 2, "scanned_cell_count": 11, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 29, "drone_id": 3, "scanned_cell_count": 13, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 29, "drone_id": 4, "scanned_cell_count": 2, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 30, "drone_id": 0, "previous_goal": [0, 13], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 30, "drone_id": 2, "previous_goal": [0, 0], "new_goal": [0, 13]}
+{"event_type": "task_reassignment", "step": 30, "drone_id": 3, "previous_goal": [1, 12], "new_goal": [0, 12]}
+{"event_type": "task_reassignment", "step": 30, "drone_id": 4, "previous_goal": [0, 1], "new_goal": [0, 0]}
+{"event_type": "scan_event", "step": 30, "drone_id": 0, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 30, "drone_id": 1, "scanned_cell_count": 5, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 30, "drone_id": 2, "scanned_cell_count": 11, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 30, "drone_id": 3, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 30, "drone_id": 4, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 31, "drone_id": 1, "previous_goal": [1, 13], "new_goal": [0, 13]}
+{"event_type": "task_reassignment", "step": 31, "drone_id": 2, "previous_goal": [0, 13], "new_goal": [1, 13]}
+{"event_type": "scan_event", "step": 31, "drone_id": 0, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 31, "drone_id": 1, "scanned_cell_count": 6, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 31, "drone_id": 2, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 31, "drone_id": 3, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 31, "drone_id": 4, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 32, "drone_id": 2, "previous_goal": [1, 13], "new_goal": [0, 12]}
+{"event_type": "task_reassignment", "step": 32, "drone_id": 3, "previous_goal": [0, 12], "new_goal": [1, 13]}
+{"event_type": "scan_event", "step": 32, "drone_id": 0, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 32, "drone_id": 1, "scanned_cell_count": 4, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 32, "drone_id": 2, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 32, "drone_id": 3, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 32, "drone_id": 4, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 32, "drone_id": 4, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 33, "drone_id": 0, "previous_goal": [1, 12], "new_goal": [1, 1]}
+{"event_type": "task_reassignment", "step": 33, "drone_id": 1, "previous_goal": [0, 13], "new_goal": [0, 1]}
+{"event_type": "task_reassignment", "step": 33, "drone_id": 2, "previous_goal": [0, 12], "new_goal": [0, 0]}
+{"event_type": "task_reassignment", "step": 33, "drone_id": 3, "previous_goal": [1, 13], "new_goal": [12, 0]}
+{"event_type": "task_reassignment", "step": 33, "drone_id": 4, "previous_goal": [0, 0], "new_goal": [1, 0]}
+{"event_type": "scan_event", "step": 33, "drone_id": 0, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 33, "drone_id": 1, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 33, "drone_id": 2, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 33, "drone_id": 3, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 33, "drone_id": 4, "scanned_cell_count": 18, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 33, "drone_id": 3, "mode": "out_of_range"}
+{"event_type": "task_reassignment", "step": 34, "drone_id": 0, "previous_goal": [1, 1], "new_goal": [1, 13]}
+{"event_type": "task_reassignment", "step": 34, "drone_id": 1, "previous_goal": [0, 1], "new_goal": [0, 13]}
+{"event_type": "task_reassignment", "step": 34, "drone_id": 2, "previous_goal": [0, 0], "new_goal": [1, 12]}
+{"event_type": "task_reassignment", "step": 34, "drone_id": 3, "previous_goal": [12, 0], "new_goal": [0, 12]}
+{"event_type": "task_reassignment", "step": 34, "drone_id": 4, "previous_goal": [1, 0], "new_goal": [12, 0]}
+{"event_type": "scan_event", "step": 34, "drone_id": 0, "scanned_cell_count": 3, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 34, "drone_id": 1, "scanned_cell_count": 2, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 34, "drone_id": 2, "scanned_cell_count": 13, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 34, "drone_id": 3, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 34, "drone_id": 4, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 34, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 35, "drone_id": 3, "previous_goal": [0, 12], "new_goal": [12, 0]}
+{"event_type": "task_reassignment", "step": 35, "drone_id": 4, "previous_goal": [12, 0], "new_goal": [17, 1]}
+{"event_type": "scan_event", "step": 35, "drone_id": 0, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 35, "drone_id": 1, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 35, "drone_id": 2, "scanned_cell_count": 16, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 35, "drone_id": 3, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 35, "drone_id": 4, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 35, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 35, "drone_id": 1, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 35, "drone_id": 2, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 36, "drone_id": 0, "previous_goal": [1, 13], "new_goal": [12, 0]}
+{"event_type": "task_reassignment", "step": 36, "drone_id": 1, "previous_goal": [0, 13], "new_goal": [17, 1]}
+{"event_type": "task_reassignment", "step": 36, "drone_id": 2, "previous_goal": [1, 12], "new_goal": [0, 1]}
+{"event_type": "task_reassignment", "step": 36, "drone_id": 3, "previous_goal": [12, 0], "new_goal": [11, 0]}
+{"event_type": "task_reassignment", "step": 36, "drone_id": 4, "previous_goal": [17, 1], "new_goal": [0, 13]}
+{"event_type": "scan_event", "step": 36, "drone_id": 0, "scanned_cell_count": 17, "candidate_scores": {"6,12": 0.02}}
+{"event_type": "detection_candidate", "step": 36, "drone_id": 0, "position": [6, 12], "score": 0.02, "channels": {"thermal": 0.0, "visual": 0.0}}
+{"event_type": "scan_event", "step": 36, "drone_id": 1, "scanned_cell_count": 16, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 36, "drone_id": 2, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 36, "drone_id": 3, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 36, "drone_id": 4, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 36, "drone_id": 0, "mode": "out_of_range"}
+{"event_type": "comms_failure", "step": 36, "drone_id": 3, "mode": "packet_loss"}
+{"event_type": "stale_info_use", "step": 37, "drone_id": 0, "stale_steps": 1}
+{"event_type": "task_reassignment", "step": 37, "drone_id": 2, "previous_goal": [0, 1], "new_goal": [11, 1]}
+{"event_type": "task_reassignment", "step": 37, "drone_id": 3, "previous_goal": [11, 0], "new_goal": [13, 1]}
+{"event_type": "task_reassignment", "step": 37, "drone_id": 4, "previous_goal": [0, 13], "new_goal": [11, 0]}
+{"event_type": "scan_event", "step": 37, "drone_id": 0, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 37, "drone_id": 1, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 37, "drone_id": 2, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 37, "drone_id": 3, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 37, "drone_id": 4, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 38, "drone_id": 1, "previous_goal": [17, 1], "new_goal": [11, 0]}
+{"event_type": "task_reassignment", "step": 38, "drone_id": 2, "previous_goal": [11, 1], "new_goal": [17, 1]}
+{"event_type": "task_reassignment", "step": 38, "drone_id": 4, "previous_goal": [11, 0], "new_goal": [11, 1]}
+{"event_type": "scan_event", "step": 38, "drone_id": 0, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 38, "drone_id": 1, "scanned_cell_count": 21, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 38, "drone_id": 2, "scanned_cell_count": 18, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 38, "drone_id": 3, "scanned_cell_count": 28, "candidate_scores": {"9,7": 0.09779239132741165}}
+{"event_type": "detection_candidate", "step": 38, "drone_id": 3, "position": [9, 7], "score": 0.09779239132741165, "channels": {"thermal": 0.399195277823323, "visual": 0.2794068323640333}}
+{"event_type": "scan_event", "step": 38, "drone_id": 4, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 38, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 39, "drone_id": 1, "previous_goal": [11, 0], "new_goal": [17, 1]}
+{"event_type": "task_reassignment", "step": 39, "drone_id": 2, "previous_goal": [17, 1], "new_goal": [11, 1]}
+{"event_type": "task_reassignment", "step": 39, "drone_id": 3, "previous_goal": [13, 1], "new_goal": [13, 0]}
+{"event_type": "task_reassignment", "step": 39, "drone_id": 4, "previous_goal": [11, 1], "new_goal": [13, 1]}
+{"event_type": "scan_event", "step": 39, "drone_id": 0, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 39, "drone_id": 1, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 39, "drone_id": 2, "scanned_cell_count": 13, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 39, "drone_id": 3, "scanned_cell_count": 32, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 39, "drone_id": 4, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 39, "drone_id": 2, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 40, "drone_id": 4, "previous_goal": [13, 1], "new_goal": [11, 0]}
+{"event_type": "scan_event", "step": 40, "drone_id": 0, "scanned_cell_count": 25, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 40, "drone_id": 1, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 40, "drone_id": 2, "scanned_cell_count": 6, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 40, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 40, "drone_id": 4, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 40, "drone_id": 1, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 40, "drone_id": 4, "mode": "packet_loss"}
+{"event_type": "scan_event", "step": 41, "drone_id": 0, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 41, "drone_id": 1, "scanned_cell_count": 13, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 41, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 41, "drone_id": 3, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 41, "drone_id": 4, "scanned_cell_count": 10, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 42, "drone_id": 1, "previous_goal": [17, 1], "new_goal": [13, 0]}
+{"event_type": "task_reassignment", "step": 42, "drone_id": 2, "previous_goal": [11, 1], "new_goal": [17, 1]}
+{"event_type": "task_reassignment", "step": 42, "drone_id": 3, "previous_goal": [13, 0], "new_goal": [13, 1]}
+{"event_type": "task_reassignment", "step": 42, "drone_id": 4, "previous_goal": [11, 0], "new_goal": [11, 1]}
+{"event_type": "scan_event", "step": 42, "drone_id": 0, "scanned_cell_count": 32, "candidate_scores": {"7,2": 0.02}}
+{"event_type": "detection_candidate", "step": 42, "drone_id": 0, "position": [7, 2], "score": 0.02, "channels": {"thermal": 0.42504, "visual": 0.31679999999999997}}
+{"event_type": "scan_event", "step": 42, "drone_id": 1, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 42, "drone_id": 2, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 42, "drone_id": 3, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 42, "drone_id": 4, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 42, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 42, "drone_id": 3, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 43, "drone_id": 1, "previous_goal": [13, 0], "new_goal": [17, 1]}
+{"event_type": "task_reassignment", "step": 43, "drone_id": 2, "previous_goal": [17, 1], "new_goal": [13, 0]}
+{"event_type": "scan_event", "step": 43, "drone_id": 0, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 43, "drone_id": 1, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 43, "drone_id": 2, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 43, "drone_id": 3, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 43, "drone_id": 4, "scanned_cell_count": 10, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 44, "drone_id": 0, "previous_goal": [12, 0], "new_goal": [16, 1]}
+{"event_type": "task_reassignment", "step": 44, "drone_id": 2, "previous_goal": [13, 0], "new_goal": [12, 0]}
+{"event_type": "task_reassignment", "step": 44, "drone_id": 4, "previous_goal": [11, 1], "new_goal": [13, 0]}
+{"event_type": "scan_event", "step": 44, "drone_id": 0, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 44, "drone_id": 1, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 44, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 44, "drone_id": 3, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 44, "drone_id": 4, "scanned_cell_count": 18, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 44, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "task_reassignment", "step": 45, "drone_id": 0, "previous_goal": [16, 1], "new_goal": [17, 1]}
+{"event_type": "task_reassignment", "step": 45, "drone_id": 1, "previous_goal": [17, 1], "new_goal": [16, 1]}
+{"event_type": "task_reassignment", "step": 45, "drone_id": 3, "previous_goal": [13, 1], "new_goal": [16, 0]}
+{"event_type": "scan_event", "step": 45, "drone_id": 0, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 45, "drone_id": 1, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 45, "drone_id": 2, "scanned_cell_count": 6, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 45, "drone_id": 3, "scanned_cell_count": 12, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 45, "drone_id": 4, "scanned_cell_count": 11, "candidate_scores": {}}

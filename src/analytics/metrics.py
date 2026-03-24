@@ -21,4 +21,13 @@ class SimulationMetrics:
     path_efficiency: float = 0.0
     average_overlap_per_step: float = 0.0
     detection_under_comms_mode: str = ""
+    entropy_reduction_over_time: float = 0.0
+    information_gain_per_step: float = 0.0
+    belief_peak_accuracy: float = 0.0
+    time_to_first_candidate_detection: int | None = None
+    time_to_confirmed_detection: int | None = None
+    false_alarm_count: int = 0
+    reroute_count: int = 0
+    coordination_efficiency: float = 0.0
+    return_to_base_efficiency: float = 0.0
     mission_success: bool = False

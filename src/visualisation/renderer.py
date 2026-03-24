@@ -51,6 +51,7 @@ class SimulationRenderer:
         scan_footprints = snapshot.get("scan_footprints", {})
         returning_drones = set(snapshot.get("returning_drones", []))
         base_position = tuple(snapshot.get("base_position", (0, 0)))
+        global_objectives = dict(snapshot.get("global_objectives", {}))
 
         fig, ax = plt.subplots(figsize=(10, 7))
         ax.imshow(terrain_grid, cmap=SimulationRenderer.TERRAIN_CMAP, origin="upper")
@@ -127,6 +128,20 @@ class SimulationRenderer:
                     linewidth=1.0,
                     alpha=0.4,
                 )
+
+        if global_objectives:
+            objective_positions = [tuple(position) for position in global_objectives.values()]
+            objective_x = [position[0] for position in objective_positions]
+            objective_y = [position[1] for position in objective_positions]
+            ax.scatter(
+                objective_x,
+                objective_y,
+                s=70,
+                c="#ff9f1c",
+                marker="x",
+                linewidths=2.0,
+                label="Objectives",
+            )
 
         if len(target_trail) >= 2:
             target_x = [position[0] for position in target_trail]

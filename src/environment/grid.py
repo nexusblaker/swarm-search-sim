@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from enum import IntEnum
+from pathlib import Path
 from typing import Iterable
+
+import json
 
 import numpy as np
 
@@ -38,11 +41,29 @@ class GridEnvironment:
         movement_cost: np.ndarray,
         detection_modifier: np.ndarray,
         obstacle_mask: np.ndarray,
+        trail_layer: np.ndarray | None = None,
+        elevation_layer: np.ndarray | None = None,
+        wind_layer: np.ndarray | None = None,
     ) -> None:
         self.terrain_grid = terrain_grid.astype(int)
         self.movement_cost = movement_cost.astype(float)
         self.detection_modifier = detection_modifier.astype(float)
         self.obstacle_mask = obstacle_mask.astype(bool)
+        self.trail_layer = (
+            trail_layer.astype(bool)
+            if trail_layer is not None
+            else np.zeros_like(self.obstacle_mask, dtype=bool)
+        )
+        self.elevation_layer = (
+            elevation_layer.astype(float)
+            if elevation_layer is not None
+            else np.zeros_like(self.movement_cost, dtype=float)
+        )
+        self.wind_layer = (
+            wind_layer.astype(float)
+            if wind_layer is not None
+            else np.zeros_like(self.movement_cost, dtype=float)
+        )
         self.height, self.width = self.terrain_grid.shape
 
     @classmethod
@@ -96,11 +117,89 @@ class GridEnvironment:
         obstacle_mask = rng.random((height, width)) < obstacle_ratio
         obstacle_mask &= terrain_grid != int(TerrainType.WATER)
 
+        trail_layer = np.zeros((height, width), dtype=bool)
+        elevation_layer = np.zeros((height, width), dtype=float)
+        wind_layer = np.zeros((height, width), dtype=float)
         return cls(
             terrain_grid=terrain_grid,
             movement_cost=movement_cost,
             detection_modifier=detection_modifier,
             obstacle_mask=obstacle_mask,
+            trail_layer=trail_layer,
+            elevation_layer=elevation_layer,
+            wind_layer=wind_layer,
+        )
+
+    @classmethod
+    def from_layers(
+        cls,
+        terrain_grid: np.ndarray,
+        obstacle_mask: np.ndarray,
+        trail_layer: np.ndarray | None = None,
+        elevation_layer: np.ndarray | None = None,
+        wind_layer: np.ndarray | None = None,
+    ) -> "GridEnvironment":
+        """Build an environment from externally defined layers."""
+
+        terrain_grid = terrain_grid.astype(int)
+        height, width = terrain_grid.shape
+        trail_layer = trail_layer if trail_layer is not None else np.zeros((height, width), dtype=bool)
+        elevation_layer = elevation_layer if elevation_layer is not None else np.zeros((height, width), dtype=float)
+        wind_layer = wind_layer if wind_layer is not None else np.zeros((height, width), dtype=float)
+
+        movement_cost = np.zeros((height, width), dtype=float)
+        detection_modifier = np.zeros((height, width), dtype=float)
+        for terrain in TerrainType:
+            terrain_mask = terrain_grid == int(terrain)
+            move_cost, detect_mod = cls.TERRAIN_PROPERTIES[terrain]
+            movement_cost[terrain_mask] = move_cost
+            detection_modifier[terrain_mask] = detect_mod
+
+        slope_penalty = cls._compute_slope_penalty(elevation_layer)
+        movement_cost += slope_penalty
+        movement_cost[trail_layer.astype(bool)] = np.maximum(0.65, movement_cost[trail_layer.astype(bool)] - 0.35)
+        detection_modifier[trail_layer.astype(bool)] = np.minimum(
+            1.05,
+            detection_modifier[trail_layer.astype(bool)] + 0.08,
+        )
+
+        return cls(
+            terrain_grid=terrain_grid,
+            movement_cost=movement_cost,
+            detection_modifier=detection_modifier,
+            obstacle_mask=obstacle_mask,
+            trail_layer=trail_layer,
+            elevation_layer=elevation_layer,
+            wind_layer=wind_layer,
+        )
+
+    @classmethod
+    def load_layers(cls, layer_paths: dict[str, str | Path]) -> "GridEnvironment":
+        """Load terrain and optional environment layers from disk."""
+
+        terrain_grid = cls._load_array(layer_paths["terrain"], dtype=int)
+        obstacle_mask = cls._load_array(layer_paths["obstacle"], dtype=int).astype(bool)
+        trail_layer = (
+            cls._load_array(layer_paths["trail"], dtype=int).astype(bool)
+            if "trail" in layer_paths
+            else None
+        )
+        elevation_layer = (
+            cls._load_array(layer_paths["elevation"], dtype=float)
+            if "elevation" in layer_paths
+            else None
+        )
+        wind_layer = (
+            cls._load_array(layer_paths["wind"], dtype=float)
+            if "wind" in layer_paths
+            else None
+        )
+        return cls.from_layers(
+            terrain_grid=terrain_grid,
+            obstacle_mask=obstacle_mask,
+            trail_layer=trail_layer,
+            elevation_layer=elevation_layer,
+            wind_layer=wind_layer,
         )
 
     @property
@@ -146,6 +245,18 @@ class GridEnvironment:
 
         x, y = position
         return float(self.detection_modifier[y, x])
+
+    def get_wind_factor(self, position: Position) -> float:
+        """Return local wind intensity for a cell."""
+
+        x, y = position
+        return float(self.wind_layer[y, x])
+
+    def has_trail(self, position: Position) -> bool:
+        """Return whether a traversable trail or road is present at a cell."""
+
+        x, y = position
+        return bool(self.trail_layer[y, x])
 
     def get_neighbors(self, position: Position, diagonal: bool = False) -> list[Position]:
         """Return valid neighboring cells."""
@@ -220,3 +331,17 @@ class GridEnvironment:
                 position = (x, y)
                 if not self.is_obstacle(position):
                     yield position
+
+    @staticmethod
+    def _compute_slope_penalty(elevation_layer: np.ndarray) -> np.ndarray:
+        grad_y, grad_x = np.gradient(elevation_layer.astype(float))
+        return 0.35 * np.hypot(grad_x, grad_y)
+
+    @staticmethod
+    def _load_array(path: str | Path, dtype: type[int] | type[float]) -> np.ndarray:
+        file_path = Path(path)
+        if file_path.suffix == ".npy":
+            return np.load(file_path).astype(dtype)
+        if file_path.suffix == ".json":
+            return np.asarray(json.loads(file_path.read_text(encoding="utf-8")), dtype=dtype)
+        return np.loadtxt(file_path, delimiter=",", dtype=dtype)

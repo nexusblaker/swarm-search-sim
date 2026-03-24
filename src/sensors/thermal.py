@@ -25,6 +25,8 @@ class ScanResult:
     false_positive: bool
     true_positive: bool
     scanned_cells: set[Position]
+    candidate_scores: dict[Position, float]
+    channel_scores: dict[str, float]
 
 
 class ThermalSensorModel:
@@ -34,10 +36,18 @@ class ThermalSensorModel:
         self,
         false_positive_rate: float = 0.02,
         false_negative_rate: float = 0.08,
+        visual_range_factor: float = 0.75,
+        visual_false_positive_rate: float = 0.01,
+        visual_false_negative_rate: float = 0.12,
+        sensor_mode: str = "thermal_visual",
         weather_modifiers: dict[str, float] | None = None,
     ) -> None:
         self.false_positive_rate = false_positive_rate
         self.false_negative_rate = false_negative_rate
+        self.visual_range_factor = visual_range_factor
+        self.visual_false_positive_rate = visual_false_positive_rate
+        self.visual_false_negative_rate = visual_false_negative_rate
+        self.sensor_mode = sensor_mode
         self.weather_modifiers = weather_modifiers or {
             "clear": 1.0,
             "windy": 0.9,
@@ -85,16 +95,37 @@ class ThermalSensorModel:
         )
         scanned_cells = self._visible_cells(drone, environment)
         target_visible = target_position in scanned_cells
-        true_detection = target_visible and rng.random() < probability
+        visual_probability = self._visual_detection_probability(
+            drone=drone,
+            target_position=target_position,
+            environment=environment,
+            weather=weather,
+        )
+        thermal_hit = target_visible and rng.random() < probability
+        visual_hit = (
+            self.sensor_mode != "thermal_only"
+            and target_visible
+            and rng.random() < visual_probability
+        )
+        candidate_scores: dict[Position, float] = {}
+        channel_scores = {"thermal": probability, "visual": visual_probability}
+        true_detection = thermal_hit or visual_hit
         false_positive = False
 
         false_positive_rate = self.false_positive_rate / max(
             self.weather_modifiers.get(weather, 0.85),
             0.25,
         )
-        if not true_detection and rng.random() < false_positive_rate:
-            true_detection = True
+        if true_detection and target_visible:
+            candidate_score = 0.65 * (probability if thermal_hit else 0.0)
+            candidate_score += 0.35 * (visual_probability if visual_hit else 0.0)
+            candidate_scores[target_position] = candidate_score
+        elif scanned_cells and rng.random() < max(false_positive_rate, self.visual_false_positive_rate):
             false_positive = True
+            ordered_cells = sorted(scanned_cells)
+            candidate_position = ordered_cells[int(rng.integers(0, len(ordered_cells)))]
+            candidate_scores[candidate_position] = max(false_positive_rate, self.visual_false_positive_rate)
+            true_detection = True
 
         confidence = probability if not false_positive else false_positive_rate
         return ScanResult(
@@ -104,6 +135,8 @@ class ThermalSensorModel:
             false_positive=false_positive,
             true_positive=bool(true_detection and not false_positive and target_visible),
             scanned_cells=scanned_cells,
+            candidate_scores=candidate_scores,
+            channel_scores=channel_scores,
         )
 
     @staticmethod
@@ -139,3 +172,20 @@ class ThermalSensorModel:
                 if environment.has_line_of_sight(drone.position, candidate):
                     visible.add(candidate)
         return visible
+
+    def _visual_detection_probability(
+        self,
+        drone: Drone,
+        target_position: Position,
+        environment: GridEnvironment,
+        weather: str,
+    ) -> float:
+        effective_range = drone.sensor_range * self.visual_range_factor
+        terrain_modifier = min(1.0, environment.get_detection_modifier(target_position) + 0.1)
+        weather_factor = self.weather_modifiers.get(weather, 0.85) * 0.9
+        distance = dist(drone.position, target_position)
+        if distance > effective_range:
+            return 0.0
+        probability = (1.0 - distance / max(effective_range, 1e-6)) * terrain_modifier * weather_factor
+        probability *= 1.0 - self.visual_false_negative_rate
+        return float(np.clip(probability, 0.0, 1.0))

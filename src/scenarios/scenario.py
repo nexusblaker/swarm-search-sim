@@ -40,7 +40,7 @@ class ScenarioConfig:
     target_spread_sigma: float = 5.0
     target_move_probability: float = 0.35
     target_speed: int = 1
-    target_behavior: str = "terrain_biased_random_walk"
+    target_behavior: str = "terrain_biased"
     probability_diffusion: float = 0.08
     negative_search_suppression: float = 0.2
     false_positive_rate: float = 0.02
@@ -52,6 +52,17 @@ class ScenarioConfig:
     base_position: Position = (0, 0)
     return_to_base_threshold: float = 28.0
     scenario_family: str = "mixed_terrain"
+    layer_paths: dict[str, str] = field(default_factory=dict)
+    use_external_layers: bool = False
+    belief_motion_strength: float = 0.18
+    belief_positive_gain: float = 1.6
+    candidate_confirmation_threshold: float = 1.2
+    hierarchical_planning_enabled: bool = True
+    hierarchical_objective_count: int = 6
+    sensor_mode: str = "thermal_visual"
+    visual_range_factor: float = 0.75
+    visual_false_positive_rate: float = 0.01
+    visual_false_negative_rate: float = 0.12
     save_frames: bool = True
     frame_stride: int = 3
     benchmark_num_seeds: int = 30
@@ -71,9 +82,11 @@ class ScenarioConfig:
     benchmark_coordination_modes: list[str] = field(
         default_factory=lambda: ["centralized", "decentralized"]
     )
-    benchmark_drone_counts: list[int] = field(default_factory=lambda: [4])
+    benchmark_drone_counts: list[int] = field(default_factory=lambda: [3, 5])
+    benchmark_battery_budgets: list[float] = field(default_factory=lambda: [120.0, 80.0])
+    benchmark_sensor_modes: list[str] = field(default_factory=lambda: ["thermal_only", "thermal_visual"])
     benchmark_scenario_families: list[str] = field(
-        default_factory=lambda: ["open_terrain", "poor_comms", "low_battery_budget"]
+        default_factory=lambda: ["open_terrain", "poor_comms", "layered_demo"]
     )
     benchmark_output_dir: str = "outputs"
     weather_modifiers: dict[str, float] = field(
@@ -96,6 +109,8 @@ class ScenarioConfig:
         sensor_data = scenario_data.get("sensor", {})
         communication_data = scenario_data.get("communication", {})
         battery_data = scenario_data.get("battery_policy", {})
+        belief_data = scenario_data.get("belief", {})
+        hierarchical_data = scenario_data.get("hierarchical_planner", {})
         benchmark_data = scenario_data.get("benchmark", {})
 
         target_assumptions = dict(scenario_data.get("target_assumptions", {}))
@@ -154,7 +169,7 @@ class ScenarioConfig:
             target_behavior=str(
                 target_assumptions.get(
                     "behavior",
-                    scenario_data.get("target_behavior", "terrain_biased_random_walk"),
+                    scenario_data.get("target_behavior", "terrain_biased"),
                 )
             ),
             probability_diffusion=float(scenario_data.get("probability_diffusion", 0.08)),
@@ -181,6 +196,27 @@ class ScenarioConfig:
                 battery_data.get("return_threshold", 28.0)
             ),
             scenario_family=str(scenario_data.get("scenario_family", "mixed_terrain")),
+            layer_paths=dict(scenario_data.get("layer_paths", {})),
+            use_external_layers=bool(scenario_data.get("use_external_layers", False)),
+            belief_motion_strength=float(belief_data.get("motion_strength", 0.18)),
+            belief_positive_gain=float(belief_data.get("positive_gain", 1.6)),
+            candidate_confirmation_threshold=float(
+                belief_data.get("candidate_confirmation_threshold", 1.2)
+            ),
+            hierarchical_planning_enabled=bool(
+                hierarchical_data.get("enabled", True)
+            ),
+            hierarchical_objective_count=int(
+                hierarchical_data.get("objective_count", 6)
+            ),
+            sensor_mode=str(sensor_data.get("mode", "thermal_visual")),
+            visual_range_factor=float(sensor_data.get("visual_range_factor", 0.75)),
+            visual_false_positive_rate=float(
+                sensor_data.get("visual_false_positive_rate", 0.01)
+            ),
+            visual_false_negative_rate=float(
+                sensor_data.get("visual_false_negative_rate", 0.12)
+            ),
             save_frames=bool(render_data.get("save_frames", True)),
             frame_stride=int(render_data.get("frame_stride", 3)),
             benchmark_num_seeds=int(benchmark_data.get("num_seeds", 30)),
@@ -210,12 +246,21 @@ class ScenarioConfig:
                 )
             ),
             benchmark_drone_counts=list(
-                benchmark_data.get("drone_counts", [4])
+                benchmark_data.get("drone_counts", [3, 5])
+            ),
+            benchmark_battery_budgets=list(
+                benchmark_data.get("battery_budgets", [120.0, 80.0])
+            ),
+            benchmark_sensor_modes=list(
+                benchmark_data.get(
+                    "sensor_modes",
+                    ["thermal_only", "thermal_visual"],
+                )
             ),
             benchmark_scenario_families=list(
                 benchmark_data.get(
                     "scenario_families",
-                    ["open_terrain", "poor_comms", "low_battery_budget"],
+                    ["open_terrain", "poor_comms", "layered_demo"],
                 )
             ),
             benchmark_output_dir=str(benchmark_data.get("output_dir", "outputs")),
@@ -283,6 +328,16 @@ class ScenarioConfig:
             "low_battery_budget": {
                 "drone_battery": 85.0,
                 "return_to_base_threshold": 32.0,
+            },
+            "layered_demo": {
+                "use_external_layers": True,
+                "layer_paths": {
+                    "terrain": "data/sample_layers/terrain.csv",
+                    "obstacle": "data/sample_layers/obstacles.csv",
+                    "trail": "data/sample_layers/trails.csv",
+                    "elevation": "data/sample_layers/elevation.csv",
+                    "wind": "data/sample_layers/wind.csv",
+                },
             },
         }
         return replace(self, scenario_family=family, **presets.get(family, {}))
