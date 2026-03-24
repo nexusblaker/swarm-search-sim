@@ -22,31 +22,34 @@ class ProbabilityGreedyStrategy(BaseStrategy):
     ) -> dict[int, tuple[int, int]]:
         moves: dict[int, tuple[int, int]] = {}
         reserved_cells: set[tuple[int, int]] = set()
-        global_visited = set().union(*(drone.visited_cells for drone in drones))
         for drone in drones:
             if not drone.is_operational:
                 moves[drone.id] = drone.position
                 continue
 
-            candidates = self.candidate_moves(drone, environment)
+            candidate_goals = self.top_candidate_cells_for_drone(
+                drone,
+                environment,
+                probability_map,
+                limit=18,
+            )
             best_candidate = drone.position
             best_score = float("-inf")
-            for candidate in candidates:
-                probability_score = probability_map.value_at(candidate) * 18.0
-                revisit_penalty = 0.9 if candidate in drone.visited_cells else 0.0
-                global_overlap_penalty = 0.35 if candidate in global_visited else 0.0
-                reservation_penalty = 2.0 if candidate in reserved_cells else 0.0
-                mobility_penalty = environment.get_movement_cost(candidate) * 0.3
+            for candidate in candidate_goals:
+                probability_score = self.belief_value(drone, probability_map, candidate) * 22.0
+                route_cost = self.route_cost(environment, drone.position, candidate)
+                reservation_penalty = 2.0 if drone.comms_online and candidate in reserved_cells else 0.0
+                overlap_penalty = self.overlap_penalty(drone, candidate)
                 score = (
                     probability_score
-                    - revisit_penalty
-                    - global_overlap_penalty
+                    - overlap_penalty
                     - reservation_penalty
-                    - mobility_penalty
+                    - 0.18 * route_cost
                 )
                 if score > best_score:
                     best_candidate = candidate
                     best_score = score
-            reserved_cells.add(best_candidate)
+            if drone.comms_online:
+                reserved_cells.add(best_candidate)
             moves[drone.id] = best_candidate
         return moves

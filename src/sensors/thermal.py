@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import dist
+import math
 
 import numpy as np
 
@@ -112,6 +113,9 @@ class ThermalSensorModel:
         visible: set[Position] = set()
         sensor_radius_sq = drone.sensor_range**2
         x0, y0 = drone.position
+        heading = drone.heading if drone.heading != (0, 0) else (0, 1)
+        heading_angle = math.atan2(heading[1], heading[0])
+        half_fov = math.radians(drone.fov / 2.0)
         min_x = max(0, int(x0 - drone.sensor_range))
         max_x = min(environment.width - 1, int(x0 + drone.sensor_range))
         min_y = max(0, int(y0 - drone.sensor_range))
@@ -119,6 +123,19 @@ class ThermalSensorModel:
 
         for y in range(min_y, max_y + 1):
             for x in range(min_x, max_x + 1):
-                if (x - x0) ** 2 + (y - y0) ** 2 <= sensor_radius_sq and not environment.is_obstacle((x, y)):
-                    visible.add((x, y))
+                candidate = (x, y)
+                if environment.is_obstacle(candidate):
+                    continue
+                if (x - x0) ** 2 + (y - y0) ** 2 > sensor_radius_sq:
+                    continue
+                if candidate != drone.position:
+                    angle = math.atan2(y - y0, x - x0)
+                    delta = math.atan2(
+                        math.sin(angle - heading_angle),
+                        math.cos(angle - heading_angle),
+                    )
+                    if abs(delta) > half_fov:
+                        continue
+                if environment.has_line_of_sight(drone.position, candidate):
+                    visible.add(candidate)
         return visible

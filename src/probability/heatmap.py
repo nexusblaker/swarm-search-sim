@@ -61,50 +61,23 @@ class ProbabilityMap:
     def diffuse(self, environment: GridEnvironment, diffusion_rate: float = 0.08) -> None:
         """Diffuse probability mass over traversable neighboring cells."""
 
-        if diffusion_rate <= 0.0:
-            return
-
-        next_values = np.zeros_like(self.values)
-        for position in environment.iter_traversable_cells():
-            x, y = position
-            neighbors = environment.get_neighbors(position, diagonal=True)
-            retained_mass = self.values[y, x] * (1.0 - diffusion_rate)
-            next_values[y, x] += retained_mass
-
-            transferred_mass = self.values[y, x] * diffusion_rate
-            if not neighbors:
-                next_values[y, x] += transferred_mass
-                continue
-
-            weights = np.array(
-                [
-                    (1.0 / environment.get_movement_cost(neighbor))
-                    * (1.2 - environment.get_detection_modifier(neighbor))
-                    for neighbor in neighbors
-                ],
-                dtype=float,
-            )
-            weights = np.clip(weights, 1e-3, None)
-            weights /= weights.sum()
-            for neighbor, weight in zip(neighbors, weights):
-                nx, ny = neighbor
-                next_values[ny, nx] += transferred_mass * weight
-
-        next_values[environment.obstacle_mask] = 0.0
-        self.values = next_values
+        self.values = self.diffuse_values(self.values, environment, diffusion_rate)
         self.normalize()
 
     def update_after_negative_search(
         self,
         searched_cells: Iterable[Position],
         suppression: float = 0.25,
+        search_counts: dict[Position, int] | None = None,
     ) -> None:
         """Reduce belief in searched cells after no target is found."""
 
-        for x, y in searched_cells:
-            if 0 <= y < self.values.shape[0] and 0 <= x < self.values.shape[1]:
-                self.values[y, x] *= suppression
-        self.values = np.clip(self.values, 0.0, None)
+        self.values = self.suppress_values(
+            self.values,
+            searched_cells,
+            suppression,
+            search_counts,
+        )
         self.normalize()
 
     def value_at(self, position: Position) -> float:
@@ -124,3 +97,69 @@ class ProbabilityMap:
         index = int(np.argmax(self.values))
         y, x = np.unravel_index(index, self.values.shape)
         return (int(x), int(y))
+
+    @staticmethod
+    def diffuse_values(
+        values: np.ndarray,
+        environment: GridEnvironment,
+        diffusion_rate: float,
+    ) -> np.ndarray:
+        """Return a diffused copy of a probability grid."""
+
+        if diffusion_rate <= 0.0:
+            return values.copy()
+
+        next_values = np.zeros_like(values)
+        for position in environment.iter_traversable_cells():
+            x, y = position
+            neighbors = environment.get_neighbors(position, diagonal=True)
+            retained_mass = values[y, x] * (1.0 - diffusion_rate)
+            next_values[y, x] += retained_mass
+
+            transferred_mass = values[y, x] * diffusion_rate
+            if not neighbors:
+                next_values[y, x] += transferred_mass
+                continue
+
+            weights = np.array(
+                [
+                    (1.0 / environment.get_movement_cost(neighbor))
+                    * (1.2 - environment.get_detection_modifier(neighbor))
+                    for neighbor in neighbors
+                ],
+                dtype=float,
+            )
+            weights = np.clip(weights, 1e-3, None)
+            weights /= weights.sum()
+            for neighbor, weight in zip(neighbors, weights):
+                nx, ny = neighbor
+                next_values[ny, nx] += transferred_mass * weight
+
+        next_values[environment.obstacle_mask] = 0.0
+        total = float(next_values.sum())
+        if total > 0.0:
+            next_values /= total
+        return next_values
+
+    @staticmethod
+    def suppress_values(
+        values: np.ndarray,
+        searched_cells: Iterable[Position],
+        suppression: float,
+        search_counts: dict[Position, int] | None = None,
+    ) -> np.ndarray:
+        """Return a copy of a probability grid after negative evidence updates."""
+
+        next_values = values.copy()
+        for x, y in searched_cells:
+            if 0 <= y < next_values.shape[0] and 0 <= x < next_values.shape[1]:
+                repeat_factor = 1.0
+                if search_counts is not None:
+                    repeat_factor += 0.25 * max(search_counts.get((x, y), 0) - 1, 0)
+                effective_suppression = max(0.02, suppression / repeat_factor)
+                next_values[y, x] *= effective_suppression
+        next_values = np.clip(next_values, 0.0, None)
+        total = float(next_values.sum())
+        if total > 0.0:
+            next_values /= total
+        return next_values

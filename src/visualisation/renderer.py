@@ -39,12 +39,18 @@ class SimulationRenderer:
         probability_map = np.asarray(snapshot["probability_map"])
         visited_cells = list(snapshot["visited_cells"])
         searched_cells = list(snapshot.get("searched_cells", []))
+        shared_searched_cells = list(snapshot.get("shared_searched_cells", []))
         drone_positions = [tuple(drone["position"]) for drone in snapshot["drones"]]
         drone_trails = [list(drone.get("path_history", [])) for drone in snapshot["drones"]]
+        planned_paths = [list(drone.get("planned_path", [])) for drone in snapshot["drones"]]
         target_position = tuple(snapshot["target_position"])
         target_trail = list(snapshot.get("target_trail", []))
         detection_event = snapshot.get("detection_event")
         obstacle_mask = np.asarray(snapshot.get("obstacle_mask"))
+        communication_links = list(snapshot.get("communication_links", []))
+        scan_footprints = snapshot.get("scan_footprints", {})
+        returning_drones = set(snapshot.get("returning_drones", []))
+        base_position = tuple(snapshot.get("base_position", (0, 0)))
 
         fig, ax = plt.subplots(figsize=(10, 7))
         ax.imshow(terrain_grid, cmap=SimulationRenderer.TERRAIN_CMAP, origin="upper")
@@ -72,10 +78,22 @@ class SimulationRenderer:
                 label="Searched region",
             )
 
+        if shared_searched_cells:
+            shared_x = [cell[0] for cell in shared_searched_cells]
+            shared_y = [cell[1] for cell in shared_searched_cells]
+            ax.scatter(shared_x, shared_y, s=8, c="#06d6a0", alpha=0.12, marker="s", label="Shared knowledge")
+
         if visited_cells:
             visited_x = [cell[0] for cell in visited_cells]
             visited_y = [cell[1] for cell in visited_cells]
             ax.scatter(visited_x, visited_y, s=12, c="#ffffff", alpha=0.35, marker="s", label="Visited")
+
+        for footprint in scan_footprints.values():
+            if not footprint:
+                continue
+            footprint_x = [cell[0] for cell in footprint]
+            footprint_y = [cell[1] for cell in footprint]
+            ax.scatter(footprint_x, footprint_y, s=18, c="#ef476f", alpha=0.08, marker="s")
 
         for trail in drone_trails:
             if len(trail) < 2:
@@ -84,15 +102,46 @@ class SimulationRenderer:
             trail_y = [position[1] for position in trail]
             ax.plot(trail_x, trail_y, color="#4cc9f0", linewidth=1.2, alpha=0.5)
 
+        for path in planned_paths:
+            if len(path) < 2:
+                continue
+            path_x = [position[0] for position in path]
+            path_y = [position[1] for position in path]
+            ax.plot(path_x, path_y, color="#ffbe0b", linewidth=1.0, linestyle=":", alpha=0.75)
+
         if drone_positions:
             drone_x = [position[0] for position in drone_positions]
             drone_y = [position[1] for position in drone_positions]
             ax.scatter(drone_x, drone_y, s=100, c="#00bcd4", edgecolors="black", label="Drones")
+            for drone in snapshot["drones"]:
+                if drone["id"] in returning_drones:
+                    x, y = drone["position"]
+                    ax.text(x + 0.3, y + 0.3, "RTB", color="#ffbe0b", fontsize=8, weight="bold")
+
+        if communication_links:
+            for start, end in communication_links:
+                ax.plot(
+                    [start[0], end[0]],
+                    [start[1], end[1]],
+                    color="#06d6a0",
+                    linewidth=1.0,
+                    alpha=0.4,
+                )
 
         if len(target_trail) >= 2:
             target_x = [position[0] for position in target_trail]
             target_y = [position[1] for position in target_trail]
             ax.plot(target_x, target_y, color="#ff6b6b", linewidth=1.4, linestyle="--", alpha=0.7, label="Target trail")
+
+        ax.scatter(
+            [base_position[0]],
+            [base_position[1]],
+            s=120,
+            c="#073b4c",
+            marker="^",
+            edgecolors="white",
+            label="Base",
+        )
 
         ax.scatter(
             [target_position[0]],

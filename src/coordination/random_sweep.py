@@ -30,24 +30,25 @@ class RandomSweepStrategy(BaseStrategy):
                 moves[drone.id] = drone.position
                 continue
 
-            candidates = self.candidate_moves(drone, environment)
+            traversable_cells = list(environment.iter_traversable_cells())
+            sampled_candidates = list(
+                self.rng.choice(
+                    traversable_cells,
+                    size=min(12, len(traversable_cells)),
+                    replace=False,
+                )
+            )
             best_score = float("-inf")
             best_candidate = drone.position
-            previous_position = (
-                drone.path_history[-2]
-                if len(drone.path_history) > 1
-                else drone.position
-            )
-            for candidate in candidates:
-                unvisited_bonus = 1.8 if candidate not in drone.visited_cells else -0.5
-                probability_bonus = probability_map.value_at(candidate) * 2.5
-                movement_penalty = environment.get_movement_cost(candidate) * 0.2
-                backtrack_penalty = 0.6 if candidate == previous_position else 0.0
-                noise = float(self.rng.uniform(0.0, 1.0))
-                score = unvisited_bonus + probability_bonus + noise - movement_penalty - backtrack_penalty
+            for candidate in sampled_candidates:
+                path_cost = self.route_cost(environment, drone.position, tuple(candidate))
+                unsearched_bonus = 1.5 if tuple(candidate) not in drone.local_known_searched else -0.3
+                probability_bonus = self.belief_value(drone, probability_map, tuple(candidate)) * 4.0
+                noise = float(self.rng.uniform(0.0, 1.2))
+                score = unsearched_bonus + probability_bonus + noise - 0.12 * path_cost
                 if score > best_score:
                     best_score = score
-                    best_candidate = candidate
+                    best_candidate = tuple(candidate)
             self._last_move[drone.id] = best_candidate
             moves[drone.id] = best_candidate
         return moves

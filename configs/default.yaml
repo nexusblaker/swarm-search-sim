@@ -1,26 +1,28 @@
 scenario:
+  scenario_family: mixed_terrain
   map_size: [48, 36]
   weather: windy
   num_drones: 4
+  base_position: [0, 0]
   last_known_position: [24, 18]
-  max_steps: 80
-  strategy: probability_greedy
+  max_steps: 90
+  strategy: information_gain
   seed: 11
   target_start_radius: 4
   target_spread_sigma: 6.0
   probability_diffusion: 0.08
-  negative_search_suppression: 0.18
+  negative_search_suppression: 0.16
   target_assumptions:
     mobility: medium
     drift_sigma: 6.0
     target_move_probability: 0.55
     target_speed: 1
-    behavior: terrain_biased_random_walk
+    behavior: terrain_biased
   drone:
     battery: 150.0
     speed: 1
     sensor_range: 5.5
-    fov: 120.0
+    fov: 110.0
   terrain:
     obstacle_ratio: 0.08
     distribution:
@@ -37,13 +39,35 @@ scenario:
       windy: 0.88
       rain: 0.72
       storm: 0.55
+  communication:
+    radius: 11.0
+    packet_loss_probability: 0.12
+    latency: 1
+    coordination_mode: centralized
+    base_position: [0, 0]
+  battery_policy:
+    return_threshold: 28.0
   render:
     save_frames: true
     frame_stride: 2
   benchmark:
-    num_seeds: 30
+    num_seeds: 4
+    experiment_num_seeds: 1
     output_dir: outputs
     strategies:
       - random_sweep
       - sector_search
       - probability_greedy
+      - auction_based
+      - information_gain
+    target_behaviors:
+      - terrain_biased
+    coordination_modes:
+      - centralized
+      - decentralized
+    drone_counts:
+      - 4
+    scenario_families:
+      - open_terrain
+      - poor_comms
+      - low_battery_budget

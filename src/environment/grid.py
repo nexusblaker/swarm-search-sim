@@ -171,6 +171,47 @@ class GridEnvironment:
                 neighbors.append(candidate)
         return neighbors
 
+    def estimate_cost(self, start: Position, goal: Position) -> float:
+        """Return a lightweight admissible-ish cost estimate for path planning."""
+
+        dx = abs(start[0] - goal[0])
+        dy = abs(start[1] - goal[1])
+        return float((dx + dy) * np.min(self.movement_cost))
+
+    def line_cells(self, start: Position, end: Position) -> list[Position]:
+        """Return grid cells along a line segment between two points."""
+
+        x0, y0 = start
+        x1, y1 = end
+        steps = max(abs(x1 - x0), abs(y1 - y0), 1)
+        cells: list[Position] = []
+        for step in range(steps + 1):
+            t = step / steps
+            x = int(round(x0 + (x1 - x0) * t))
+            y = int(round(y0 + (y1 - y0) * t))
+            position = (x, y)
+            if not cells or cells[-1] != position:
+                cells.append(position)
+        return cells
+
+    def has_line_of_sight(self, start: Position, end: Position) -> bool:
+        """Approximate line of sight using obstacles and high-blockage terrain."""
+
+        obstruction_score = 0.0
+        for cell in self.line_cells(start, end)[1:-1]:
+            if self.is_obstacle(cell):
+                return False
+            terrain = self.terrain_at(cell)
+            if terrain == TerrainType.FOREST:
+                obstruction_score += 0.35
+            elif terrain == TerrainType.HILL:
+                obstruction_score += 0.2
+            elif terrain == TerrainType.URBAN:
+                obstruction_score += 0.25
+            elif terrain == TerrainType.WATER:
+                obstruction_score += 0.1
+        return obstruction_score < 1.2
+
     def iter_traversable_cells(self) -> Iterable[Position]:
         """Yield traversable cells in row-major order."""
 

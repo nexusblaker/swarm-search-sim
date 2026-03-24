@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 
@@ -45,15 +45,35 @@ class ScenarioConfig:
     negative_search_suppression: float = 0.2
     false_positive_rate: float = 0.02
     false_negative_rate: float = 0.08
+    communication_radius: float = 12.0
+    packet_loss_probability: float = 0.05
+    communication_latency: int = 1
+    coordination_mode: str = "centralized"
+    base_position: Position = (0, 0)
+    return_to_base_threshold: float = 28.0
+    scenario_family: str = "mixed_terrain"
     save_frames: bool = True
     frame_stride: int = 3
     benchmark_num_seeds: int = 30
+    experiment_num_seeds: int = 4
     benchmark_strategies: list[str] = field(
         default_factory=lambda: [
             "random_sweep",
             "sector_search",
             "probability_greedy",
+            "auction_based",
+            "information_gain",
         ]
+    )
+    benchmark_target_behaviors: list[str] = field(
+        default_factory=lambda: ["terrain_biased", "stationary_intervals"]
+    )
+    benchmark_coordination_modes: list[str] = field(
+        default_factory=lambda: ["centralized", "decentralized"]
+    )
+    benchmark_drone_counts: list[int] = field(default_factory=lambda: [4])
+    benchmark_scenario_families: list[str] = field(
+        default_factory=lambda: ["open_terrain", "poor_comms", "low_battery_budget"]
     )
     benchmark_output_dir: str = "outputs"
     weather_modifiers: dict[str, float] = field(
@@ -74,6 +94,8 @@ class ScenarioConfig:
         terrain_data = scenario_data.get("terrain", {})
         render_data = scenario_data.get("render", {})
         sensor_data = scenario_data.get("sensor", {})
+        communication_data = scenario_data.get("communication", {})
+        battery_data = scenario_data.get("battery_policy", {})
         benchmark_data = scenario_data.get("benchmark", {})
 
         target_assumptions = dict(scenario_data.get("target_assumptions", {}))
@@ -141,13 +163,59 @@ class ScenarioConfig:
             ),
             false_positive_rate=float(sensor_data.get("false_positive_rate", 0.02)),
             false_negative_rate=float(sensor_data.get("false_negative_rate", 0.08)),
+            communication_radius=float(communication_data.get("radius", 12.0)),
+            packet_loss_probability=float(
+                communication_data.get("packet_loss_probability", 0.05)
+            ),
+            communication_latency=int(communication_data.get("latency", 1)),
+            coordination_mode=str(
+                communication_data.get("coordination_mode", "centralized")
+            ),
+            base_position=tuple(
+                scenario_data.get(
+                    "base_position",
+                    communication_data.get("base_position", [0, 0]),
+                )
+            ),
+            return_to_base_threshold=float(
+                battery_data.get("return_threshold", 28.0)
+            ),
+            scenario_family=str(scenario_data.get("scenario_family", "mixed_terrain")),
             save_frames=bool(render_data.get("save_frames", True)),
             frame_stride=int(render_data.get("frame_stride", 3)),
             benchmark_num_seeds=int(benchmark_data.get("num_seeds", 30)),
+            experiment_num_seeds=int(benchmark_data.get("experiment_num_seeds", 4)),
             benchmark_strategies=list(
                 benchmark_data.get(
                     "strategies",
-                    ["random_sweep", "sector_search", "probability_greedy"],
+                    [
+                        "random_sweep",
+                        "sector_search",
+                        "probability_greedy",
+                        "auction_based",
+                        "information_gain",
+                    ],
+                )
+            ),
+            benchmark_target_behaviors=list(
+                benchmark_data.get(
+                    "target_behaviors",
+                    ["terrain_biased", "stationary_intervals"],
+                )
+            ),
+            benchmark_coordination_modes=list(
+                benchmark_data.get(
+                    "coordination_modes",
+                    ["centralized", "decentralized"],
+                )
+            ),
+            benchmark_drone_counts=list(
+                benchmark_data.get("drone_counts", [4])
+            ),
+            benchmark_scenario_families=list(
+                benchmark_data.get(
+                    "scenario_families",
+                    ["open_terrain", "poor_comms", "low_battery_budget"],
                 )
             ),
             benchmark_output_dir=str(benchmark_data.get("output_dir", "outputs")),
@@ -163,3 +231,58 @@ class ScenarioConfig:
                 )
             ),
         )
+
+    def with_scenario_family(self, family: str) -> "ScenarioConfig":
+        """Return a copy of the config with a scenario-family preset applied."""
+
+        presets: dict[str, dict[str, Any]] = {
+            "open_terrain": {
+                "terrain_distribution": {
+                    "plain": 0.7,
+                    "forest": 0.1,
+                    "hill": 0.08,
+                    "urban": 0.08,
+                    "water": 0.04,
+                },
+                "obstacle_ratio": 0.03,
+                "weather": "clear",
+            },
+            "dense_forest": {
+                "terrain_distribution": {
+                    "plain": 0.18,
+                    "forest": 0.55,
+                    "hill": 0.12,
+                    "urban": 0.07,
+                    "water": 0.08,
+                },
+                "obstacle_ratio": 0.1,
+                "weather": "windy",
+            },
+            "mixed_terrain": {
+                "terrain_distribution": {
+                    "plain": 0.4,
+                    "forest": 0.24,
+                    "hill": 0.16,
+                    "urban": 0.14,
+                    "water": 0.06,
+                },
+                "obstacle_ratio": 0.08,
+            },
+            "obstacle_heavy": {
+                "obstacle_ratio": 0.16,
+            },
+            "poor_comms": {
+                "communication_radius": 7.0,
+                "packet_loss_probability": 0.35,
+                "communication_latency": 3,
+                "coordination_mode": "decentralized",
+            },
+            "high_wind": {
+                "weather": "storm",
+            },
+            "low_battery_budget": {
+                "drone_battery": 85.0,
+                "return_to_base_threshold": 32.0,
+            },
+        }
+        return replace(self, scenario_family=family, **presets.get(family, {}))

@@ -30,8 +30,10 @@ def main() -> None:
         )
 
     print("Swarm Coordination Simulator for Search Coverage Optimization")
-    print("Phase: 2 simulation core")
+    print("Phase: 3 research-grade coordination core")
     print(f"Strategy: {config.strategy}")
+    print(f"Scenario family: {config.scenario_family}")
+    print(f"Coordination mode: {config.coordination_mode}")
     print(f"Weather: {config.weather}")
     print(f"Rendered final state to: {output_path.resolve()}")
     for metric_name, metric_value in asdict(metrics).items():

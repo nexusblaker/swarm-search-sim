@@ -1,51 +1,49 @@
 # Swarm Search Sim
 
-Swarm Search Sim is a modular Python project for multi-drone search-and-rescue simulation under uncertainty. Phase 2 upgrades the original architecture into an end-to-end simulation core with dynamic target motion, terrain-aware sensing and movement, multiple coordination strategies, benchmarking, and visual outputs.
+Swarm Search Sim is a modular Python platform for research-oriented multi-drone search coordination under uncertainty. Phase 3 extends the Phase 2 prototype with reusable path planning, communication constraints, battery-aware routing, richer evidence updates, new coordination strategies, and grouped robustness experiments.
+
+## Phase 3 Capabilities
+
+- obstacle-aware A* path planning with terrain movement costs
+- configurable communication radius, packet loss, latency, and centralized/decentralized coordination modes
+- battery-aware return-to-base behavior with forced-return tracking
+- richer probability suppression using repeated scan evidence
+- multiple target behaviors:
+  - `random_walk`
+  - `terrain_biased`
+  - `trail_biased`
+  - `injured_slow`
+  - `stationary_intervals`
+- richer thermal scan footprints using range, FOV, and line-of-sight approximation
+- five coordination strategies:
+  - `random_sweep`
+  - `sector_search`
+  - `probability_greedy`
+  - `auction_based`
+  - `information_gain`
 
 ## Current Architecture
 
-The package layout under `src/` is preserved from Phase 1:
+The Phase 2 package layout is preserved:
 
-- `src/scenarios/scenario.py`: `ScenarioConfig` and YAML-backed scenario settings
-- `src/environment/grid.py`: terrain generation, movement costs, detection modifiers, obstacle masking
-- `src/agents/drone.py`: drone state, path history, battery accounting, detection logs
-- `src/probability/heatmap.py`: target belief initialization, terrain weighting, diffusion, negative-search suppression
-- `src/sensors/thermal.py`: stochastic thermal scan model using distance, terrain, weather, false positives, and false negatives
-- `src/coordination/`: `RandomSweepStrategy`, `SectorSearchStrategy`, and `ProbabilityGreedyStrategy`
-- `src/analytics/metrics.py`: mission summary metrics
-- `src/simulation/engine.py`: per-step mission loop, target motion, scanning, history capture, and stop conditions
-- `src/visualisation/renderer.py`: final-state rendering plus saved frame generation
-- `src/utils/config_loader.py`: loading `configs/default.yaml`
+- `src/scenarios/scenario.py`: `ScenarioConfig`, YAML parsing, scenario-family presets
+- `src/environment/grid.py`: terrain generation, obstacles, movement cost, detection modifier, LOS helpers
+- `src/agents/drone.py`: drone state, path history, local/shared knowledge, battery and return state
+- `src/probability/heatmap.py`: initialization, terrain weighting, diffusion, repeated-evidence suppression
+- `src/sensors/thermal.py`: thermal scan model with weather, FOV, and LOS-aware footprinting
+- `src/coordination/`: strategy interface plus five strategies
+- `src/simulation/planning.py`: small reusable A* helper
+- `src/simulation/engine.py`: mission loop, path planning, comms queue, evidence updates, returns, metrics, history
+- `src/visualisation/renderer.py`: static renders, overlays, communication links, reserved paths, frame export
+- `benchmark.py`: standard benchmark plus grouped robustness experiments
 
-## Implemented Strategies
+## Comms and Battery Model
 
-- `random_sweep`: exploration-heavy random motion with simple anti-backtracking behavior
-- `sector_search`: assigns drones to vertical sectors and sweeps them systematically
-- `probability_greedy`: prioritizes high-probability cells while reducing same-cell overlap
-
-## Metrics Tracked
-
-- `time_to_detection`
-- `area_covered_pct`
-- `probability_mass_covered`
-- `overlap_ratio`
-- `battery_used`
-- `mission_success`
-
-## Configuration
-
-The default scenario is in `configs/default.yaml`. It currently controls:
-
-- weather
-- number of drones
-- target behavior and speed
-- target start radius around the last known position
-- terrain ratios and obstacle rate
-- drone battery, movement speed, and sensor range
-- sensor false positive / false negative rates
-- probability diffusion and negative-search suppression
-- render frame settings
-- benchmark seed count and strategy list
+- Drones share visited cells, searched cells, probability updates, and intended targets only when communication succeeds.
+- In `centralized` mode, drones sync through the base station.
+- In `decentralized` mode, drones exchange updates directly with neighbors in communication range.
+- Packet loss and latency can make drone knowledge stale, which degrades coordination.
+- Drones switch into return-to-base mode when remaining battery is no longer safe relative to the planned path home plus the configured threshold.
 
 ## Run One Simulation
 
@@ -57,10 +55,10 @@ python main.py
 
 Outputs are written under `outputs/`:
 
-- `final_state.png`: final rendered simulation state
-- `frames/`: saved step frames from the run
+- `final_state.png`
+- `frames/`
 
-## Run Benchmarks
+## Run Benchmarks and Grouped Experiments
 
 From the repo root:
 
@@ -68,22 +66,46 @@ From the repo root:
 python benchmark.py
 ```
 
-Benchmark outputs are written under `outputs/`:
+Outputs include:
 
-- `benchmark_results.csv`: one row per `(strategy, seed)` run
-- `benchmark_summary.csv`: grouped summary statistics by strategy
-- `benchmark_comparison.png`: comparison chart for average time to detection and success rate
+- `benchmark_results.csv`
+- `benchmark_summary.csv`
+- `benchmark_comparison.png`
+- `experiment_results.csv`
+- `experiment_summary.csv`
+- `plot_success_by_strategy_family.png`
+- `plot_time_by_strategy_comms.png`
+- `plot_overlap_by_strategy.png`
+
+## Metrics Tracked
+
+- `time_to_detection`
+- `area_covered_pct`
+- `probability_mass_covered`
+- `overlap_ratio`
+- `battery_used`
+- `successful_returns_to_base`
+- `forced_low_battery_returns`
+- `comms_failures`
+- `stale_information_events`
+- `path_efficiency`
+- `average_overlap_per_step`
+- `detection_under_comms_mode`
+- `mission_success`
 
 ## Tests
 
-Run all tests from the repo root:
+Run the test suite from the repo root:
 
 ```bash
 pytest
 ```
 
-The test suite currently covers:
+The current tests cover:
 
-- a full simulation smoke test
-- benchmark output generation
-- probability-map normalization after repeated updates
+- A* path validity around obstacles
+- probability normalization after repeated evidence updates
+- low-battery return behavior
+- comms degradation affecting shared state
+- grouped benchmark outputs
+- smoke execution of the new strategies

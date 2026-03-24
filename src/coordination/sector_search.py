@@ -64,7 +64,7 @@ class SectorSearchStrategy(BaseStrategy):
                 environment=environment,
                 probability_map=probability_map,
             )
-            moves[drone.id] = self._step_towards(drone.position, target, environment)
+            moves[drone.id] = target
         return moves
 
     def _best_local_probability_cell(

@@ -14,4 +14,11 @@ class SimulationMetrics:
     probability_mass_covered: float = 0.0
     overlap_ratio: float = 0.0
     battery_used: float = 0.0
+    successful_returns_to_base: int = 0
+    forced_low_battery_returns: int = 0
+    comms_failures: int = 0
+    stale_information_events: int = 0
+    path_efficiency: float = 0.0
+    average_overlap_per_step: float = 0.0
+    detection_under_comms_mode: str = ""
     mission_success: bool = False
