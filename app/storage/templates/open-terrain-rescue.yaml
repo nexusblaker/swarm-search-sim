@@ -3,7 +3,7 @@ scenario:
   - 18
   - 14
   weather: clear
-  num_drones: 5
+  num_drones: 4
   last_known_position:
   - 9
   - 7
@@ -15,7 +15,7 @@ scenario:
   max_steps: 45
   strategy: information_gain
   seed: 7
-  scenario_family: mixed_terrain
+  scenario_family: open_terrain
   base_position:
   - 1
   - 1
@@ -97,3 +97,4 @@ scenario:
     - open_terrain
     - layered_demo
     output_dir: outputs
+  name: Open Terrain Rescue

@@ -4,6 +4,10 @@ matplotlib
 pandas
 pyyaml
 jinja2
+fastapi
+uvicorn
+pydantic
+httpx
 streamlit
 pytest
 imageio

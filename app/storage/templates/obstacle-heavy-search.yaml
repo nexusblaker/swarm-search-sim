@@ -13,9 +13,9 @@ scenario:
     target_speed: 1
     drift_sigma: 4.5
   max_steps: 45
-  strategy: information_gain
+  strategy: auction_based
   seed: 7
-  scenario_family: mixed_terrain
+  scenario_family: obstacle_heavy
   base_position:
   - 1
   - 1
@@ -30,7 +30,7 @@ scenario:
     elevation: data/sample_layers/elevation.csv
     wind: data/sample_layers/wind.csv
   terrain:
-    obstacle_ratio: 0.08
+    obstacle_ratio: 0.16
     distribution:
       plain: 0.42
       forest: 0.24
@@ -97,3 +97,4 @@ scenario:
     - open_terrain
     - layered_demo
     output_dir: outputs
+  name: Obstacle Heavy Search

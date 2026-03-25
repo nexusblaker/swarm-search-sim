@@ -13,9 +13,9 @@ scenario:
     target_speed: 1
     drift_sigma: 4.5
   max_steps: 45
-  strategy: information_gain
+  strategy: sector_search
   seed: 7
-  scenario_family: mixed_terrain
+  scenario_family: low_battery_budget
   base_position:
   - 1
   - 1
@@ -38,7 +38,7 @@ scenario:
       urban: 0.12
       water: 0.06
   drone:
-    battery: 120.0
+    battery: 80.0
     speed: 1
     sensor_range: 5.0
     fov: 130.0
@@ -60,7 +60,7 @@ scenario:
     latency: 1
     coordination_mode: centralized
   battery_policy:
-    return_threshold: 28.0
+    return_threshold: 34.0
   belief:
     motion_strength: 0.18
     positive_gain: 1.6
@@ -97,3 +97,4 @@ scenario:
     - open_terrain
     - layered_demo
     output_dir: outputs
+  name: Low Battery Mission

@@ -20,9 +20,11 @@ class LocalProductPaths:
 
     root: Path
     scenarios_dir: Path
+    templates_dir: Path
     runs_dir: Path
     experiments_dir: Path
     reports_dir: Path
+    database_path: Path
 
     @classmethod
     def create(cls, root: str | Path = "app/storage") -> "LocalProductPaths":
@@ -30,9 +32,11 @@ class LocalProductPaths:
         paths = cls(
             root=base,
             scenarios_dir=base / "scenarios",
+            templates_dir=base / "templates",
             runs_dir=base / "runs",
             experiments_dir=base / "experiments",
             reports_dir=base / "reports",
+            database_path=base / "swarm_product.db",
         )
         paths.ensure()
         return paths
@@ -40,6 +44,7 @@ class LocalProductPaths:
     def ensure(self) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
         self.scenarios_dir.mkdir(parents=True, exist_ok=True)
+        self.templates_dir.mkdir(parents=True, exist_ok=True)
         self.runs_dir.mkdir(parents=True, exist_ok=True)
         self.experiments_dir.mkdir(parents=True, exist_ok=True)
         self.reports_dir.mkdir(parents=True, exist_ok=True)

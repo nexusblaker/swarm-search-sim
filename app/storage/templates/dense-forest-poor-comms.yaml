@@ -2,7 +2,7 @@ scenario:
   map_size:
   - 18
   - 14
-  weather: clear
+  weather: windy
   num_drones: 5
   last_known_position:
   - 9
@@ -13,9 +13,9 @@ scenario:
     target_speed: 1
     drift_sigma: 4.5
   max_steps: 45
-  strategy: information_gain
+  strategy: auction_based
   seed: 7
-  scenario_family: mixed_terrain
+  scenario_family: dense_forest
   base_position:
   - 1
   - 1
@@ -55,10 +55,10 @@ scenario:
       rain: 0.74
       storm: 0.56
   communication:
-    radius: 12.0
-    packet_loss_probability: 0.08
-    latency: 1
-    coordination_mode: centralized
+    radius: 7.0
+    packet_loss_probability: 0.25
+    latency: 2
+    coordination_mode: decentralized
   battery_policy:
     return_threshold: 28.0
   belief:
@@ -97,3 +97,4 @@ scenario:
     - open_terrain
     - layered_demo
     output_dir: outputs
+  name: Dense Forest Poor Comms

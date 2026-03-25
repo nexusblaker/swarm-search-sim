@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Mission Report {{ run.run_id }}</title>
+  <title>Mission Report {{ run.run_id or run.id }}</title>
   <style>
     body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
     h1, h2 { color: #102a43; }
@@ -16,12 +16,12 @@
 <body>
   <h1>Mission Summary Report</h1>
   <div class="card">
-    <p><strong>Run ID:</strong> {{ run.run_id }}</p>
+    <p><strong>Run ID:</strong> {{ run.run_id or run.id }}</p>
     <p><strong>Scenario:</strong> {{ run.scenario_id }}</p>
     <p><strong>Status:</strong> {{ run.status }}</p>
-    <p><strong>Strategy:</strong> {{ run.summary.strategy }}</p>
-    <p><strong>Scenario Family:</strong> {{ run.summary.scenario_family }}</p>
-    <p><strong>Target Behavior:</strong> {{ run.summary.target_behavior }}</p>
+    <p><strong>Strategy:</strong> {{ run.summary.strategy if run.summary is defined else run.summary_json.strategy }}</p>
+    <p><strong>Scenario Family:</strong> {{ run.summary.scenario_family if run.summary is defined else run.summary_json.scenario_family }}</p>
+    <p><strong>Target Behavior:</strong> {{ run.summary.target_behavior if run.summary is defined else run.summary_json.target_behavior }}</p>
   </div>
 
   <div class="card">
@@ -47,6 +47,17 @@
       </tbody>
     </table>
   </div>
+
+  {% if recommendation %}
+  <div class="card">
+    <h2>Recommendation Context</h2>
+    <p><strong>Recommended strategy:</strong> {{ recommendation.recommended_strategy }}</p>
+    <p><strong>Recommended drone count:</strong> {{ recommendation.recommended_drone_count }}</p>
+    <p><strong>Recommended reserve threshold:</strong> {{ recommendation.recommended_return_threshold }}</p>
+    <p>{{ recommendation.explanation }}</p>
+    <p><strong>Risk summary:</strong> <code>{{ recommendation.risk_summary }}</code></p>
+  </div>
+  {% endif %}
 
   <div class="card">
     <h2>Artifact References</h2>

@@ -2,7 +2,7 @@ scenario:
   map_size:
   - 18
   - 14
-  weather: clear
+  weather: storm
   num_drones: 5
   last_known_position:
   - 9
@@ -13,16 +13,16 @@ scenario:
     target_speed: 1
     drift_sigma: 4.5
   max_steps: 45
-  strategy: information_gain
+  strategy: probability_greedy
   seed: 7
-  scenario_family: mixed_terrain
+  scenario_family: high_wind
   base_position:
   - 1
   - 1
   target_start_radius: 3
   probability_diffusion: 0.08
   negative_search_suppression: 0.18
-  use_external_layers: false
+  use_external_layers: true
   layer_paths:
     terrain: data/sample_layers/terrain.csv
     obstacle: data/sample_layers/obstacles.csv
@@ -97,3 +97,4 @@ scenario:
     - open_terrain
     - layered_demo
     output_dir: outputs
+  name: Windy Ridge-Line Search

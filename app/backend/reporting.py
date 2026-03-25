@@ -31,14 +31,16 @@ class ReportGenerator:
 
         template = self.environment.get_template("mission_report.html.j2")
         event_counts = Counter(event["event_type"] for event in events)
-        output_path = self.paths.reports_dir / f"{run_record['run_id']}.html"
+        run_id = run_record.get("run_id") or run_record.get("id")
+        output_path = self.paths.reports_dir / f"{run_id}.html"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         html = template.render(
             run=run_record,
             events=events[:100],
             event_counts=dict(event_counts),
-            metrics=run_record.get("metrics", {}),
+            metrics=run_record.get("metrics", run_record.get("summary_json", {}).get("metrics", {})),
             artifacts=run_record.get("artifact_paths", {}),
+            recommendation=run_record.get("recommendation"),
         )
         output_path.write_text(html, encoding="utf-8")
         return output_path
