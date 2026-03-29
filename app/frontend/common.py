@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 from typing import Any
 
@@ -25,9 +26,20 @@ def post_json(path: str, payload: dict[str, Any]) -> dict[str, Any]:
     return get_api_client().post(path, payload)
 
 
+def put_json(path: str, payload: dict[str, Any]) -> dict[str, Any]:
+    return get_api_client().put(path, payload)
+
+
+def delete_json(path: str) -> dict[str, Any]:
+    return get_api_client().delete(path)
+
+
 def ensure_frontend_state() -> None:
     st.session_state.setdefault("api_base_url", DEFAULT_API_BASE_URL)
     st.session_state.setdefault("selected_scenario_id", "")
+    st.session_state.setdefault("selected_plan_id", "")
+    st.session_state.setdefault("selected_comparison_id", "")
+    st.session_state.setdefault("selected_review_id", "")
     st.session_state.setdefault("selected_run_id", "")
     st.session_state.setdefault("selected_experiment_id", "")
 
@@ -172,6 +184,128 @@ def build_scenario_payload(default: dict[str, Any] | None = None, key_prefix: st
     }
 
 
+def build_plan_request(
+    *,
+    default: dict[str, Any] | None = None,
+    scenarios: list[dict[str, Any]] | None = None,
+    templates: list[dict[str, Any]] | None = None,
+    key_prefix: str = "plan",
+) -> dict[str, Any]:
+    """Build a lightweight mission-plan request payload."""
+
+    default = default or {}
+    summary = default.get("summary_json", {})
+    recommendation = default.get("recommendation_json", {})
+    scenarios = scenarios or []
+    templates = templates or []
+
+    plan_name = st.text_input("Plan name", value=default.get("name", "Mission Plan"), key=f"{key_prefix}-name")
+    approval_state = st.selectbox(
+        "Approval state",
+        ["draft", "recommended", "approved", "archived"],
+        index=["draft", "recommended", "approved", "archived"].index(default.get("approval_state", "draft")),
+        key=f"{key_prefix}-approval",
+    )
+    scenario_options = [""] + [item["id"] for item in scenarios]
+    template_options = [""] + [item["id"] for item in templates]
+    scenario_id = st.selectbox(
+        "Linked scenario",
+        scenario_options,
+        index=scenario_options.index(default.get("scenario_id", "")) if default.get("scenario_id", "") in scenario_options else 0,
+        key=f"{key_prefix}-scenario-id",
+    )
+    template_id = st.selectbox(
+        "Template",
+        template_options,
+        index=template_options.index(default.get("template_id", "")) if default.get("template_id", "") in template_options else 0,
+        key=f"{key_prefix}-template-id",
+    )
+    col1, col2, col3 = st.columns(3)
+    strategy = col1.selectbox(
+        "Strategy",
+        ["random_sweep", "sector_search", "probability_greedy", "auction_based", "information_gain"],
+        index=["random_sweep", "sector_search", "probability_greedy", "auction_based", "information_gain"].index(summary.get("strategy", "information_gain")),
+        key=f"{key_prefix}-strategy",
+    )
+    num_drones = int(
+        col2.number_input(
+            "Drone count",
+            min_value=1,
+            max_value=20,
+            value=int(summary.get("num_drones", 4)),
+            key=f"{key_prefix}-drones",
+        )
+    )
+    return_threshold = float(
+        col3.number_input(
+            "Reserve threshold",
+            min_value=1.0,
+            max_value=100.0,
+            value=float(summary.get("return_to_base_threshold", 28.0)),
+            key=f"{key_prefix}-reserve",
+        )
+    )
+    col4, col5 = st.columns(2)
+    coordination_mode = col4.selectbox(
+        "Coordination mode",
+        ["centralized", "decentralized"],
+        index=["centralized", "decentralized"].index(summary.get("coordination_mode", "centralized")),
+        key=f"{key_prefix}-coord",
+    )
+    weather = col5.selectbox(
+        "Weather",
+        ["clear", "windy", "rain", "storm"],
+        index=["clear", "windy", "rain", "storm"].index(summary.get("weather", "clear")),
+        key=f"{key_prefix}-weather",
+    )
+    operator_notes = st.text_area(
+        "Operator notes",
+        value=default.get("operator_notes", ""),
+        key=f"{key_prefix}-notes",
+        height=120,
+    )
+    candidate_alternatives = st.text_area(
+        "Candidate alternatives (JSON list)",
+        value=str(default.get("candidate_alternatives_json", [])),
+        key=f"{key_prefix}-alternatives",
+        height=100,
+    )
+    st.caption(
+        "Recommendation snapshot updates automatically when the plan is saved. "
+        f"Current top recommendation: {recommendation.get('recommended_strategy', 'n/a')}"
+    )
+    priority_zone_radius = st.number_input("Priority zone radius", min_value=0.0, value=0.0, key=f"{key_prefix}-priority-radius")
+    exclusion_zone_radius = st.number_input("Exclusion zone radius", min_value=0.0, value=0.0, key=f"{key_prefix}-exclusion-radius")
+    priority_zone: list[dict[str, Any]] = []
+    exclusion_zone: list[dict[str, Any]] = []
+    if priority_zone_radius > 0:
+        priority_zone.append({"center": [0, 0], "radius": float(priority_zone_radius)})
+    if exclusion_zone_radius > 0:
+        exclusion_zone.append({"center": [0, 0], "radius": float(exclusion_zone_radius)})
+    try:
+        parsed_alternatives = ast.literal_eval(candidate_alternatives)
+        if not isinstance(parsed_alternatives, list):
+            parsed_alternatives = []
+    except Exception:
+        parsed_alternatives = []
+    return {
+        "name": plan_name,
+        "scenario_id": scenario_id or None,
+        "template_id": template_id or None,
+        "strategy": strategy,
+        "num_drones": num_drones,
+        "weather": weather,
+        "approval_state": approval_state,
+        "asset_package": {"battery": summary.get("asset_package", {}).get("battery", 120.0)},
+        "reserve_policy": {"return_threshold": return_threshold},
+        "communication_assumptions": {"coordination_mode": coordination_mode},
+        "priority_zones": priority_zone,
+        "exclusion_zones": exclusion_zone,
+        "candidate_alternatives": parsed_alternatives,
+        "operator_notes": operator_notes,
+    }
+
+
 def render_snapshot(snapshot: dict[str, Any]) -> None:
     fig, _ = SimulationRenderer.render_static(snapshot, show=False, close_figure=False)
     st.pyplot(fig)
@@ -191,6 +325,48 @@ def scenario_table(records: list[dict[str, Any]]) -> None:
                 "family": item["summary_json"].get("scenario_family"),
                 "drones": item["summary_json"].get("num_drones"),
                 "weather": item["summary_json"].get("weather"),
+            }
+            for item in records
+        ]
+    )
+    st.dataframe(dataframe, use_container_width=True)
+
+
+def plan_table(records: list[dict[str, Any]]) -> None:
+    if not records:
+        st.info("No mission plans available.")
+        return
+    dataframe = pd.DataFrame(
+        [
+            {
+                "id": item["id"],
+                "name": item["name"],
+                "approval": item["approval_state"],
+                "strategy": item["summary_json"].get("strategy"),
+                "family": item["summary_json"].get("scenario_family"),
+                "drones": item["summary_json"].get("num_drones"),
+                "latest_comparison": item.get("latest_comparison_id"),
+                "latest_review": item.get("latest_review_id"),
+            }
+            for item in records
+        ]
+    )
+    st.dataframe(dataframe, use_container_width=True)
+
+
+def comparison_table(records: list[dict[str, Any]]) -> None:
+    if not records:
+        st.info("No saved comparisons available.")
+        return
+    dataframe = pd.DataFrame(
+        [
+            {
+                "id": item["id"],
+                "name": item["name"],
+                "plan_id": item.get("plan_id"),
+                "status": item["status"],
+                "top_strategy": item.get("recommendation_json", {}).get("strategy"),
+                "top_drones": item.get("recommendation_json", {}).get("drone_count"),
             }
             for item in records
         ]

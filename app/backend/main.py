@@ -5,7 +5,20 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.backend.api import decision_support, experiments, health, jobs, reports, runs, scenarios, templates
+from app.backend.api import (
+    comparisons,
+    decision_support,
+    experiments,
+    health,
+    jobs,
+    library,
+    plans,
+    reports,
+    reviews,
+    runs,
+    scenarios,
+    templates,
+)
 from app.backend.core.settings import BackendSettings
 from app.backend.services import ProductBackend
 
@@ -13,7 +26,7 @@ from app.backend.services import ProductBackend
 def create_app(settings: BackendSettings | None = None) -> FastAPI:
     app = FastAPI(
         title="Swarm Mission Decision Support API",
-        version="0.6.0",
+        version="0.7.0",
         docs_url="/docs",
         redoc_url="/redoc",
     )
@@ -29,10 +42,14 @@ def create_app(settings: BackendSettings | None = None) -> FastAPI:
         health.router,
         scenarios.router,
         templates.router,
+        library.router,
+        plans.router,
         runs.router,
         experiments.router,
+        comparisons.router,
         jobs.router,
         reports.router,
+        reviews.router,
         decision_support.router,
     ):
         app.include_router(router)

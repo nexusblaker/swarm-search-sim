@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>After Action Review {{ review.id }}</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
+    h1, h2 { color: #102a43; }
+    .card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; }
+    th { background: #f0f4f8; }
+    code { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>After Action Review</h1>
+  <div class="card">
+    <p><strong>Review ID:</strong> {{ review.id }}</p>
+    <p><strong>Run ID:</strong> {{ review.run_id }}</p>
+    <p><strong>Plan ID:</strong> {{ review.plan_id }}</p>
+    <p><strong>Comparison ID:</strong> {{ review.comparison_id }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Outcome Summary</h2>
+    <code>{{ review.summary_json.actual_outcome }}</code>
+  </div>
+
+  <div class="card">
+    <h2>Deviation From Recommendation</h2>
+    <code>{{ review.summary_json.deviation_from_recommendation }}</code>
+  </div>
+
+  <div class="card">
+    <h2>Alternate Plan Analysis</h2>
+    <code>{{ review.alternate_plan_json }}</code>
+  </div>
+
+  <div class="card">
+    <h2>Timeline</h2>
+    <table>
+      <thead><tr><th>Step</th><th>Event</th><th>Details</th></tr></thead>
+      <tbody>
+      {% for event in review.timeline_json.key_events %}
+        <tr><td>{{ event.step }}</td><td>{{ event.event_type }}</td><td><code>{{ event.details }}</code></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

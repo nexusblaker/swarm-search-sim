@@ -52,6 +52,9 @@ class MetadataStore:
                 CREATE TABLE IF NOT EXISTS runs (
                     id TEXT PRIMARY KEY,
                     scenario_id TEXT NOT NULL,
+                    plan_id TEXT,
+                    comparison_id TEXT,
+                    candidate_id TEXT,
                     status TEXT NOT NULL,
                     created_at REAL NOT NULL,
                     updated_at REAL NOT NULL,
@@ -103,6 +106,8 @@ class MetadataStore:
                 CREATE TABLE IF NOT EXISTS reports (
                     id TEXT PRIMARY KEY,
                     run_id TEXT NOT NULL,
+                    owner_type TEXT NOT NULL DEFAULT 'run',
+                    owner_id TEXT,
                     report_type TEXT NOT NULL,
                     created_at REAL NOT NULL,
                     summary_json TEXT NOT NULL,
@@ -119,8 +124,124 @@ class MetadataStore:
                     metadata_json TEXT NOT NULL,
                     created_at REAL NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS mission_plans (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    scenario_id TEXT,
+                    template_id TEXT,
+                    approval_state TEXT NOT NULL,
+                    created_at REAL NOT NULL,
+                    updated_at REAL NOT NULL,
+                    deleted_at REAL,
+                    plan_json TEXT NOT NULL,
+                    summary_json TEXT NOT NULL,
+                    recommendation_json TEXT NOT NULL,
+                    operator_notes TEXT NOT NULL,
+                    candidate_alternatives_json TEXT NOT NULL,
+                    priority_zones_json TEXT NOT NULL,
+                    exclusion_zones_json TEXT NOT NULL,
+                    latest_comparison_id TEXT,
+                    latest_review_id TEXT,
+                    linked_run_ids_json TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS plan_comparisons (
+                    id TEXT PRIMARY KEY,
+                    plan_id TEXT,
+                    name TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    created_at REAL NOT NULL,
+                    updated_at REAL NOT NULL,
+                    completed_at REAL,
+                    request_json TEXT NOT NULL,
+                    summary_json TEXT NOT NULL,
+                    recommendation_json TEXT NOT NULL,
+                    uncertainty_json TEXT NOT NULL,
+                    sensitivity_json TEXT NOT NULL,
+                    linked_run_ids_json TEXT NOT NULL,
+                    report_id TEXT,
+                    job_id TEXT,
+                    FOREIGN KEY (plan_id) REFERENCES mission_plans(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS plan_candidates (
+                    id TEXT PRIMARY KEY,
+                    comparison_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    rank INTEGER NOT NULL,
+                    linked_run_id TEXT,
+                    config_json TEXT NOT NULL,
+                    summary_json TEXT NOT NULL,
+                    FOREIGN KEY (comparison_id) REFERENCES plan_comparisons(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS after_action_reviews (
+                    id TEXT PRIMARY KEY,
+                    run_id TEXT NOT NULL,
+                    plan_id TEXT,
+                    comparison_id TEXT,
+                    name TEXT NOT NULL,
+                    created_at REAL NOT NULL,
+                    updated_at REAL NOT NULL,
+                    summary_json TEXT NOT NULL,
+                    timeline_json TEXT NOT NULL,
+                    alternate_plan_json TEXT NOT NULL,
+                    report_id TEXT,
+                    FOREIGN KEY (run_id) REFERENCES runs(id)
+                );
+
+                CREATE TABLE IF NOT EXISTS template_library_entries (
+                    id TEXT PRIMARY KEY,
+                    template_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    family TEXT NOT NULL,
+                    doctrine_type TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    intended_use TEXT NOT NULL,
+                    recommended_strategies_json TEXT NOT NULL,
+                    risks_json TEXT NOT NULL,
+                    assumptions_json TEXT NOT NULL,
+                    tags_json TEXT NOT NULL,
+                    config_json TEXT NOT NULL,
+                    summary_json TEXT NOT NULL,
+                    file_path TEXT
+                );
                 """
             )
+            self._ensure_columns(
+                connection,
+                "runs",
+                {
+                    "plan_id": "TEXT",
+                    "comparison_id": "TEXT",
+                    "candidate_id": "TEXT",
+                },
+            )
+            self._ensure_columns(
+                connection,
+                "reports",
+                {
+                    "owner_type": "TEXT NOT NULL DEFAULT 'run'",
+                    "owner_id": "TEXT",
+                },
+            )
+
+    @staticmethod
+    def _ensure_columns(
+        connection: sqlite3.Connection,
+        table: str,
+        columns: dict[str, str],
+    ) -> None:
+        existing = {
+            row["name"]
+            for row in connection.execute(f"PRAGMA table_info({table})").fetchall()
+        }
+        for column_name, column_ddl in columns.items():
+            if column_name not in existing:
+                connection.execute(
+                    f"ALTER TABLE {table} ADD COLUMN {column_name} {column_ddl}"
+                )
 
     def upsert(self, table: str, record_id: str, fields: dict[str, Any]) -> None:
         columns = ["id"] + list(fields.keys())

@@ -32,14 +32,19 @@ class ApiClient:
             raise ApiError(str(exc)) from exc
 
     def post(self, path: str, payload: dict[str, Any]) -> Any:
+        return self._request("POST", path, payload)
+
+    def put(self, path: str, payload: dict[str, Any]) -> Any:
+        return self._request("PUT", path, payload)
+
+    def delete(self, path: str) -> Any:
+        return self._request("DELETE", path, None)
+
+    def _request(self, method: str, path: str, payload: dict[str, Any] | None) -> Any:
         url = f"{self.base_url}{path}"
-        data = json.dumps(payload).encode("utf-8")
-        req = request.Request(
-            url,
-            data=data,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
+        data = json.dumps(payload).encode("utf-8") if payload is not None else None
+        headers = {"Content-Type": "application/json"} if payload is not None else {}
+        req = request.Request(url, data=data, headers=headers, method=method)
         try:
             with request.urlopen(req) as response:
                 return json.loads(response.read().decode("utf-8"))

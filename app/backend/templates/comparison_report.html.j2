@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plan Comparison {{ comparison.id }}</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
+    h1, h2 { color: #102a43; }
+    .card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; }
+    th { background: #f0f4f8; }
+    code { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Plan Comparison Report</h1>
+  <div class="card">
+    <p><strong>Comparison ID:</strong> {{ comparison.id }}</p>
+    <p><strong>Name:</strong> {{ comparison.name }}</p>
+    <p><strong>Plan ID:</strong> {{ comparison.plan_id }}</p>
+    <p><strong>Status:</strong> {{ comparison.status }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Top Recommendation</h2>
+    <code>{{ comparison.recommendation_json }}</code>
+  </div>
+
+  <div class="card">
+    <h2>Uncertainty Summary</h2>
+    <code>{{ comparison.uncertainty_json }}</code>
+  </div>
+
+  <div class="card">
+    <h2>Ranked Candidates</h2>
+    <table>
+      <thead><tr><th>Name</th><th>Score</th><th>Success</th><th>Detection Time</th><th>Battery Risk</th><th>Failure Modes</th></tr></thead>
+      <tbody>
+      {% for candidate in comparison.summary_json %}
+        <tr>
+          <td>{{ candidate.name }}</td>
+          <td>{{ candidate.score }}</td>
+          <td>{{ candidate.expected_success_rate }}</td>
+          <td>{{ candidate.expected_detection_time }}</td>
+          <td>{{ candidate.expected_battery_risk }}</td>
+          <td><code>{{ candidate.failure_modes }}</code></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

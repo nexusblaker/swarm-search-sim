@@ -21,8 +21,11 @@ class LocalProductPaths:
     root: Path
     scenarios_dir: Path
     templates_dir: Path
+    plans_dir: Path
+    comparisons_dir: Path
     runs_dir: Path
     experiments_dir: Path
+    reviews_dir: Path
     reports_dir: Path
     database_path: Path
 
@@ -33,8 +36,11 @@ class LocalProductPaths:
             root=base,
             scenarios_dir=base / "scenarios",
             templates_dir=base / "templates",
+            plans_dir=base / "plans",
+            comparisons_dir=base / "comparisons",
             runs_dir=base / "runs",
             experiments_dir=base / "experiments",
+            reviews_dir=base / "reviews",
             reports_dir=base / "reports",
             database_path=base / "swarm_product.db",
         )
@@ -45,6 +51,9 @@ class LocalProductPaths:
         self.root.mkdir(parents=True, exist_ok=True)
         self.scenarios_dir.mkdir(parents=True, exist_ok=True)
         self.templates_dir.mkdir(parents=True, exist_ok=True)
+        self.plans_dir.mkdir(parents=True, exist_ok=True)
+        self.comparisons_dir.mkdir(parents=True, exist_ok=True)
         self.runs_dir.mkdir(parents=True, exist_ok=True)
         self.experiments_dir.mkdir(parents=True, exist_ok=True)
+        self.reviews_dir.mkdir(parents=True, exist_ok=True)
         self.reports_dir.mkdir(parents=True, exist_ok=True)

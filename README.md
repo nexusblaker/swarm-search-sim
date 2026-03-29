@@ -1,71 +1,141 @@
 # Swarm Search Sim
 
-Swarm Search Sim is a modular local mission decision-support platform for multi-drone search coordination under uncertainty. The simulation core stays under `src/`. Phase 6 upgrades the product layer with a FastAPI backend, SQLite-backed metadata, background job tracking, plan comparison, recommendations, template browsing, multipage Streamlit workflows, and indexed reports.
+Swarm Search Sim is a local mission planning and evaluation platform for multi-drone search-and-rescue teams. The simulation core stays under `src/`, while the product-facing planning, comparison, review, reporting, and history workflows live under `app/`.
 
-## Phase 6 Architecture
+Phase 7 upgrades the platform from run-centric decision support into a plan-centric workflow with first-class mission plans, saved plan comparisons, after-action review, richer scenario library metadata, and cleaner backend service seams.
+
+## Phase 7 Architecture
 
 ### Simulation Core
 
 - `src/scenarios/scenario.py`: mission configuration and scenario-family presets
 - `src/environment/grid.py`: terrain, obstacle, trail, elevation, and wind support
-- `src/probability/heatmap.py`: compatibility probability-map layer
 - `src/probability/belief.py`: belief propagation, entropy, and information gain
 - `src/coordination/`: coordination strategies and shared interfaces
 - `src/simulation/planning.py`: terrain-aware A* routing
-- `src/simulation/engine.py`: mission loop, belief updates, comms, battery policy, interventions, replay history
+- `src/simulation/engine.py`: mission loop, sensing, comms, battery policy, interventions, replay history
 - `src/visualisation/renderer.py`: terrain and belief rendering for artifacts and replay
 
 ### Product Backend
 
 - `app/backend/main.py`: FastAPI entrypoint
-- `app/backend/api/`: route groups for health, scenarios, templates, runs, experiments, jobs, reports, and decision support
-- `app/backend/services.py`: scenario, template, mission, experiment, comparison, recommendation, and report services
-- `app/backend/db/sqlite.py`: SQLite metadata and artifact index
-- `app/backend/core/job_manager.py`: local background job manager
-- `app/backend/core/settings.py`: backend settings and environment-driven config
-- `app/backend/core/templates.py`: built-in scenario templates
+- `app/backend/api/`: route groups for scenarios, plans, comparisons, runs, reviews, reports, experiments, jobs, and recommendations
+- `app/backend/domain/`: domain services split by seam
+  - `scenarios.py`
+  - `plans.py`
+  - `comparisons.py`
+  - `runs.py`
+  - `experiments.py`
+  - `reviews.py`
+  - `reports.py`
+  - `recommendations.py`
+- `app/backend/services.py`: thin composition layer
+- `app/backend/db/sqlite.py`: SQLite metadata and linkage model
+- `app/backend/core/job_manager.py`: local background jobs
+- `app/backend/core/templates.py`: operational scenario library presets
 - `app/backend/reporting.py`: HTML report generation
 
 ### Product Frontend
 
 - `app/frontend/app.py`: Streamlit home page
-- `app/frontend/pages/`: multipage product views
-- `app/frontend/common.py`: shared API, state, and rendering helpers
+- `app/frontend/pages/`: operator-facing planning and evaluation views
+- `app/frontend/common.py`: shared API helpers, tables, and scenario/plan builders
 - `app/frontend/api_client.py`: thin client for the FastAPI backend
 
-## What Phase 6 Adds
+## Phase 7 Product Workflow
 
-- FastAPI backend migration with automatic docs at `/docs`
-- SQLite indexing for:
-  - scenarios
-  - scenario templates
-  - runs
-  - jobs
-  - interventions
-  - experiments
-  - reports
-  - artifacts
-- background jobs for mission runs and experiments
-- pre-mission plan comparison
-- explainable recommendations and risk summaries
-- multipage Streamlit decision-support UI
-- indexed run history, experiment history, and report center
-- local deployment support via Docker and `docker-compose`
+The intended operator flow is now:
 
-## SQLite and Artifact Storage
+1. Create or select a scenario or scenario-library template.
+2. Build a `MissionPlan` on top of that baseline.
+3. Save a `PlanComparison` workspace to compare candidate plans.
+4. Launch a run from a mission plan or from a saved comparison candidate.
+5. Monitor the mission, apply interventions if needed, and inspect replay.
+6. Generate an `AfterActionReview` from the completed run.
+7. Use reports and indexed artifacts for review, documentation, and plan iteration.
 
-Artifacts remain file-based on disk. SQLite stores the metadata, status, summaries, and artifact references.
+## First-Class Product Objects
+
+### Mission Plans
+
+`MissionPlan` is now a first-class backend entity stored in SQLite. A mission plan can include:
+
+- plan name
+- linked scenario or template
+- selected strategy
+- drone / asset package
+- reserve policy
+- communication assumptions
+- map or layer selection
+- priority zones
+- exclusion zones
+- candidate alternatives
+- operator notes
+- recommendation snapshot
+- approval state
+- linkage to runs, comparisons, and reviews
+
+### Saved Plan Comparisons
+
+Plan comparison is no longer only a transient endpoint. Saved comparisons now store:
+
+- parent mission plan
+- named candidate plans
+- ranked results
+- sensitivity summary
+- uncertainty bands
+- recommendation snapshot
+- linkage to launched runs
+
+### After-Action Review
+
+After-action review is now a product workflow and stored entity. A review includes:
+
+- mission timeline
+- key interventions
+- detection timeline
+- actual mission outcome
+- deviation from recommendation
+- battery and comms risk summary
+- asset utilization summary
+- alternate-plan summary when a saved comparison exists
+
+## Scenario Library
+
+The operational library extends the old demo templates with richer metadata:
+
+- doctrine type
+- intended use
+- recommended strategies
+- risks
+- assumptions
+- tags
+
+Included presets now include:
+
+- Open Terrain Rescue
+- Dense Canopy Poor Comms
+- Windy Ridge-Line Search
+- Low Battery Contingency
+- Staged Sector Sweep
+- Rapid Containment
+- Obstacle Heavy Search
+
+## SQLite and Product Storage
+
+Artifacts remain file-based. SQLite indexes metadata, state, summaries, and linkage between objects.
 
 Default local storage:
 
 - `app/storage/swarm_product.db`
 - `app/storage/scenarios/`
 - `app/storage/templates/`
+- `app/storage/plans/`
+- `app/storage/comparisons/`
 - `app/storage/runs/<run_id>/`
 - `app/storage/experiments/<experiment_id>/`
+- `app/storage/reviews/`
 - `app/storage/reports/<report_id>.html`
-
-The legacy `outputs/` directory still works for direct simulator runs and benchmark scripts.
 
 ## Run the Core Simulator
 
@@ -75,7 +145,7 @@ From the repo root:
 python main.py
 ```
 
-This still runs the simulator directly and writes artifacts under `outputs/`.
+This still runs the simulator directly and writes core artifacts under `outputs/`.
 
 ## Run the FastAPI Backend
 
@@ -85,7 +155,7 @@ From the repo root:
 python -m app.backend.server --host 127.0.0.1 --port 8000
 ```
 
-Or directly with Uvicorn:
+Or:
 
 ```bash
 uvicorn app.backend.main:app --host 127.0.0.1 --port 8000
@@ -104,15 +174,13 @@ From the repo root:
 python -m streamlit run app/frontend/app.py
 ```
 
-If needed, point the frontend at a non-default backend:
+If needed, point Streamlit at a non-default backend:
 
 ```bash
 set SWARM_FRONTEND_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-Then start Streamlit.
-
-## FastAPI Endpoints
+## Main API Endpoints
 
 ### Health
 
@@ -126,10 +194,21 @@ Then start Streamlit.
 - `PUT /scenarios/{id}`
 - `DELETE /scenarios/{id}`
 
-### Templates
+### Mission Plans
 
-- `GET /templates`
-- `GET /templates/{id}`
+- `GET /plans`
+- `POST /plans`
+- `GET /plans/{id}`
+- `PUT /plans/{id}`
+- `DELETE /plans/{id}`
+
+### Saved Comparisons
+
+- `GET /comparisons`
+- `POST /comparisons`
+- `GET /comparisons/{id}`
+- `POST /comparisons/{id}/run`
+- `GET /comparisons/{id}/summary`
 
 ### Runs
 
@@ -140,18 +219,24 @@ Then start Streamlit.
 - `GET /runs/{id}/replay`
 - `GET /runs/{id}/events`
 
+### Reviews
+
+- `GET /reviews`
+- `POST /reviews`
+- `GET /reviews/{id}`
+- `POST /reviews/from-run/{run_id}`
+
+### Scenario Library
+
+- `GET /library/templates`
+- `GET /library/templates/{id}`
+
 ### Experiments
 
 - `POST /experiments`
 - `GET /experiments`
 - `GET /experiments/{id}`
 - `GET /experiments/{id}/summary`
-
-### Jobs
-
-- `GET /jobs`
-- `GET /jobs/{id}`
-- `POST /jobs/{id}/cancel`
 
 ### Reports
 
@@ -164,82 +249,33 @@ Then start Streamlit.
 - `POST /compare-plans`
 - `POST /recommend`
 
-## Templates and Scenario Library
+### Jobs
 
-Built-in templates include:
+- `GET /jobs`
+- `GET /jobs/{id}`
+- `POST /jobs/{id}/cancel`
 
-- Open Terrain Rescue
-- Dense Forest Poor Comms
-- Windy Ridge-Line Search
-- Low Battery Mission
-- Obstacle Heavy Search
+## Decision Support Outputs
 
-Templates are browsable in the frontend and usable as launch starting points.
+Recommendations and comparisons now expose richer mission-facing summaries such as:
 
-## Jobs and Lifecycle
+- uncertainty bands
+- battery margin risk
+- communications fragility
+- overlap inefficiency
+- failure mode summaries
+- robustness under changed assumptions
+- recommendation rationale
 
-Runs and experiments are executed as background jobs with statuses:
+These outputs remain lightweight and explainable. This phase does not introduce heavy ML or autonomous control logic.
 
-- `queued`
-- `running`
-- `paused`
-- `completed`
-- `failed`
-- `cancelled`
+## Streamlit Pages
 
-Mission progress is updated during execution and indexed in SQLite along with the owning run or experiment.
-
-## Plan Comparison
-
-Plan comparison runs a lightweight short-bundle evaluation over candidate plans and compares:
-
-- strategy
-- drone count
-- coordination mode
-- reserve threshold
-
-Outputs include:
-
-- ranked candidate plans
-- expected success rate
-- expected detection time
-- expected battery risk
-- expected overlap
-- top recommendation
-- confidence summary
-
-## Recommendations and Risk
-
-Recommendations are explainable and currently use heuristic plus short-bundle comparison logic rather than a heavy ML stack. The system recommends:
-
-- strategy
-- drone count
-- return-to-base reserve threshold
-
-It also provides:
-
-- risk summary
-- overlap and battery context
-- rationale for the recommendation
-
-## Reports
-
-Mission reports are indexed and retrievable through the backend. The HTML report includes:
-
-- scenario metadata
-- run status and strategy
-- metrics table
-- key event counts
-- intervention timeline samples
-- artifact references
-- recommendation context
-
-## Streamlit Views
-
-The frontend is organized into these pages:
+The frontend now centers the planning and evaluation workflow:
 
 - Scenarios
-- Templates
+- Mission Plans
+- Scenario Library
 - Plan Comparison
 - Recommendations
 - Mission Control
@@ -247,32 +283,9 @@ The frontend is organized into these pages:
 - Run History
 - Experiments
 - Reports
+- After-Action Review
 
-## Environment Settings
-
-See `.env.example` for the core local settings:
-
-- storage root
-- SQLite DB path
-- backend host/port
-- frontend API base URL
-- comparison seed count
-- job worker count
-
-## Docker
-
-Build and run locally with Docker:
-
-```bash
-docker compose up --build
-```
-
-Services:
-
-- backend on `8000`
-- frontend on `8501`
-
-## Tests
+## Testing
 
 Run the full suite from the repo root:
 
@@ -280,16 +293,28 @@ Run the full suite from the repo root:
 pytest
 ```
 
-Current coverage includes:
+The test suite covers:
 
-- Phase 4 simulation behavior
-- FastAPI smoke and docs availability
+- simulation smoke behavior
+- FastAPI smoke and docs
 - scenario CRUD
-- template listing
-- SQLite persistence
-- job lifecycle and cancellation
-- mission run and replay flow
-- comparison endpoint flow
-- recommendation endpoint flow
-- report indexing and retrieval
+- mission plan CRUD
+- saved comparison workflows
+- launching runs from plans and comparisons
+- replay and event retrieval
+- after-action review generation
+- scenario library retrieval
+- report indexing
 - experiment history flow
+
+## Local Deployment
+
+Environment guidance lives in `.env.example`.
+
+Local container workflow:
+
+```bash
+docker-compose up --build
+```
+
+This keeps the product local-first and lightweight while preserving the simulator and product workflows from the repo root.

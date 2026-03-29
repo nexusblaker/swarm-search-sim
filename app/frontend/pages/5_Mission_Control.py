@@ -13,11 +13,24 @@ ensure_frontend_state()
 st.sidebar.text_input("Backend URL", key="api_base_url")
 
 try:
+    plans = load_json("/plans")["items"]
     scenarios = load_json("/scenarios")["items"]
-    scenario_id = st.selectbox("Scenario to run", [item["id"] for item in scenarios], key="mission-scenario")
+    launch_mode = st.radio("Launch source", ["mission_plan", "scenario"], horizontal=True)
+    if launch_mode == "mission_plan":
+        if not plans:
+            st.info("No mission plans available yet. Switch to scenario launch or create a plan first.")
+            st.stop()
+        source_id = st.selectbox("Mission plan to run", [item["id"] for item in plans], key="mission-plan-id")
+    else:
+        if not scenarios:
+            st.info("No scenarios available.")
+            st.stop()
+        source_id = st.selectbox("Scenario to run", [item["id"] for item in scenarios], key="mission-scenario")
     seed = st.number_input("Mission seed", min_value=0, max_value=999999, value=7)
     if st.button("Launch Mission"):
-        created = post_json("/runs", {"scenario_id": scenario_id, "seed": int(seed)})
+        payload = {"seed": int(seed)}
+        payload["plan_id" if launch_mode == "mission_plan" else "scenario_id"] = source_id
+        created = post_json("/runs", payload)
         st.session_state["selected_run_id"] = created["id"]
         st.success(f"Run created: {created['id']}")
 
@@ -28,6 +41,9 @@ try:
     run_id = st.selectbox("Open run", [item["id"] for item in runs], key="selected_run_id")
     run = load_json(f"/runs/{run_id}")
     st.write(f"Status: `{run['status']}`")
+    st.caption(
+        f"Plan: {run.get('plan_id') or 'ad hoc'} | Comparison: {run.get('comparison_id') or 'n/a'}"
+    )
     st.dataframe(pd.DataFrame([run["summary_json"]]), use_container_width=True)
     latest_snapshot = run.get("latest_snapshot_json") or {}
     if latest_snapshot:

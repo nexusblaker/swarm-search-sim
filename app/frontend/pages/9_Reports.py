@@ -20,6 +20,7 @@ try:
     st.dataframe(pd.DataFrame(reports), use_container_width=True)
     report_id = st.selectbox("Report", [item["id"] for item in reports], key="report-id")
     report = load_json(f"/reports/{report_id}")
+    st.caption(f"Owner: {report.get('owner_type')} / {report.get('owner_id')}")
     st.json(report)
     st.code(report["file_path"])
 except Exception as exc:  # pragma: no cover

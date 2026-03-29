@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mission Plan {{ plan.id }}</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
+    h1, h2 { color: #102a43; }
+    .card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; }
+    th { background: #f0f4f8; }
+    code { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Mission Plan Summary</h1>
+  <div class="card">
+    <p><strong>Plan ID:</strong> {{ plan.id }}</p>
+    <p><strong>Name:</strong> {{ plan.name }}</p>
+    <p><strong>Approval state:</strong> {{ plan.approval_state }}</p>
+    <p><strong>Scenario:</strong> {{ plan.scenario_id }}</p>
+    <p><strong>Template:</strong> {{ plan.template_id }}</p>
+    <p><strong>Linked runs:</strong> {{ plan.linked_run_ids_json|length }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Plan Summary</h2>
+    <table>
+      {% for name, value in plan.summary_json.items() %}
+      <tr><td>{{ name }}</td><td><code>{{ value }}</code></td></tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Recommendation Snapshot</h2>
+    <code>{{ plan.recommendation_json }}</code>
+  </div>
+
+  <div class="card">
+    <h2>Operator Notes</h2>
+    <p>{{ plan.operator_notes or "No operator notes captured." }}</p>
+  </div>
+</body>
+</html>

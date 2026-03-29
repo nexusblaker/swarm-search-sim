@@ -23,23 +23,28 @@ def main() -> None:
     try:
         health = load_json("/health")
         scenarios = load_json("/scenarios")["items"]
+        plans = load_json("/plans")["items"]
+        comparisons = load_json("/comparisons")["items"]
         runs = load_json("/runs")["items"]
         experiments = load_json("/experiments")["items"]
+        reviews = load_json("/reviews")["items"]
         reports = load_json("/reports")["items"]
     except Exception as exc:  # pragma: no cover - UI runtime
         st.error(f"Backend unavailable: {exc}")
         st.stop()
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     col1.metric("Scenarios", len(scenarios))
-    col2.metric("Runs", len(runs))
-    col3.metric("Experiments", len(experiments))
-    col4.metric("Reports", len(reports))
+    col2.metric("Mission Plans", len(plans))
+    col3.metric("Comparisons", len(comparisons))
+    col4.metric("Runs", len(runs))
+    col5.metric("Reviews", len(reviews))
+    col6.metric("Reports", len(reports))
 
     st.markdown("**Backend Health**")
     st.json(health)
     st.info(
-        "Use the Streamlit pages in the sidebar to browse templates, compare plans, launch missions and experiments, review replay, and open indexed reports."
+        "Use the pages in the sidebar to build mission plans, compare candidate plans, launch monitored runs, review replay and after-action analysis, browse operational templates, and open indexed reports."
     )
 
 

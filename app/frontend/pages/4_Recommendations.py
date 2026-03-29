@@ -13,10 +13,13 @@ ensure_frontend_state()
 st.sidebar.text_input("Backend URL", key="api_base_url")
 
 try:
-    scenarios = load_json("/scenarios")["items"]
-    scenario_id = st.selectbox("Scenario", [item["id"] for item in scenarios], key="recommend-scenario")
+    plans = load_json("/plans")["items"]
+    if not plans:
+        st.info("Create a mission plan before requesting recommendations.")
+        st.stop()
+    plan_id = st.selectbox("Mission plan", [item["id"] for item in plans], key="recommend-plan")
     if st.button("Generate Recommendation"):
-        recommendation = post_json("/recommend", {"scenario_id": scenario_id, "num_seeds": 2})
+        recommendation = post_json("/recommend", {"plan_id": plan_id, "num_seeds": 2})
         st.session_state["recommendation_result"] = recommendation
 
     if "recommendation_result" in st.session_state:
@@ -26,6 +29,8 @@ try:
         st.metric("Recommended reserve threshold", recommendation["recommended_return_threshold"])
         st.write(recommendation["explanation"])
         st.json(recommendation["risk_summary"])
+        st.subheader("Uncertainty Summary")
+        st.json(recommendation.get("uncertainty_summary", {}))
         st.subheader("Candidate Plans")
         st.dataframe(pd.DataFrame(recommendation["candidate_plans"]), use_container_width=True)
 except Exception as exc:  # pragma: no cover

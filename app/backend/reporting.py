@@ -44,3 +44,30 @@ class ReportGenerator:
         )
         output_path.write_text(html, encoding="utf-8")
         return output_path
+
+    def generate_plan_report(self, plan_record: dict[str, Any]) -> Path:
+        """Write a self-contained HTML report for a mission plan."""
+
+        template = self.environment.get_template("mission_plan_report.html.j2")
+        output_path = self.paths.reports_dir / f"{plan_record['id']}.html"
+        html = template.render(plan=plan_record)
+        output_path.write_text(html, encoding="utf-8")
+        return output_path
+
+    def generate_comparison_report(self, comparison_record: dict[str, Any]) -> Path:
+        """Write a self-contained HTML report for a saved comparison."""
+
+        template = self.environment.get_template("comparison_report.html.j2")
+        output_path = self.paths.reports_dir / f"{comparison_record['id']}.html"
+        html = template.render(comparison=comparison_record)
+        output_path.write_text(html, encoding="utf-8")
+        return output_path
+
+    def generate_review_report(self, review_record: dict[str, Any]) -> Path:
+        """Write a self-contained HTML report for an after-action review."""
+
+        template = self.environment.get_template("after_action_review_report.html.j2")
+        output_path = self.paths.reports_dir / f"{review_record['id']}.html"
+        html = template.render(review=review_record)
+        output_path.write_text(html, encoding="utf-8")
+        return output_path
