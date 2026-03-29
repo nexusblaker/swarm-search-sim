@@ -93,6 +93,15 @@ class ProductBackend:
     def cancel_job(self, job_id: str) -> dict[str, Any]:
         return self.job_manager.cancel(job_id)
 
+    def get_artifact_path(self, owner_type: str, owner_id: str, artifact_type: str) -> str:
+        artifacts = self.store.list_artifacts(owner_type, owner_id)
+        for artifact in artifacts:
+            if artifact["artifact_type"] == artifact_type:
+                return artifact["path"]
+        raise FileNotFoundError(
+            f"Unknown artifact {artifact_type!r} for owner {owner_type}:{owner_id}"
+        )
+
     def generate_report(self, run_id: str) -> dict[str, Any]:
         run_record = self.missions.get_run(run_id)
         run_record = dict(run_record)

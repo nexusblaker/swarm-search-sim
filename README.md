@@ -1,143 +1,66 @@
 # Swarm Search Sim
 
-Swarm Search Sim is a local mission planning and evaluation platform for multi-drone search-and-rescue teams. The simulation core stays under `src/`, while the product-facing planning, comparison, review, reporting, and history workflows live under `app/`.
+Swarm Search Sim is a local mission planning and evaluation platform for multi-drone search-and-rescue teams. The simulation core remains under `src/`, the FastAPI product backend lives under `app/backend`, and the primary operator interface is now the React app under `app/web`.
 
-Phase 7 upgrades the platform from run-centric decision support into a plan-centric workflow with first-class mission plans, saved plan comparisons, after-action review, richer scenario library metadata, and cleaner backend service seams.
+The platform is built around a practical SAR workflow:
 
-## Phase 7 Architecture
+1. define or load a scenario
+2. create a mission plan
+3. compare candidate plans
+4. launch and monitor a simulated run
+5. replay outcomes
+6. generate reports and after-action review
+
+## Architecture
 
 ### Simulation Core
 
-- `src/scenarios/scenario.py`: mission configuration and scenario-family presets
-- `src/environment/grid.py`: terrain, obstacle, trail, elevation, and wind support
-- `src/probability/belief.py`: belief propagation, entropy, and information gain
-- `src/coordination/`: coordination strategies and shared interfaces
+- `src/scenarios/scenario.py`: scenario configuration and presets
+- `src/environment/grid.py`: terrain, obstacles, trails, elevation, and wind
+- `src/probability/belief.py`: belief-state propagation, evidence updates, entropy
+- `src/coordination/`: search strategies and coordination logic
 - `src/simulation/planning.py`: terrain-aware A* routing
-- `src/simulation/engine.py`: mission loop, sensing, comms, battery policy, interventions, replay history
-- `src/visualisation/renderer.py`: terrain and belief rendering for artifacts and replay
+- `src/simulation/engine.py`: run loop, sensing, comms, battery, interventions, replay
+- `src/visualisation/renderer.py`: mission renders and artifacts
 
-### Product Backend
+### Backend
 
 - `app/backend/main.py`: FastAPI entrypoint
-- `app/backend/api/`: route groups for scenarios, plans, comparisons, runs, reviews, reports, experiments, jobs, and recommendations
-- `app/backend/domain/`: domain services split by seam
-  - `scenarios.py`
-  - `plans.py`
-  - `comparisons.py`
-  - `runs.py`
-  - `experiments.py`
-  - `reviews.py`
-  - `reports.py`
-  - `recommendations.py`
-- `app/backend/services.py`: thin composition layer
-- `app/backend/db/sqlite.py`: SQLite metadata and linkage model
-- `app/backend/core/job_manager.py`: local background jobs
-- `app/backend/core/templates.py`: operational scenario library presets
+- `app/backend/api/`: route modules by domain
+- `app/backend/domain/`: product services for scenarios, plans, comparisons, runs, experiments, reviews, reports, recommendations
+- `app/backend/db/sqlite.py`: SQLite metadata store
+- `app/backend/core/job_manager.py`: background mission and experiment jobs
 - `app/backend/reporting.py`: HTML report generation
 
-### Product Frontend
+### Frontend
 
-- `app/frontend/app.py`: Streamlit home page
-- `app/frontend/pages/`: operator-facing planning and evaluation views
-- `app/frontend/common.py`: shared API helpers, tables, and scenario/plan builders
-- `app/frontend/api_client.py`: thin client for the FastAPI backend
+- `app/web/`: React + TypeScript + Vite frontend
+- `app/web/src/api/`: typed API client and query hooks
+- `app/web/src/components/`: shared operator UI components
+- `app/web/src/pages/`: product pages for planning, monitoring, replay, experiments, reports, and review
 
-## Phase 7 Product Workflow
+### Legacy UI
 
-The intended operator flow is now:
+- `app/frontend/`: legacy Streamlit UI retained as a fallback only
 
-1. Create or select a scenario or scenario-library template.
-2. Build a `MissionPlan` on top of that baseline.
-3. Save a `PlanComparison` workspace to compare candidate plans.
-4. Launch a run from a mission plan or from a saved comparison candidate.
-5. Monitor the mission, apply interventions if needed, and inspect replay.
-6. Generate an `AfterActionReview` from the completed run.
-7. Use reports and indexed artifacts for review, documentation, and plan iteration.
+## Main Product Workflows
 
-## First-Class Product Objects
+The React app covers:
 
-### Mission Plans
+- dashboard / home
+- scenarios
+- mission plans
+- doctrine / template library
+- plan comparison
+- recommendations
+- mission control
+- replay
+- run history
+- experiments
+- reports
+- after-action review
 
-`MissionPlan` is now a first-class backend entity stored in SQLite. A mission plan can include:
-
-- plan name
-- linked scenario or template
-- selected strategy
-- drone / asset package
-- reserve policy
-- communication assumptions
-- map or layer selection
-- priority zones
-- exclusion zones
-- candidate alternatives
-- operator notes
-- recommendation snapshot
-- approval state
-- linkage to runs, comparisons, and reviews
-
-### Saved Plan Comparisons
-
-Plan comparison is no longer only a transient endpoint. Saved comparisons now store:
-
-- parent mission plan
-- named candidate plans
-- ranked results
-- sensitivity summary
-- uncertainty bands
-- recommendation snapshot
-- linkage to launched runs
-
-### After-Action Review
-
-After-action review is now a product workflow and stored entity. A review includes:
-
-- mission timeline
-- key interventions
-- detection timeline
-- actual mission outcome
-- deviation from recommendation
-- battery and comms risk summary
-- asset utilization summary
-- alternate-plan summary when a saved comparison exists
-
-## Scenario Library
-
-The operational library extends the old demo templates with richer metadata:
-
-- doctrine type
-- intended use
-- recommended strategies
-- risks
-- assumptions
-- tags
-
-Included presets now include:
-
-- Open Terrain Rescue
-- Dense Canopy Poor Comms
-- Windy Ridge-Line Search
-- Low Battery Contingency
-- Staged Sector Sweep
-- Rapid Containment
-- Obstacle Heavy Search
-
-## SQLite and Product Storage
-
-Artifacts remain file-based. SQLite indexes metadata, state, summaries, and linkage between objects.
-
-Default local storage:
-
-- `app/storage/swarm_product.db`
-- `app/storage/scenarios/`
-- `app/storage/templates/`
-- `app/storage/plans/`
-- `app/storage/comparisons/`
-- `app/storage/runs/<run_id>/`
-- `app/storage/experiments/<experiment_id>/`
-- `app/storage/reviews/`
-- `app/storage/reports/<report_id>.html`
-
-## Run the Core Simulator
+## Run The Simulator Core
 
 From the repo root:
 
@@ -145,9 +68,9 @@ From the repo root:
 python main.py
 ```
 
-This still runs the simulator directly and writes core artifacts under `outputs/`.
+This still runs the simulator directly and writes artifacts under `outputs/`.
 
-## Run the FastAPI Backend
+## Run The FastAPI Backend
 
 From the repo root:
 
@@ -161,160 +84,227 @@ Or:
 uvicorn app.backend.main:app --host 127.0.0.1 --port 8000
 ```
 
-FastAPI docs:
+API docs:
 
-- `http://127.0.0.1:8000/docs`
-- `http://127.0.0.1:8000/redoc`
+- [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-## Run the Streamlit Frontend
+## Run The React Frontend
+
+The React frontend is now the primary product interface.
 
 From the repo root:
 
 ```bash
-python -m streamlit run app/frontend/app.py
+cd app/web
+npm install
+npm run dev
 ```
 
-If needed, point Streamlit at a non-default backend:
+Default local addresses:
+
+- backend: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+- frontend: [http://127.0.0.1:5173](http://127.0.0.1:5173)
+
+Frontend environment:
 
 ```bash
-set SWARM_FRONTEND_API_BASE_URL=http://127.0.0.1:8000
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-## Main API Endpoints
+See `app/web/.env.example`.
 
-### Health
+## Frontend Commands
 
-- `GET /health`
+From `app/web`:
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run test
+```
+
+## Mission Planning Experience
+
+### Dashboard
+
+The dashboard gives operators a top-level view of:
+
+- backend health
+- scenario, plan, comparison, run, review, and report counts
+- recent runs
+- recent reports
+- quick actions into planning and review workflows
 
 ### Scenarios
 
-- `GET /scenarios`
-- `POST /scenarios`
-- `GET /scenarios/{id}`
-- `PUT /scenarios/{id}`
-- `DELETE /scenarios/{id}`
+Operators can:
+
+- browse saved scenarios
+- edit key parameters
+- create new scenarios
+- keep using scenario configs compatible with the existing backend and layer ingestion flow
 
 ### Mission Plans
 
-- `GET /plans`
-- `POST /plans`
-- `GET /plans/{id}`
-- `PUT /plans/{id}`
-- `DELETE /plans/{id}`
+Mission plans are now the core product object and capture:
 
-### Saved Comparisons
+- linked scenario or template
+- selected strategy
+- drone count and reserve policy
+- communication assumptions
+- operator notes
+- recommendation snapshot
 
-- `GET /comparisons`
-- `POST /comparisons`
-- `GET /comparisons/{id}`
-- `POST /comparisons/{id}/run`
-- `GET /comparisons/{id}/summary`
+### Doctrine / Template Library
 
-### Runs
+The doctrine library surfaces operational presets such as:
 
-- `POST /runs`
-- `GET /runs`
-- `GET /runs/{id}`
-- `POST /runs/{id}/interventions`
-- `GET /runs/{id}/replay`
-- `GET /runs/{id}/events`
+- open terrain rescue
+- dense canopy poor comms
+- windy ridge-line search
+- low battery contingency
+- staged sector sweep
+- rapid containment
 
-### Reviews
+Each entry exposes intended use, risks, assumptions, tags, and recommended strategies.
 
-- `GET /reviews`
-- `POST /reviews`
-- `GET /reviews/{id}`
-- `POST /reviews/from-run/{run_id}`
+### Plan Comparison
 
-### Scenario Library
+Operators can:
 
-- `GET /library/templates`
-- `GET /library/templates/{id}`
+- load a mission plan
+- define candidate search spaces
+- save a comparison workspace
+- inspect ranked candidates
+- review recommendation and uncertainty summaries
+- launch a run from a candidate
+
+### Recommendations
+
+Recommendation outputs include:
+
+- recommended strategy
+- recommended drone count
+- recommended reserve threshold
+- rationale
+- risk summary
+- uncertainty summary
+- candidate support table
+
+### Mission Control
+
+Mission Control is the live operator view. It supports:
+
+- launching runs from plans, scenarios, comparisons, or templates
+- polling run status and progress
+- viewing the latest mission snapshot
+- inspecting mission metrics
+- viewing a recent event feed
+- applying interventions
+
+Supported interventions include:
+
+- pause
+- resume
+- force return
+- assign waypoint
+- add priority zone
+- add exclusion zone
+- switch strategy
+
+### Replay
+
+Replay supports:
+
+- loading completed runs
+- scrubbing timeline frames
+- viewing replay state and events together
 
 ### Experiments
 
-- `POST /experiments`
-- `GET /experiments`
-- `GET /experiments/{id}`
-- `GET /experiments/{id}/summary`
+Operators and analysts can:
 
-### Reports
+- launch grouped robustness experiments
+- inspect summary tables
+- view comparison charts
+- open artifact outputs
 
-- `GET /reports`
-- `POST /reports/{run_id}`
-- `GET /reports/{id}`
+### Reports And After-Action Review
 
-### Decision Support
+Reports and review workflows support:
 
-- `POST /compare-plans`
-- `POST /recommend`
+- indexed HTML reports
+- review creation from completed runs
+- outcome and deviation summaries
+- alternate-plan summary where available
+- links back to replay and run artifacts
 
-### Jobs
+## Storage And Artifacts
 
-- `GET /jobs`
-- `GET /jobs/{id}`
-- `POST /jobs/{id}/cancel`
+SQLite stores metadata and linkages while artifacts remain file-based.
 
-## Decision Support Outputs
+Default locations:
 
-Recommendations and comparisons now expose richer mission-facing summaries such as:
+- `app/storage/swarm_product.db`
+- `app/storage/scenarios/`
+- `app/storage/templates/`
+- `app/storage/plans/`
+- `app/storage/comparisons/`
+- `app/storage/runs/`
+- `app/storage/experiments/`
+- `app/storage/reviews/`
+- `app/storage/reports/`
+- `outputs/` for direct simulator artifacts
 
-- uncertainty bands
-- battery margin risk
-- communications fragility
-- overlap inefficiency
-- failure mode summaries
-- robustness under changed assumptions
-- recommendation rationale
+## API Coverage
 
-These outputs remain lightweight and explainable. This phase does not introduce heavy ML or autonomous control logic.
+Main route groups:
 
-## Streamlit Pages
+- `/health`
+- `/scenarios`
+- `/templates`
+- `/library/templates`
+- `/plans`
+- `/comparisons`
+- `/runs`
+- `/experiments`
+- `/jobs`
+- `/reports`
+- `/reviews`
+- `/compare-plans`
+- `/recommend`
+- `/artifacts/{owner_type}/{owner_id}/{artifact_type}`
 
-The frontend now centers the planning and evaluation workflow:
+## Docker
 
-- Scenarios
-- Mission Plans
-- Scenario Library
-- Plan Comparison
-- Recommendations
-- Mission Control
-- Replay
-- Run History
-- Experiments
-- Reports
-- After-Action Review
-
-## Testing
-
-Run the full suite from the repo root:
-
-```bash
-pytest
-```
-
-The test suite covers:
-
-- simulation smoke behavior
-- FastAPI smoke and docs
-- scenario CRUD
-- mission plan CRUD
-- saved comparison workflows
-- launching runs from plans and comparisons
-- replay and event retrieval
-- after-action review generation
-- scenario library retrieval
-- report indexing
-- experiment history flow
-
-## Local Deployment
-
-Environment guidance lives in `.env.example`.
-
-Local container workflow:
+Local container flow:
 
 ```bash
 docker-compose up --build
 ```
 
-This keeps the product local-first and lightweight while preserving the simulator and product workflows from the repo root.
+This starts:
+
+- backend on `8000`
+- React frontend preview on `5173`
+
+## Testing
+
+Backend and simulator tests:
+
+```bash
+pytest
+```
+
+Frontend tests:
+
+```bash
+cd app/web
+npm run test
+```
+
+## Current Direction
+
+The platform is currently focused on mission planning and evaluation for SAR teams. It is not direct drone command software in this phase. The priority is operator trust, explainability, plan comparison, monitored simulation, replay, and review.

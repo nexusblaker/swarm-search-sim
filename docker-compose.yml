@@ -1,6 +1,8 @@
 services:
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: uvicorn app.backend.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
@@ -9,11 +11,12 @@ services:
       SWARM_DB_PATH: app/storage/swarm_product.db
 
   frontend:
-    build: .
-    command: python -m streamlit run app/frontend/app.py --server.address 0.0.0.0 --server.port 8501 --server.headless true
+    build:
+      context: ./app/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://backend:8000
     ports:
-      - "8501:8501"
-    environment:
-      SWARM_FRONTEND_API_BASE_URL: http://backend:8000
+      - "5173:5173"
     depends_on:
       - backend

@@ -25,6 +25,11 @@ Thumbs.db
 # Build/output
 dist/
 build/
+app/web/dist/
+app/web/node_modules/
+app/web/*.tsbuildinfo
+tools/
 
 # Local config
 .env
+app/web/.env.local

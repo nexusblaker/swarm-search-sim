@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import FileResponse
 
 from app.backend.api.deps import get_backend
 from app.backend.api.schemas import ReportListResponse, ReportRecord
@@ -25,3 +26,9 @@ def create_report(run_id: str, backend: ProductBackend = Depends(get_backend)) -
 @router.get("/reports/{report_id}", response_model=ReportRecord)
 def get_report(report_id: str, backend: ProductBackend = Depends(get_backend)) -> ReportRecord:
     return ReportRecord(**backend.reports.get_report(report_id))
+
+
+@router.get("/reports/{report_id}/content")
+def get_report_content(report_id: str, backend: ProductBackend = Depends(get_backend)) -> FileResponse:
+    report = backend.reports.get_report(report_id)
+    return FileResponse(report["file_path"], media_type="text/html")

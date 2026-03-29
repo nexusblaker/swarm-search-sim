@@ -1,0 +1,67 @@
+import { useEffect, useMemo, useRef } from "react";
+
+import type { Snapshot } from "@/api/types";
+
+const terrainColors = ["#162338", "#1d4d3a", "#4b5563", "#334155", "#274c77"];
+
+export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const dimensions = useMemo(() => {
+    const height = snapshot.terrain_grid.length;
+    const width = snapshot.terrain_grid[0]?.length ?? 0;
+    return { width, height };
+  }, [snapshot]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || dimensions.width === 0 || dimensions.height === 0) {
+      return;
+    }
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      return;
+    }
+    const cellSize = Math.max(12, Math.floor(560 / Math.max(dimensions.width, dimensions.height)));
+    canvas.width = dimensions.width * cellSize;
+    canvas.height = dimensions.height * cellSize;
+
+    for (let y = 0; y < dimensions.height; y += 1) {
+      for (let x = 0; x < dimensions.width; x += 1) {
+        const terrain = snapshot.terrain_grid[y]?.[x] ?? 0;
+        ctx.fillStyle = terrainColors[terrain] ?? "#1e293b";
+        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        const belief = snapshot.probability_map[y]?.[x] ?? 0;
+        if (belief > 0) {
+          ctx.fillStyle = `rgba(56, 189, 248, ${Math.min(0.7, belief * 30)})`;
+          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+        if (snapshot.obstacle_mask[y]?.[x]) {
+          ctx.fillStyle = "rgba(12, 18, 32, 0.88)";
+          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+        ctx.strokeStyle = "rgba(255,255,255,0.03)";
+        ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      }
+    }
+
+    snapshot.drones.forEach((drone, index) => {
+      const [x, y] = drone.position;
+      ctx.fillStyle = ["#38bdf8", "#34d399", "#f59e0b", "#f87171", "#a78bfa"][index % 5];
+      ctx.beginPath();
+      ctx.arc(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, Math.max(4, cellSize / 3), 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    const [targetX, targetY] = snapshot.target_position;
+    ctx.fillStyle = snapshot.target_detected ? "#f97316" : "#facc15";
+    ctx.beginPath();
+    ctx.arc(targetX * cellSize + cellSize / 2, targetY * cellSize + cellSize / 2, Math.max(3, cellSize / 4), 0, Math.PI * 2);
+    ctx.fill();
+  }, [dimensions, snapshot]);
+
+  return (
+    <div className="overflow-hidden rounded-3xl border border-border bg-[#09111c] p-3">
+      <canvas ref={canvasRef} className="max-w-full rounded-2xl" />
+    </div>
+  );
+}

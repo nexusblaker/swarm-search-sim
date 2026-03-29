@@ -1,0 +1,235 @@
+export type ResourceStatus =
+  | "queued"
+  | "running"
+  | "paused"
+  | "completed"
+  | "failed"
+  | "cancelled"
+  | "draft"
+  | "recommended"
+  | "approved"
+  | "archived";
+
+export type SummaryRecord = Record<string, unknown>;
+
+export interface HealthResponse {
+  status: string;
+  database_path: string;
+  storage_root: string;
+}
+
+export interface ScenarioRecord {
+  id: string;
+  name: string;
+  type: string;
+  created_at: number;
+  updated_at: number;
+  deleted_at?: number | null;
+  config_json: Record<string, unknown>;
+  summary_json: SummaryRecord;
+  file_path?: string | null;
+}
+
+export interface LibraryTemplateRecord {
+  id: string;
+  template_id: string;
+  name: string;
+  family: string;
+  doctrine_type: string;
+  description: string;
+  intended_use: string;
+  recommended_strategies_json: string[];
+  risks_json: string[];
+  assumptions_json: string[];
+  tags_json: string[];
+  config_json: Record<string, unknown>;
+  summary_json: SummaryRecord;
+  file_path?: string | null;
+}
+
+export interface MissionPlanRecord {
+  id: string;
+  name: string;
+  scenario_id?: string | null;
+  template_id?: string | null;
+  approval_state: ResourceStatus;
+  created_at: number;
+  updated_at: number;
+  plan_json: Record<string, unknown>;
+  summary_json: SummaryRecord;
+  recommendation_json: Record<string, unknown>;
+  operator_notes: string;
+  candidate_alternatives_json: Record<string, unknown>[];
+  priority_zones_json: Record<string, unknown>[];
+  exclusion_zones_json: Record<string, unknown>[];
+  latest_comparison_id?: string | null;
+  latest_review_id?: string | null;
+  linked_run_ids_json: string[];
+}
+
+export interface JobRecord {
+  id: string;
+  job_type: string;
+  owner_type: string;
+  owner_id: string;
+  status: ResourceStatus;
+  progress: number;
+  created_at: number;
+  updated_at: number;
+  completed_at?: number | null;
+  error?: string | null;
+  summary_json: SummaryRecord;
+}
+
+export interface RunRecord {
+  id: string;
+  scenario_id: string;
+  plan_id?: string | null;
+  comparison_id?: string | null;
+  candidate_id?: string | null;
+  status: ResourceStatus;
+  created_at: number;
+  updated_at: number;
+  completed_at?: number | null;
+  config_json: Record<string, unknown>;
+  summary_json: SummaryRecord;
+  latest_snapshot_json?: Snapshot | null;
+  output_dir: string;
+  job_id?: string | null;
+  artifact_paths: Record<string, string>;
+  job?: JobRecord | null;
+  interventions: InterventionRecord[];
+}
+
+export interface InterventionRecord {
+  id?: string | number;
+  action?: string;
+  payload_json?: Record<string, unknown>;
+  created_at?: number;
+  [key: string]: unknown;
+}
+
+export interface PlanCandidateRecord {
+  id: string;
+  comparison_id: string;
+  name: string;
+  rank: number;
+  linked_run_id?: string | null;
+  config_json: Record<string, unknown>;
+  summary_json: SummaryRecord;
+}
+
+export interface PlanComparisonRecord {
+  id: string;
+  plan_id?: string | null;
+  name: string;
+  status: ResourceStatus;
+  created_at: number;
+  updated_at: number;
+  completed_at?: number | null;
+  request_json: Record<string, unknown>;
+  summary_json: Record<string, unknown>[];
+  recommendation_json: Record<string, unknown>;
+  uncertainty_json: Record<string, unknown>;
+  sensitivity_json: Record<string, unknown>;
+  linked_run_ids_json: string[];
+  report_id?: string | null;
+  job_id?: string | null;
+  candidates: PlanCandidateRecord[];
+}
+
+export interface ExperimentRecord {
+  id: string;
+  status: ResourceStatus;
+  created_at: number;
+  updated_at: number;
+  completed_at?: number | null;
+  request_json: Record<string, unknown>;
+  summary_json: Record<string, unknown>[] | Record<string, unknown>;
+  output_dir: string;
+  job_id?: string | null;
+  error?: string | null;
+  artifact_paths: Record<string, string>;
+  job?: JobRecord | null;
+}
+
+export interface ReportRecord {
+  id: string;
+  run_id: string;
+  owner_type: string;
+  owner_id?: string | null;
+  report_type: string;
+  created_at: number;
+  summary_json: SummaryRecord;
+  file_path: string;
+}
+
+export interface AfterActionReviewRecord {
+  id: string;
+  run_id: string;
+  plan_id?: string | null;
+  comparison_id?: string | null;
+  name: string;
+  created_at: number;
+  updated_at: number;
+  summary_json: Record<string, unknown>;
+  timeline_json: Record<string, unknown>;
+  alternate_plan_json: Record<string, unknown>;
+  report_id?: string | null;
+  report?: ReportRecord | null;
+}
+
+export interface ComparePlansResponse {
+  ranked_plans: Record<string, unknown>[];
+  top_recommendation: Record<string, unknown>;
+  confidence_summary: Record<string, unknown>;
+  uncertainty_summary: Record<string, unknown>;
+  sensitivity_summary: Record<string, unknown>;
+}
+
+export interface RecommendationResponse {
+  recommended_strategy?: string | null;
+  recommended_drone_count?: number | null;
+  recommended_return_threshold?: number | null;
+  risk_summary: Record<string, unknown>;
+  uncertainty_summary: Record<string, unknown>;
+  explanation: string;
+  recommendation_snapshot: Record<string, unknown>;
+  candidate_plans: Record<string, unknown>[];
+}
+
+export interface SnapshotDrone {
+  id: number;
+  position: [number, number];
+  battery: number;
+  path_history: [number, number][];
+  planned_path: [number, number][];
+  intended_target?: [number, number] | null;
+  comms_online: boolean;
+  returning_to_base: boolean;
+  stale_steps: number;
+}
+
+export interface Snapshot {
+  step: number;
+  done: boolean;
+  paused: boolean;
+  weather: string;
+  strategy: string;
+  coordination_mode: string;
+  base_position: [number, number];
+  terrain_grid: number[][];
+  obstacle_mask: boolean[][];
+  probability_map: number[][];
+  target_position: [number, number];
+  target_detected: boolean;
+  visited_cells: [number, number][];
+  searched_cells: [number, number][];
+  last_searched_cells: [number, number][];
+  communication_links: [[number, number], [number, number]][];
+  reserved_paths: Record<string, [number, number][]>;
+  global_objectives: Record<string, [number, number]>;
+  detection_event?: Record<string, unknown> | null;
+  drones: SnapshotDrone[];
+  metrics: Record<string, unknown>;
+}
