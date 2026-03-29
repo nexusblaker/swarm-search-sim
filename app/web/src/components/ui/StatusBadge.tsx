@@ -2,16 +2,16 @@ import type { ResourceStatus } from "@/api/types";
 import { cn } from "@/lib/cn";
 
 const statusStyles: Record<string, string> = {
-  queued: "bg-slate-500/20 text-slate-300 border-slate-400/30",
-  running: "bg-sky-500/20 text-sky-300 border-sky-400/30",
-  paused: "bg-amber-500/20 text-amber-300 border-amber-400/30",
-  completed: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
-  failed: "bg-rose-500/20 text-rose-300 border-rose-400/30",
-  cancelled: "bg-zinc-500/20 text-zinc-300 border-zinc-400/30",
-  draft: "bg-zinc-500/20 text-zinc-300 border-zinc-400/30",
-  recommended: "bg-sky-500/20 text-sky-300 border-sky-400/30",
-  approved: "bg-emerald-500/20 text-emerald-300 border-emerald-400/30",
-  archived: "bg-slate-600/20 text-slate-300 border-slate-400/30",
+  queued: "border-zinc-500/35 bg-zinc-500/12 text-zinc-200",
+  running: "border-[#6f8aa4]/40 bg-[#6f8aa4]/16 text-[#d2e0ec]",
+  paused: "border-warning/40 bg-warning/15 text-[#e6d7bc]",
+  completed: "border-success/40 bg-success/15 text-[#dce7e0]",
+  failed: "border-danger/40 bg-danger/15 text-[#ecd6d9]",
+  cancelled: "border-zinc-500/35 bg-zinc-500/12 text-zinc-300",
+  draft: "border-zinc-500/35 bg-zinc-500/12 text-zinc-300",
+  recommended: "border-[#6f8aa4]/40 bg-[#6f8aa4]/16 text-[#d2e0ec]",
+  approved: "border-success/40 bg-success/15 text-[#dce7e0]",
+  archived: "border-zinc-500/35 bg-zinc-500/12 text-zinc-300",
 };
 
 export function StatusBadge({ status }: { status?: string | ResourceStatus | null }) {
@@ -19,7 +19,7 @@ export function StatusBadge({ status }: { status?: string | ResourceStatus | nul
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium uppercase tracking-[0.18em]",
+        "inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em]",
         statusStyles[normalized] ?? "border-border bg-surfaceAlt text-muted",
       )}
     >

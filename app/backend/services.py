@@ -84,6 +84,115 @@ class ProductBackend:
             "storage_root": str(Path(self.settings.storage_root).resolve()),
         }
 
+    def get_dashboard_summary(self) -> dict[str, Any]:
+        scenarios = self.scenarios.list_scenarios()
+        plans = self.plans.list_plans()
+        comparisons = self.comparisons.list_comparisons()
+        runs = self.missions.list_runs()
+        reviews = self.reviews.list_reviews()
+        reports = self.reports.list_reports()
+        jobs = self.list_jobs()
+
+        activity: list[dict[str, Any]] = []
+        for run in runs[:4]:
+            activity.append(
+                {
+                    "id": run["id"],
+                    "kind": "run",
+                    "title": f"Run {run['id']}",
+                    "subtitle": f"{run.get('summary_json', {}).get('strategy', 'strategy')} · {run.get('plan_id') or run.get('scenario_id')}",
+                    "timestamp": run["updated_at"],
+                    "status": run.get("status"),
+                    "owner_id": run.get("plan_id") or run.get("scenario_id"),
+                }
+            )
+        for report in reports[:3]:
+            activity.append(
+                {
+                    "id": report["id"],
+                    "kind": "report",
+                    "title": f"{report['report_type'].replace('_', ' ').title()} report",
+                    "subtitle": f"{report.get('owner_type', 'run')}:{report.get('owner_id') or report.get('run_id')}",
+                    "timestamp": report["created_at"],
+                    "status": "completed",
+                    "owner_id": report.get("owner_id") or report.get("run_id"),
+                }
+            )
+        for review in reviews[:2]:
+            activity.append(
+                {
+                    "id": review["id"],
+                    "kind": "review",
+                    "title": review["name"],
+                    "subtitle": f"After-action review for run {review['run_id']}",
+                    "timestamp": review["updated_at"],
+                    "status": "completed",
+                    "owner_id": review["run_id"],
+                }
+            )
+        recent_activity = sorted(activity, key=lambda item: item["timestamp"], reverse=True)[:8]
+
+        suggested_actions: list[dict[str, str]] = []
+        if not plans:
+            suggested_actions.append(
+                {
+                    "label": "Create mission plan",
+                    "description": "Start with a doctrine template and capture assumptions in a reusable plan.",
+                    "route": "/plans",
+                }
+            )
+        if plans and not comparisons:
+            suggested_actions.append(
+                {
+                    "label": "Compare candidate plans",
+                    "description": "Evaluate strategies, drone counts, and reserve policies before launch.",
+                    "route": "/comparisons",
+                }
+            )
+        if plans and not runs:
+            suggested_actions.append(
+                {
+                    "label": "Launch a monitored run",
+                    "description": "Run the selected plan and observe mission progress in Mission Control.",
+                    "route": "/mission-control",
+                }
+            )
+        if runs and not reviews:
+            suggested_actions.append(
+                {
+                    "label": "Generate after-action review",
+                    "description": "Turn a completed mission into a replay-backed operational review.",
+                    "route": "/reviews",
+                }
+            )
+        if not suggested_actions:
+            suggested_actions.append(
+                {
+                    "label": "Review latest reports",
+                    "description": "Open generated artifacts and continue iterating on the mission workflow.",
+                    "route": "/reports",
+                }
+            )
+
+        return {
+            "counts": {
+                "scenarios": len(scenarios),
+                "plans": len(plans),
+                "comparisons": len(comparisons),
+                "runs": len(runs),
+                "reviews": len(reviews),
+                "reports": len(reports),
+            },
+            "active_runs": sum(1 for run in runs if run["status"] in {"queued", "running", "paused"}),
+            "completed_runs": sum(1 for run in runs if run["status"] == "completed"),
+            "queued_jobs": sum(1 for job in jobs if job["status"] == "queued"),
+            "backend_status": "ok",
+            "recent_runs": runs[:5],
+            "recent_reports": reports[:5],
+            "recent_activity": recent_activity,
+            "suggested_actions": suggested_actions,
+        }
+
     def list_jobs(self) -> list[dict[str, Any]]:
         return self.job_manager.list()
 

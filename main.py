@@ -1,4 +1,4 @@
-"""Entrypoint for the Swarm Coordination Simulator Phase 4 demo."""
+"""Entrypoint for the Swargit checkout -b your-new-branch-namem Coordination Simulator Phase 4 demo."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { Snapshot } from "@/api/types";
 
@@ -6,6 +6,7 @@ const terrainColors = ["#162338", "#1d4d3a", "#4b5563", "#334155", "#274c77"];
 
 export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [canvasUnavailable, setCanvasUnavailable] = useState(false);
   const dimensions = useMemo(() => {
     const height = snapshot.terrain_grid.length;
     const width = snapshot.terrain_grid[0]?.length ?? 0;
@@ -17,10 +18,18 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
     if (!canvas || dimensions.width === 0 || dimensions.height === 0) {
       return;
     }
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
+    let ctx: CanvasRenderingContext2D | null = null;
+    try {
+      ctx = canvas.getContext("2d");
+    } catch {
+      setCanvasUnavailable(true);
       return;
     }
+    if (!ctx) {
+      setCanvasUnavailable(true);
+      return;
+    }
+    setCanvasUnavailable(false);
     const cellSize = Math.max(12, Math.floor(560 / Math.max(dimensions.width, dimensions.height)));
     canvas.width = dimensions.width * cellSize;
     canvas.height = dimensions.height * cellSize;
@@ -61,7 +70,14 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
 
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-[#09111c] p-3">
-      <canvas ref={canvasRef} className="max-w-full rounded-2xl" />
+      {canvasUnavailable ? (
+        <div className="flex min-h-[280px] items-center justify-center rounded-2xl border border-dashed border-border bg-surface/70 px-6 text-center text-sm text-muted">
+          Live mission map preview is unavailable in this environment. Replay images and mission metrics remain
+          available for review.
+        </div>
+      ) : (
+        <canvas ref={canvasRef} className="max-w-full rounded-2xl" />
+      )}
     </div>
   );
 }

@@ -60,6 +60,25 @@ The React app covers:
 - reports
 - after-action review
 
+## Start Here Demo Flow
+
+For the smoothest local demo:
+
+1. start the FastAPI backend on `8000`
+2. start the React frontend on `5173`
+3. open the dashboard and use the suggested actions panel
+4. open the doctrine library and choose an operational template
+5. create a mission plan from that doctrine entry
+6. run a saved comparison from the plan workspace
+7. launch a monitored mission run from the top candidate
+8. watch Mission Control update live while the run progresses
+9. open Replay and After-Action Review once the run completes
+10. open the generated report from the Reports page
+
+This is the intended operator journey:
+
+`plan -> compare -> launch -> monitor -> replay -> review -> report`
+
 ## Run The Simulator Core
 
 From the repo root:
@@ -125,6 +144,19 @@ npm run preview
 npm run test
 ```
 
+## Phase 8 UI Direction
+
+The React UI is now tuned around a restrained mission-console style:
+
+- calm dark achromatic palette with subtle accent usage
+- generous spacing and clearer page hierarchy
+- reusable metric, status, risk, recommendation, and comparison briefing cards
+- cleaner empty, loading, and error states
+- stronger page framing so each screen makes the next action obvious
+- live-focused Mission Control and clearer replay/review workspaces
+
+Contributors should prefer extending the shared UI primitives in `app/web/src/components/ui/` before creating one-off page styling.
+
 ## Mission Planning Experience
 
 ### Dashboard
@@ -136,14 +168,17 @@ The dashboard gives operators a top-level view of:
 - recent runs
 - recent reports
 - quick actions into planning and review workflows
+- suggested next steps for empty or incomplete workspaces
+- recent activity across plans, runs, reviews, and reports
 
 ### Scenarios
 
 Operators can:
 
 - browse saved scenarios
-- edit key parameters
+- edit key parameters in grouped sections
 - create new scenarios
+- keep advanced settings collapsed until needed
 - keep using scenario configs compatible with the existing backend and layer ingestion flow
 
 ### Mission Plans
@@ -156,6 +191,7 @@ Mission plans are now the core product object and capture:
 - communication assumptions
 - operator notes
 - recommendation snapshot
+- linked comparisons, runs, reviews, and reports
 
 ### Doctrine / Template Library
 
@@ -179,6 +215,7 @@ Operators can:
 - save a comparison workspace
 - inspect ranked candidates
 - review recommendation and uncertainty summaries
+- inspect performance and risk tradeoffs side by side
 - launch a run from a candidate
 
 ### Recommendations
@@ -192,6 +229,7 @@ Recommendation outputs include:
 - risk summary
 - uncertainty summary
 - candidate support table
+- plain-English rationale that can be shown directly to operators
 
 ### Mission Control
 
@@ -203,6 +241,8 @@ Mission Control is the live operator view. It supports:
 - inspecting mission metrics
 - viewing a recent event feed
 - applying interventions
+- clearer separation between mission state and operator actions
+- subtle live refresh behavior while the run is active
 
 Supported interventions include:
 
@@ -221,6 +261,7 @@ Replay supports:
 - loading completed runs
 - scrubbing timeline frames
 - viewing replay state and events together
+- step summaries with cleaner timeline-oriented layout
 
 ### Experiments
 
@@ -240,6 +281,22 @@ Reports and review workflows support:
 - outcome and deviation summaries
 - alternate-plan summary where available
 - links back to replay and run artifacts
+- clearer artifact linkage and cleaner export browsing
+
+## Page Overview
+
+- `Dashboard`: start-here view with health, counts, activity, and quick actions
+- `Scenarios`: grouped editor for map, target, drone, sensing, battery, and planner settings
+- `Mission Plans`: central workspace for planning context, notes, recommendation snapshot, and downstream links
+- `Doctrine Library`: operational presets with intended use, assumptions, risks, and recommended strategies
+- `Plan Comparison`: saved candidate analysis workspace with ranked options and tradeoff summaries
+- `Recommendations`: decision-support briefing for a selected mission plan
+- `Mission Control`: live monitoring page with status, metrics, snapshot, event feed, and interventions
+- `Replay`: playback workstation for completed runs
+- `Run History`: filterable ledger of mission runs
+- `Experiments`: grouped robustness experiments and artifact browsing
+- `Reports`: indexed report browser
+- `After-Action Review`: operational review center for completed missions
 
 ## Storage And Artifacts
 
@@ -263,6 +320,7 @@ Default locations:
 Main route groups:
 
 - `/health`
+- `/dashboard/summary`
 - `/scenarios`
 - `/templates`
 - `/library/templates`

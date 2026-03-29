@@ -6,6 +6,10 @@ export function useHealth() {
   return useQuery({ queryKey: ["health"], queryFn: api.health, refetchInterval: 15000 });
 }
 
+export function useDashboardSummary() {
+  return useQuery({ queryKey: ["dashboard-summary"], queryFn: api.dashboardSummary, refetchInterval: 10000 });
+}
+
 export function useScenarios() {
   return useQuery({ queryKey: ["scenarios"], queryFn: api.scenarios });
 }
@@ -42,6 +46,7 @@ export function useInvalidateResources() {
   const queryClient = useQueryClient();
   return () =>
     Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] }),
       queryClient.invalidateQueries({ queryKey: ["scenarios"] }),
       queryClient.invalidateQueries({ queryKey: ["plans"] }),
       queryClient.invalidateQueries({ queryKey: ["comparisons"] }),

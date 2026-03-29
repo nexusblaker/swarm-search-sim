@@ -1,66 +1,116 @@
 import { Activity, BarChart3, BookOpen, ClipboardList, Compass, FileText, History, Home, Radar, Route, ShieldCheck } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 import { cn } from "@/lib/cn";
 
-const navigation = [
-  { to: "/", label: "Dashboard", icon: Home },
-  { to: "/scenarios", label: "Scenarios", icon: Compass },
-  { to: "/plans", label: "Mission Plans", icon: ClipboardList },
-  { to: "/library", label: "Doctrine Library", icon: BookOpen },
-  { to: "/comparisons", label: "Plan Comparison", icon: Radar },
-  { to: "/recommendations", label: "Recommendations", icon: ShieldCheck },
-  { to: "/mission-control", label: "Mission Control", icon: Activity },
-  { to: "/replay", label: "Replay", icon: Route },
-  { to: "/runs", label: "Run History", icon: History },
-  { to: "/experiments", label: "Experiments", icon: BarChart3 },
-  { to: "/reports", label: "Reports", icon: FileText },
-  { to: "/reviews", label: "After Action", icon: ClipboardList },
+const navigationGroups = [
+  {
+    label: "Planning",
+    items: [
+      { to: "/", label: "Dashboard", icon: Home, summary: "Start here and orient around the workflow." },
+      { to: "/scenarios", label: "Scenarios", icon: Compass, summary: "Define search conditions and assumptions." },
+      { to: "/plans", label: "Mission Plans", icon: ClipboardList, summary: "Turn scenarios into reusable mission workspaces." },
+      { to: "/library", label: "Doctrine Library", icon: BookOpen, summary: "Browse polished starting points and presets." },
+      { to: "/comparisons", label: "Plan Comparison", icon: Radar, summary: "Rank candidate plans before launch." },
+      { to: "/recommendations", label: "Recommendations", icon: ShieldCheck, summary: "Review explainable planning guidance." },
+    ],
+  },
+  {
+    label: "Execution",
+    items: [
+      { to: "/mission-control", label: "Mission Control", icon: Activity, summary: "Launch, monitor, and intervene." },
+      { to: "/replay", label: "Replay", icon: Route, summary: "Inspect mission playback step by step." },
+      { to: "/runs", label: "Run History", icon: History, summary: "Browse completed and active mission runs." },
+    ],
+  },
+  {
+    label: "Review",
+    items: [
+      { to: "/experiments", label: "Experiments", icon: BarChart3, summary: "Review grouped robustness analysis." },
+      { to: "/reports", label: "Reports", icon: FileText, summary: "Open indexed exports and artifacts." },
+      { to: "/reviews", label: "After Action", icon: ClipboardList, summary: "Summarize lessons and outcomes." },
+    ],
+  },
 ];
 
+const pageMeta = Object.fromEntries(
+  navigationGroups.flatMap((group) => group.items.map((item) => [item.to, item])),
+);
+
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const current = pageMeta[location.pathname] ?? pageMeta["/"];
+
   return (
     <div className="min-h-screen bg-ops-grid bg-background bg-ops-grid text-text">
       <div className="mx-auto flex min-h-screen max-w-[1680px] gap-6 px-4 py-4 lg:px-6">
-        <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-72 shrink-0 rounded-3xl border border-border bg-surface/90 p-5 shadow-panel backdrop-blur xl:block">
-          <div className="mb-8">
-            <p className="text-xs uppercase tracking-[0.3em] text-accent">Swarm</p>
-            <h1 className="mt-2 text-xl font-semibold text-white">Mission Console</h1>
-            <p className="mt-2 text-sm text-muted">
+        <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-[296px] shrink-0 rounded-[32px] border border-border/80 bg-surface/92 p-5 shadow-panel backdrop-blur xl:block">
+          <div className="mb-8 border-b border-border/70 pb-6">
+            <p className="text-[11px] uppercase tracking-[0.32em] text-muted">Swarm Console</p>
+            <h1 className="mt-2 text-[24px] font-semibold text-white">Mission Planning</h1>
+            <p className="mt-3 text-sm leading-6 text-muted">
               Planning, simulation, monitoring, replay, and review for search-and-rescue missions.
             </p>
           </div>
-          <nav className="space-y-2">
-            {navigation.map(({ to, label, icon: Icon }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition",
-                    isActive
-                      ? "border-accent/40 bg-accent/10 text-white"
-                      : "border-transparent bg-surfaceAlt/70 text-muted hover:border-border hover:text-white",
-                  )
-                }
-              >
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
-              </NavLink>
+          <nav className="space-y-6">
+            {navigationGroups.map((group) => (
+              <div key={group.label}>
+                <p className="mb-2 px-2 text-[11px] uppercase tracking-[0.2em] text-muted">{group.label}</p>
+                <div className="space-y-1.5">
+                  {group.items.map(({ to, label, icon: Icon }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      className={({ isActive }) =>
+                        cn(
+                          "flex items-center gap-3 rounded-[20px] border px-4 py-3 text-sm transition",
+                          isActive
+                            ? "border-border bg-white/[0.06] text-white shadow-soft"
+                            : "border-transparent text-muted hover:border-border/80 hover:bg-surfaceAlt/55 hover:text-white",
+                        )
+                      }
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{label}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
+          <div className="mt-8 rounded-[24px] border border-border/70 bg-surfaceAlt/55 p-4">
+            <p className="section-kicker">Workflow</p>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Plan, compare, launch, monitor, replay, review, and report from one local mission console.
+            </p>
+          </div>
         </aside>
         <div className="flex min-h-screen flex-1 flex-col">
-          <header className="mb-5 rounded-3xl border border-border bg-surface/80 px-6 py-5 shadow-panel backdrop-blur">
-            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <header className="sticky top-4 z-20 mb-5 rounded-[30px] border border-border/80 bg-surface/85 px-6 py-5 shadow-panel backdrop-blur">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.28em] text-accent">Operator Interface</p>
-                <h2 className="mt-1 text-2xl font-semibold text-white">Mission Planning And Evaluation</h2>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-muted">Operator Interface</p>
+                <h2 className="mt-1 text-[28px] font-semibold text-white">{current.label}</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">{current.summary}</p>
               </div>
-              <p className="max-w-2xl text-sm text-muted">
-                React is now the primary product UI. The backend remains FastAPI-based and the simulation engine remains under
-                the existing core.
-              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="pill">React primary UI</span>
+                <span className="pill">FastAPI backend</span>
+                <span className="pill">Simulation core preserved</span>
+              </div>
+            </div>
+            <div className="scrollbar-subtle mt-5 flex gap-2 overflow-x-auto xl:hidden">
+              {navigationGroups.flatMap((group) => group.items).map(({ to, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) =>
+                    cn("pill whitespace-nowrap", isActive && "border-accentStrong/40 text-white")
+                  }
+                >
+                  {label}
+                </NavLink>
+              ))}
             </div>
           </header>
           <main className="flex-1">{children}</main>

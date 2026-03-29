@@ -13,6 +13,34 @@ class HealthResponse(BaseModel):
     storage_root: str
 
 
+class DashboardActivityRecord(BaseModel):
+    id: str
+    kind: str
+    title: str
+    subtitle: str
+    timestamp: float
+    status: str | None = None
+    owner_id: str | None = None
+
+
+class DashboardSuggestedAction(BaseModel):
+    label: str
+    description: str
+    route: str
+
+
+class DashboardSummaryResponse(BaseModel):
+    counts: dict[str, int]
+    active_runs: int
+    completed_runs: int
+    queued_jobs: int
+    backend_status: str
+    recent_runs: list[dict[str, Any]]
+    recent_reports: list[dict[str, Any]]
+    recent_activity: list[DashboardActivityRecord]
+    suggested_actions: list[DashboardSuggestedAction]
+
+
 class ScenarioPayload(BaseModel):
     scenario: dict[str, Any]
 

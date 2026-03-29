@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.backend.api import (
     artifacts,
+    dashboard,
     comparisons,
     decision_support,
     experiments,
@@ -41,6 +42,7 @@ def create_app(settings: BackendSettings | None = None) -> FastAPI:
     app.state.backend = ProductBackend(settings or BackendSettings.from_env())
     for router in (
         health.router,
+        dashboard.router,
         artifacts.router,
         scenarios.router,
         templates.router,

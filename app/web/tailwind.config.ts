@@ -5,28 +5,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#0b1220",
-        surface: "#121a2b",
-        surfaceAlt: "#1a2438",
-        border: "#22304a",
-        text: "#f1f5f9",
-        muted: "#8aa0b9",
-        accent: "#38bdf8",
-        success: "#34d399",
-        warning: "#f59e0b",
-        danger: "#f87171"
+        background: "#0f1115",
+        surface: "#171a1f",
+        surfaceAlt: "#1d2128",
+        border: "#2a3038",
+        text: "#f5f7fa",
+        muted: "#98a0ab",
+        accent: "#d7dde6",
+        accentStrong: "#8fb4d6",
+        success: "#8eb8a2",
+        warning: "#c7ae81",
+        danger: "#d28f95",
       },
       boxShadow: {
-        panel: "0 10px 30px rgba(2, 8, 23, 0.35)"
+        panel: "0 18px 50px rgba(0, 0, 0, 0.22)",
+        soft: "0 8px 24px rgba(0, 0, 0, 0.14)",
       },
       backgroundImage: {
         "ops-grid":
-          "radial-gradient(circle at top left, rgba(56,189,248,0.08), transparent 35%), linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)"
+          "radial-gradient(circle at top left, rgba(143, 180, 214, 0.08), transparent 32%), linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px)",
       },
       backgroundSize: {
-        "ops-grid": "auto, 28px 28px, 28px 28px"
-      }
-    }
+        "ops-grid": "auto, 28px 28px, 28px 28px",
+      },
+    },
   },
   plugins: [],
 } satisfies Config;

@@ -4,20 +4,24 @@ export function MetricCard({
   label,
   value,
   hint,
+  emphasis,
 }: {
   label: string;
   value: string | number;
   hint?: string;
+  emphasis?: "default" | "accent";
 }) {
   return (
     <motion.div
       layout
-      className="rounded-3xl border border-border bg-surfaceAlt/80 p-5 shadow-panel"
-      transition={{ duration: 0.2 }}
+      className="panel-subtle p-5"
+      transition={{ type: "spring", stiffness: 280, damping: 30 }}
     >
-      <p className="text-xs uppercase tracking-[0.24em] text-muted">{label}</p>
-      <p className="mt-3 text-3xl font-semibold text-white">{value}</p>
-      {hint && <p className="mt-2 text-sm text-muted">{hint}</p>}
+      <p className="section-kicker">{label}</p>
+      <p className={emphasis === "accent" ? "metric-value mt-3 text-accentStrong" : "metric-value mt-3"}>
+        {value}
+      </p>
+      {hint && <p className="mt-3 text-sm leading-6 text-muted">{hint}</p>}
     </motion.div>
   );
 }

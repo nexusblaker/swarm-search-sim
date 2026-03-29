@@ -1,6 +1,7 @@
 import type {
   AfterActionReviewRecord,
   ComparePlansResponse,
+  DashboardSummaryResponse,
   ExperimentRecord,
   HealthResponse,
   JobRecord,
@@ -46,6 +47,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   baseUrl: API_BASE_URL,
   health: () => request<HealthResponse>("/health"),
+  dashboardSummary: () => request<DashboardSummaryResponse>("/dashboard/summary"),
   scenarios: () => request<{ items: ScenarioRecord[] }>("/scenarios"),
   scenario: (id: string) => request<ScenarioRecord>(`/scenarios/${id}`),
   createScenario: (payload: Record<string, unknown>) =>

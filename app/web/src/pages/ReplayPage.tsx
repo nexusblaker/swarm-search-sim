@@ -6,9 +6,12 @@ import { useRuns } from "@/api/hooks";
 import type { Snapshot } from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { MissionSnapshotMap } from "@/components/mission/MissionSnapshotMap";
+import { DetailPanel } from "@/components/ui/DetailPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatTimestamp } from "@/lib/format";
@@ -21,12 +24,23 @@ export function ReplayPage() {
   );
   const [runId, setRunId] = useState("");
   const [frameIndex, setFrameIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (!runId && completedRuns[0]) {
       setRunId(completedRuns[0].id);
     }
   }, [completedRuns, runId]);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setFrameIndex((current) => current + 1);
+    }, 700);
+    return () => window.clearInterval(timer);
+  }, [isPlaying]);
 
   const replayQuery = useQuery({
     queryKey: ["replay", runId],
@@ -40,7 +54,18 @@ export function ReplayPage() {
   });
 
   const frames = (replayQuery.data?.replay as Snapshot[] | undefined) ?? [];
-  const frame = frames[Math.min(frameIndex, Math.max(frames.length - 1, 0))];
+  const clampedIndex = Math.min(frameIndex, Math.max(frames.length - 1, 0));
+  const frame = frames[clampedIndex];
+
+  useEffect(() => {
+    if (frames.length === 0) {
+      return;
+    }
+    if (frameIndex >= frames.length - 1) {
+      setIsPlaying(false);
+    }
+  }, [frameIndex, frames.length]);
+
   const filteredEvents = (eventsQuery.data?.events ?? []).filter(
     (event) => Number(event.step ?? 0) <= Number(frame?.step ?? 0),
   );
@@ -53,17 +78,28 @@ export function ReplayPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <Panel title="Replay Selection" description="Load a completed run and scrub through mission evolution step by step.">
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Playback workstation"
+        title="Replay"
+        description="Inspect a completed mission step by step, scrub the timeline, and correlate state changes with the event feed and mission metrics."
+      />
+
+      <Panel
+        eyebrow="Selection"
+        title="Choose a completed run"
+        description="Primary action: select the run you want to inspect, then scrub or play through the mission timeline."
+      >
         <div className="grid gap-4 md:grid-cols-[1.4fr_0.7fr_0.7fr]">
-          <label className="space-y-2 text-sm text-muted">
-            <span>Completed run</span>
+          <label>
+            <span className="field-label">Completed run</span>
             <select
-              className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
+              className="field-input"
               value={runId}
               onChange={(event) => {
                 setRunId(event.target.value);
                 setFrameIndex(0);
+                setIsPlaying(false);
               }}
             >
               {completedRuns.map((run) => (
@@ -73,14 +109,14 @@ export function ReplayPage() {
               ))}
             </select>
           </label>
-          <div className="rounded-2xl border border-border bg-surfaceAlt/70 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted">Status</p>
+          <div className="panel-subtle px-4 py-4">
+            <p className="section-kicker">Status</p>
             <div className="mt-2">
               <StatusBadge status={selectedRun?.status ?? "completed"} />
             </div>
           </div>
-          <div className="rounded-2xl border border-border bg-surfaceAlt/70 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted">Completed</p>
+          <div className="panel-subtle px-4 py-4">
+            <p className="section-kicker">Completed</p>
             <p className="mt-2 text-sm text-white">
               {selectedRun?.completed_at ? formatTimestamp(selectedRun.completed_at) : "n/a"}
             </p>
@@ -91,43 +127,91 @@ export function ReplayPage() {
       {!frame ? (
         <EmptyState title="Replay is still building" body="This run does not have replay frames available yet." />
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[1.25fr_0.9fr]">
-          <Panel title="Mission Replay" description="Belief state, drones, obstacles, and target estimate at the selected frame.">
-            <MissionSnapshotMap snapshot={frame} />
-            <div className="mt-5 space-y-3">
-              <div className="flex items-center justify-between text-sm text-muted">
-                <span>
-                  Frame {frameIndex + 1} of {frames.length}
-                </span>
-                <span>Step {frame.step}</span>
+        <>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <MetricCard label="Frame" value={`${clampedIndex + 1}/${frames.length}`} />
+            <MetricCard label="Step" value={frame.step} emphasis="accent" />
+            <MetricCard label="Weather" value={frame.weather} />
+            <MetricCard label="Detection" value={frame.target_detected ? "Confirmed" : "Searching"} />
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[1.22fr_0.92fr]">
+            <Panel
+              eyebrow="Playback"
+              title="Mission replay"
+              description="Replay the spatial state, then correlate it with the timeline and event stream."
+            >
+              <MissionSnapshotMap snapshot={frame} />
+              <div className="mt-5 space-y-4">
+                <div className="flex flex-wrap gap-3">
+                  <button type="button" onClick={() => setFrameIndex(0)} className="secondary-button">
+                    Jump to start
+                  </button>
+                  <button type="button" onClick={() => setIsPlaying((current) => !current)} className="secondary-button">
+                    {isPlaying ? "Pause" : "Play"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFrameIndex((current) => Math.max(0, current - 1))}
+                    className="secondary-button"
+                  >
+                    Previous step
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFrameIndex((current) => Math.min(frames.length - 1, current + 1))}
+                    className="secondary-button"
+                  >
+                    Next step
+                  </button>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.max(frames.length - 1, 0)}
+                  value={clampedIndex}
+                  onChange={(event) => {
+                    setFrameIndex(Number(event.target.value));
+                    setIsPlaying(false);
+                  }}
+                  className="w-full accent-[#8fb4d6]"
+                />
               </div>
-              <input
-                type="range"
-                min={0}
-                max={Math.max(frames.length - 1, 0)}
-                value={Math.min(frameIndex, Math.max(frames.length - 1, 0))}
-                onChange={(event) => setFrameIndex(Number(event.target.value))}
-                className="w-full accent-sky-400"
+            </Panel>
+
+            <div className="space-y-6">
+              <DetailPanel
+                title="Selected step"
+                items={[
+                  { label: "Step", value: frame.step },
+                  { label: "Strategy", value: frame.strategy },
+                  { label: "Coordination", value: frame.coordination_mode },
+                  { label: "Visited cells", value: frame.visited_cells.length },
+                  { label: "Searched cells", value: frame.searched_cells.length },
+                ]}
               />
+              <Panel
+                eyebrow="Event stream"
+                title="Events at or before this frame"
+                description="Use the event feed to understand what changed and why that moment matters."
+              >
+                {filteredEvents.length === 0 ? (
+                  <EmptyState title="No events at this point" body="Move later in the timeline or inspect a different run." />
+                ) : (
+                  <EventTimeline events={filteredEvents.slice(-12).reverse()} />
+                )}
+              </Panel>
             </div>
-          </Panel>
+          </div>
 
-          <Panel title="Event Timeline" description="Events accumulated up to the current replay frame.">
-            {filteredEvents.length === 0 ? (
-              <EmptyState title="No events at this point" body="Move later in the timeline or inspect a different run." />
-            ) : (
-              <EventTimeline events={filteredEvents.slice(-12).reverse()} />
-            )}
+          <Panel
+            eyebrow="Metrics"
+            title="Selected frame summary"
+            description="This view is useful for explaining what the replay frame implies operationally."
+          >
+            <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">{JSON.stringify(frame.metrics, null, 2)}</pre>
           </Panel>
-        </div>
-      )}
-
-      {frame && (
-        <Panel title="Frame Details" description="Structured snapshot data for detailed inspection and debugging.">
-          <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-surfaceAlt/70 p-4 text-xs text-muted">
-            {JSON.stringify(frame.metrics, null, 2)}
-          </pre>
-        </Panel>
+        </>
       )}
     </div>
   );

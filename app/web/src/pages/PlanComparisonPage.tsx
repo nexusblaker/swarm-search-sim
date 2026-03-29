@@ -3,11 +3,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import { useComparisons, usePlans } from "@/api/hooks";
+import { ComparisonSummaryCard } from "@/components/ui/ComparisonSummaryCard";
 import { DataTable } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { InlineHint } from "@/components/ui/InlineHint";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatTimestamp } from "@/lib/format";
@@ -56,6 +59,7 @@ export function PlanComparisonPage() {
     onSuccess: async (comparison) => {
       setSelectedId(comparison.id);
       await queryClient.invalidateQueries({ queryKey: ["comparisons"] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
     },
   });
 
@@ -65,6 +69,7 @@ export function PlanComparisonPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["runs"] });
       await queryClient.invalidateQueries({ queryKey: ["comparisons"] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
     },
   });
 
@@ -72,21 +77,81 @@ export function PlanComparisonPage() {
   if (error) return <ErrorState message={(error as Error).message} />;
 
   const rankedCandidates = selected?.candidates ?? [];
+  const topCandidate = rankedCandidates[0];
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Pre-mission analysis"
+        title="Plan comparison"
+        description="Compare candidate strategies, drone counts, coordination modes, and reserve thresholds before committing to a run. The goal is to make tradeoffs obvious, not hidden."
+        actions={
+          <button type="button" onClick={() => createComparison.mutate()} className="primary-button">
+            Save comparison
+          </button>
+        }
+      />
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Saved Comparisons" value={comparisons.length} />
-        <MetricCard label="Ranked Candidates" value={rankedCandidates.length} />
-        <MetricCard label="Top Strategy" value={String(selected?.recommendation_json?.strategy ?? "n/a")} />
-        <MetricCard
-          label="Confidence"
-          value={`${Math.round(Number(selected?.uncertainty_json?.confidence ?? 0) * 100)}%`}
-        />
+        <MetricCard label="Saved comparisons" value={comparisons.length} />
+        <MetricCard label="Ranked candidates" value={rankedCandidates.length} />
+        <MetricCard label="Top strategy" value={String(selected?.recommendation_json?.strategy ?? "n/a")} emphasis="accent" />
+        <MetricCard label="Confidence" value={`${Math.round(Number(selected?.uncertainty_json?.confidence ?? 0) * 100)}%`} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_1fr]">
-        <Panel title="Comparison Workspace" description="Saved side-by-side evaluation bundles linked to mission plans.">
+      <div className="grid gap-6 xl:grid-cols-[0.94fr_1.06fr]">
+        <Panel
+          eyebrow="Setup"
+          title="Define the candidate search space"
+          description="Choose the mission plan to compare against, then set the strategy, drone, comms, and reserve ranges to evaluate."
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <label>
+              <span className="field-label">Comparison name</span>
+              <input className="field-input" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
+            </label>
+            <label>
+              <span className="field-label">Mission plan</span>
+              <select className="field-input" value={form.planId} onChange={(event) => setForm((current) => ({ ...current, planId: event.target.value }))}>
+                <option value="">None</option>
+                {plans.map((plan) => (
+                  <option key={plan.id} value={plan.id}>
+                    {plan.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="field-label">Strategies</span>
+              <input className="field-input" value={form.strategies} onChange={(event) => setForm((current) => ({ ...current, strategies: event.target.value }))} />
+            </label>
+            <label>
+              <span className="field-label">Drone counts</span>
+              <input className="field-input" value={form.droneCounts} onChange={(event) => setForm((current) => ({ ...current, droneCounts: event.target.value }))} />
+            </label>
+            <label>
+              <span className="field-label">Coordination modes</span>
+              <input className="field-input" value={form.coordinationModes} onChange={(event) => setForm((current) => ({ ...current, coordinationModes: event.target.value }))} />
+            </label>
+            <label>
+              <span className="field-label">Reserve thresholds</span>
+              <input className="field-input" value={form.returnThresholds} onChange={(event) => setForm((current) => ({ ...current, returnThresholds: event.target.value }))} />
+            </label>
+          </div>
+          <label className="mt-4 block">
+            <span className="field-label">Seeds per candidate</span>
+            <input className="field-input" value={form.numSeeds} onChange={(event) => setForm((current) => ({ ...current, numSeeds: event.target.value }))} />
+          </label>
+          <InlineHint>
+            Primary action: keep the candidate set tight enough that the recommendation feels explainable, not arbitrary.
+          </InlineHint>
+        </Panel>
+
+        <Panel
+          eyebrow="Workspace"
+          title="Saved comparisons"
+          description="Open a saved analysis workspace to inspect the ranked outcome and launch a run from a winning candidate."
+        >
           {comparisons.length === 0 ? (
             <EmptyState
               title="No saved comparisons yet"
@@ -99,7 +164,7 @@ export function PlanComparisonPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedId(comparison.id)}
-                  className="text-left font-medium hover:text-accent"
+                  className="text-left font-medium hover:text-accentStrong"
                 >
                   {comparison.name}
                 </button>,
@@ -110,127 +175,97 @@ export function PlanComparisonPage() {
             />
           )}
         </Panel>
-
-        <Panel title="Create Or Refresh Comparison" description="Run a lightweight evaluation bundle and save the result for later launch and reporting.">
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="space-y-2 text-sm text-muted">
-              <span>Comparison name</span>
-              <input
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.name}
-                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-              />
-            </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span>Mission plan</span>
-              <select
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.planId}
-                onChange={(event) => setForm((current) => ({ ...current, planId: event.target.value }))}
-              >
-                <option value="">None</option>
-                {plans.map((plan) => (
-                  <option key={plan.id} value={plan.id}>
-                    {plan.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span>Strategies</span>
-              <input
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.strategies}
-                onChange={(event) => setForm((current) => ({ ...current, strategies: event.target.value }))}
-              />
-            </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span>Drone counts</span>
-              <input
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.droneCounts}
-                onChange={(event) => setForm((current) => ({ ...current, droneCounts: event.target.value }))}
-              />
-            </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span>Coordination modes</span>
-              <input
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.coordinationModes}
-                onChange={(event) => setForm((current) => ({ ...current, coordinationModes: event.target.value }))}
-              />
-            </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span>Reserve thresholds</span>
-              <input
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.returnThresholds}
-                onChange={(event) => setForm((current) => ({ ...current, returnThresholds: event.target.value }))}
-              />
-            </label>
-          </div>
-          <label className="mt-4 block space-y-2 text-sm text-muted">
-            <span>Seeds per candidate</span>
-            <input
-              className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-              value={form.numSeeds}
-              onChange={(event) => setForm((current) => ({ ...current, numSeeds: event.target.value }))}
-            />
-          </label>
-          <button
-            type="button"
-            onClick={() => createComparison.mutate()}
-            className="mt-5 rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-300"
-          >
-            Save Comparison
-          </button>
-        </Panel>
       </div>
 
-      {selected && (
-        <div className="grid gap-6 xl:grid-cols-[1.2fr_0.9fr]">
-          <Panel
-            title="Ranked Candidate Plans"
-            description="Ranked outputs can be launched directly into a mission run."
-          >
-            <DataTable
-              columns={["Rank", "Candidate", "Strategy", "Success", "Time", "Action"]}
-              rows={rankedCandidates.map((candidate) => [
-                candidate.rank,
-                candidate.name,
-                String(candidate.config_json.strategy ?? "n/a"),
-                String(candidate.summary_json.success_rate ?? candidate.summary_json.mission_success ?? "n/a"),
-                String(candidate.summary_json.mean_time_to_detection ?? candidate.summary_json.time_to_detection ?? "n/a"),
-                <button
-                  type="button"
-                  onClick={() =>
-                    launchCandidate.mutate({
-                      comparisonId: selected.id,
-                      candidateId: candidate.id,
-                    })
-                  }
-                  className="rounded-xl border border-accent/30 px-3 py-2 text-xs font-semibold text-accent hover:border-accent hover:bg-accent/10"
-                >
-                  Launch Run
-                </button>,
-              ])}
+      {selected ? (
+        <>
+          <div className="grid gap-6 xl:grid-cols-3">
+            <ComparisonSummaryCard
+              title={`Top recommendation: ${String(selected.recommendation_json?.strategy ?? "n/a")}`}
+              description="This summary shows why the winning candidate surfaced to the top of the ranked set."
+              metrics={[
+                { label: "Top strategy", value: String(selected.recommendation_json?.strategy ?? "n/a"), tone: "good" },
+                { label: "Confidence", value: `${Math.round(Number(selected.uncertainty_json?.confidence ?? 0) * 100)}%` },
+                { label: "Candidates", value: String(rankedCandidates.length) },
+              ]}
             />
-          </Panel>
-          <Panel title="Recommendation Summary" description="Persisted rationale, uncertainty band, and sensitivity signal.">
-            <div className="space-y-4">
-              <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-surfaceAlt/70 p-4 text-xs text-muted">
-                {JSON.stringify(selected.recommendation_json, null, 2)}
-              </pre>
-              <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-surfaceAlt/70 p-4 text-xs text-muted">
-                {JSON.stringify(selected.uncertainty_json, null, 2)}
-              </pre>
-              <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-surfaceAlt/70 p-4 text-xs text-muted">
-                {JSON.stringify(selected.sensitivity_json, null, 2)}
-              </pre>
-            </div>
-          </Panel>
-        </div>
-      )}
+            <ComparisonSummaryCard
+              title="Uncertainty"
+              description="Use this to explain how stable the recommendation is when assumptions move."
+              metrics={[
+                { label: "Band", value: String(selected.uncertainty_json?.band ?? "n/a") },
+                { label: "Spread", value: String(selected.uncertainty_json?.spread ?? "n/a"), tone: "warning" },
+                { label: "Confidence", value: String(selected.uncertainty_json?.confidence ?? "n/a") },
+              ]}
+            />
+            <ComparisonSummaryCard
+              title="Sensitivity"
+              description="Sensitivity explains which assumptions most influence the ranking."
+              metrics={[
+                { label: "Top driver", value: String(selected.sensitivity_json?.top_driver ?? "n/a") },
+                { label: "Most stable", value: String(selected.sensitivity_json?.most_stable ?? "n/a"), tone: "good" },
+                { label: "Review", value: "Use before launch" },
+              ]}
+            />
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[1.16fr_0.94fr]">
+            <Panel
+              eyebrow="Ranked results"
+              title="Candidate plans"
+              description="The ranked table is designed to make launch decisions fast. Select the candidate that best balances mission success, speed, and operational risk."
+            >
+              <DataTable
+                columns={["Rank", "Candidate", "Strategy", "Success", "Detection time", "Launch"]}
+                rows={rankedCandidates.map((candidate) => [
+                  candidate.rank,
+                  candidate.name,
+                  String(candidate.config_json.strategy ?? "n/a"),
+                  String(candidate.summary_json.success_rate ?? candidate.summary_json.mission_success ?? "n/a"),
+                  String(candidate.summary_json.mean_time_to_detection ?? candidate.summary_json.time_to_detection ?? "n/a"),
+                  <button
+                    type="button"
+                    onClick={() =>
+                      launchCandidate.mutate({
+                        comparisonId: selected.id,
+                        candidateId: candidate.id,
+                      })
+                    }
+                    className="secondary-button"
+                  >
+                    Launch candidate
+                  </button>,
+                ])}
+              />
+            </Panel>
+
+            <Panel
+              eyebrow="Why this won"
+              title={topCandidate ? topCandidate.name : "No top candidate"}
+              description="This panel gives a plainer-language briefing on the current winning option."
+            >
+              {topCandidate ? (
+                <div className="space-y-4">
+                  <div className="panel-subtle p-5">
+                    <p className="section-kicker">Primary tradeoff</p>
+                    <p className="mt-2 text-base font-medium text-white">
+                      {String(topCandidate.config_json.strategy ?? "n/a")} surfaced as the best balance of expected success and search speed.
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      Use this candidate when you want the cleanest path from evaluation to monitored run.
+                    </p>
+                  </div>
+                  <pre className="rounded-[22px] border border-border bg-surfaceAlt/60 p-4 text-xs leading-6 text-muted">
+                    {JSON.stringify(selected.recommendation_json, null, 2)}
+                  </pre>
+                </div>
+              ) : (
+                <EmptyState title="No ranked candidate" body="Create or open a comparison to populate the analysis workspace." />
+              )}
+            </Panel>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

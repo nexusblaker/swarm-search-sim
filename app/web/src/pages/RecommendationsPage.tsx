@@ -7,7 +7,10 @@ import { DataTable } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
+import { RecommendationCard } from "@/components/ui/RecommendationCard";
+import { RiskIndicator } from "@/components/ui/RiskIndicator";
 
 export function RecommendationsPage() {
   const { data, isLoading, error } = usePlans();
@@ -19,47 +22,87 @@ export function RecommendationsPage() {
 
   if (isLoading) return <LoadingState label="Loading mission plans..." />;
   if (error) return <ErrorState message={(error as Error).message} />;
-  if (plans.length === 0) return <EmptyState title="No mission plans available" body="Create a mission plan before requesting recommendations." />;
+  if (plans.length === 0) {
+    return (
+      <EmptyState
+        title="No mission plans available"
+        body="Create a mission plan before requesting recommendations."
+      />
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <Panel title="Recommendation Workspace" description="Request and inspect a recommendation snapshot for a mission plan.">
-        <div className="flex flex-col gap-4 md:flex-row">
-          <select className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white md:max-w-md" value={planId} onChange={(event) => setPlanId(event.target.value)}>
-            <option value="">Select mission plan</option>
-            {plans.map((plan) => <option key={plan.id} value={plan.id}>{plan.name}</option>)}
-          </select>
-          <button type="button" onClick={() => planId && recommendation.mutate({ plan_id: planId, num_seeds: 2 })} className="rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-300">
-            Generate Recommendation
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Decision support"
+        title="Recommendations"
+        description="Request an explainable recommendation for a mission plan and inspect the reasoning, risk picture, and candidate support behind it."
+        actions={
+          <button
+            type="button"
+            onClick={() => planId && recommendation.mutate({ plan_id: planId, num_seeds: 2 })}
+            className="primary-button"
+          >
+            Generate recommendation
           </button>
+        }
+      />
+
+      <Panel
+        eyebrow="Selection"
+        title="Choose the mission plan to brief"
+        description="Primary action: pick the plan you want to brief, then generate the recommendation snapshot."
+      >
+        <div className="max-w-md">
+          <label>
+            <span className="field-label">Mission plan</span>
+            <select className="field-input" value={planId} onChange={(event) => setPlanId(event.target.value)}>
+              <option value="">Select mission plan</option>
+              {plans.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.name}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </Panel>
-      {recommendation.data && (
+
+      {recommendation.data ? (
         <>
-          <div className="grid gap-6 xl:grid-cols-[1.05fr_1fr]">
-            <Panel title="Top Recommendation" description={recommendation.data.explanation}>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-border bg-surfaceAlt/75 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted">Strategy</p>
-                  <p className="mt-2 text-lg font-semibold text-white">{recommendation.data.recommended_strategy}</p>
-                </div>
-                <div className="rounded-2xl border border-border bg-surfaceAlt/75 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted">Drone count</p>
-                  <p className="mt-2 text-lg font-semibold text-white">{recommendation.data.recommended_drone_count}</p>
-                </div>
-                <div className="rounded-2xl border border-border bg-surfaceAlt/75 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted">Reserve threshold</p>
-                  <p className="mt-2 text-lg font-semibold text-white">{recommendation.data.recommended_return_threshold}</p>
-                </div>
-              </div>
-            </Panel>
-            <Panel title="Risk And Uncertainty" description="Explainable planning support outputs from the backend.">
-              <pre className="overflow-x-auto whitespace-pre-wrap text-xs text-muted">{JSON.stringify({ risk: recommendation.data.risk_summary, uncertainty: recommendation.data.uncertainty_summary }, null, 2)}</pre>
-            </Panel>
+          <RecommendationCard
+            strategy={recommendation.data.recommended_strategy}
+            drones={recommendation.data.recommended_drone_count}
+            reserveThreshold={recommendation.data.recommended_return_threshold}
+            explanation={recommendation.data.explanation}
+            riskSummary={recommendation.data.risk_summary}
+            uncertaintySummary={recommendation.data.uncertainty_summary}
+          />
+
+          <div className="grid gap-6 xl:grid-cols-3">
+            <RiskIndicator
+              label="Battery margin risk"
+              value={String(recommendation.data.risk_summary?.battery_margin_risk ?? "n/a")}
+              tone="warning"
+            />
+            <RiskIndicator
+              label="Comms fragility"
+              value={String(recommendation.data.risk_summary?.communications_fragility ?? "n/a")}
+              tone="warning"
+            />
+            <RiskIndicator
+              label="Overlap inefficiency"
+              value={String(recommendation.data.risk_summary?.overlap_inefficiency ?? "n/a")}
+            />
           </div>
-          <Panel title="Candidate Support" description="Candidate plans evaluated to support the recommendation.">
+
+          <Panel
+            eyebrow="Candidate support"
+            title="Evidence behind the recommendation"
+            description="This table shows the candidate plans the backend evaluated and the tradeoffs it considered."
+          >
             <DataTable
-              columns={["Strategy", "Drones", "Coordination", "Success", "Detection Time", "Failure Modes"]}
+              columns={["Strategy", "Drones", "Coordination", "Success", "Detection time", "Failure modes"]}
               rows={recommendation.data.candidate_plans.map((candidate) => [
                 String(candidate.strategy ?? "n/a"),
                 String(candidate.drone_count ?? "n/a"),
@@ -71,6 +114,11 @@ export function RecommendationsPage() {
             />
           </Panel>
         </>
+      ) : (
+        <EmptyState
+          title="No recommendation generated yet"
+          body="Select a mission plan and generate a recommendation to see a briefing-ready summary here."
+        />
       )}
     </div>
   );

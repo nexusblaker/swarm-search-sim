@@ -5,11 +5,14 @@ import { api } from "@/api/client";
 import { useReports, useReviews, useRuns } from "@/api/hooks";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
 import { DataTable } from "@/components/ui/DataTable";
+import { DetailPanel } from "@/components/ui/DetailPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
+import { RiskIndicator } from "@/components/ui/RiskIndicator";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatTimestamp } from "@/lib/format";
 
@@ -43,18 +46,36 @@ export function ReviewsPage() {
   if (error) return <ErrorState message={(error as Error).message} />;
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Operational review"
+        title="After-action review"
+        description="Understand what happened, why it mattered, and what should be learned from the completed mission. This page is the review center for replay-backed evaluation."
+        actions={
+          <button type="button" onClick={() => createReview.mutate()} className="primary-button">
+            Generate AAR
+          </button>
+        }
+      />
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Reviews" value={reviews.length} />
-        <MetricCard label="Completed Runs" value={completedRuns.length} />
-        <MetricCard label="Linked Reports" value={reviews.filter((review) => review.report_id).length} />
-        <MetricCard label="Latest Outcome" value={String(selected?.summary_json?.mission_success ?? "n/a")} />
+        <MetricCard label="Completed runs" value={completedRuns.length} />
+        <MetricCard label="Linked reports" value={reviews.filter((review) => review.report_id).length} />
+        <MetricCard label="Latest outcome" value={String(selected?.summary_json?.mission_success ?? "n/a")} emphasis="accent" />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.05fr_1fr]">
-        <Panel title="After Action Review Index" description="Structured review objects linked to runs, reports, and alternate plan analysis.">
+      <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
+        <Panel
+          eyebrow="Review index"
+          title="Stored after-action reviews"
+          description="Open an existing review or generate a new one from a completed run."
+        >
           {reviews.length === 0 ? (
-            <EmptyState title="No reviews yet" body="Generate an AAR from a completed run to capture mission outcome and findings." />
+            <EmptyState
+              title="No reviews yet"
+              body="Generate an AAR from a completed run to capture mission outcome and lessons learned."
+            />
           ) : (
             <DataTable
               columns={["Review", "Run", "Plan", "Created"]}
@@ -62,7 +83,7 @@ export function ReviewsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedId(review.id)}
-                  className="text-left font-medium hover:text-accent"
+                  className="text-left font-medium hover:text-accentStrong"
                 >
                   {review.name}
                 </button>,
@@ -74,14 +95,14 @@ export function ReviewsPage() {
           )}
         </Panel>
 
-        <Panel title="Generate Review" description="Create a new after-action review from a completed mission run.">
-          <label className="space-y-2 text-sm text-muted">
-            <span>Completed run</span>
-            <select
-              className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-              value={runId}
-              onChange={(event) => setRunId(event.target.value)}
-            >
+        <Panel
+          eyebrow="Generation"
+          title="Create a new review"
+          description="Primary action: pick a completed run and generate an after-action review so replay, findings, and reporting remain linked."
+        >
+          <label>
+            <span className="field-label">Completed run</span>
+            <select className="field-input" value={runId} onChange={(event) => setRunId(event.target.value)}>
               <option value="">Select a run</option>
               {completedRuns.map((run) => (
                 <option key={run.id} value={run.id}>
@@ -90,40 +111,66 @@ export function ReviewsPage() {
               ))}
             </select>
           </label>
-          <button
-            type="button"
-            onClick={() => createReview.mutate()}
-            className="mt-5 rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-300"
-          >
-            Generate AAR
-          </button>
         </Panel>
       </div>
 
-      {selected && (
-        <div className="grid gap-6 xl:grid-cols-[1.1fr_0.95fr]">
-          <Panel title="Review Summary" description="Outcome, deviation from recommendation, and asset utilization summary.">
-            <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-surfaceAlt/70 p-4 text-xs text-muted">
-              {JSON.stringify(selected.summary_json, null, 2)}
-            </pre>
-            <pre className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-surfaceAlt/70 p-4 text-xs text-muted">
-              {JSON.stringify(selected.alternate_plan_json, null, 2)}
-            </pre>
-          </Panel>
+      {selected ? (
+        <>
+          <div className="grid gap-6 xl:grid-cols-3">
+            <RiskIndicator label="Mission success" value={String(selected.summary_json?.mission_success ?? "n/a")} tone="good" />
+            <RiskIndicator label="Deviation from recommendation" value={String(selected.summary_json?.deviation_from_recommendation ?? "n/a")} tone="warning" />
+            <RiskIndicator label="Battery and comms risk" value={String(selected.summary_json?.battery_comms_risk ?? "n/a")} />
+          </div>
 
-          <Panel title="Timeline And Links" description="Interventions, report artifacts, and linked run metadata.">
-            <div className="space-y-3">
-              <StatusBadge status={runQuery.data?.status ?? "completed"} />
-              {reviewReport && (
-                <ArtifactLink href={`${api.baseUrl}/reports/${reviewReport.id}/content`} label="Open Review Report" />
-              )}
-              <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl border border-border bg-surfaceAlt/70 p-4 text-xs text-muted">
-                {JSON.stringify(selected.timeline_json, null, 2)}
-              </pre>
+          <div className="grid gap-6 xl:grid-cols-[1.14fr_0.96fr]">
+            <Panel
+              eyebrow="Outcome summary"
+              title={selected.name}
+              description="Use this view to explain the mission outcome, the risk picture, and what the team should take away from the run."
+            >
+              <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">{JSON.stringify(selected.summary_json, null, 2)}</pre>
+              <div className="mt-5 rounded-[22px] border border-border bg-surfaceAlt/55 p-4">
+                <p className="section-kicker">Alternate-plan summary</p>
+                <pre className="mt-3 whitespace-pre-wrap text-xs leading-6 text-muted">
+                  {JSON.stringify(selected.alternate_plan_json, null, 2)}
+                </pre>
+              </div>
+            </Panel>
+
+            <div className="space-y-6">
+              <DetailPanel
+                title="Linked objects"
+                items={[
+                  { label: "Run", value: selected.run_id },
+                  { label: "Plan", value: selected.plan_id ?? "n/a" },
+                  { label: "Comparison", value: selected.comparison_id ?? "n/a" },
+                  { label: "Report", value: selected.report_id ?? "n/a" },
+                ]}
+              />
+              <Panel
+                eyebrow="Artifacts"
+                title="Review links"
+                description="Open the linked report or inspect the run status associated with this review."
+              >
+                <div className="flex flex-wrap items-center gap-3">
+                  <StatusBadge status={runQuery.data?.status ?? "completed"} />
+                  {reviewReport ? (
+                    <ArtifactLink href={`${api.baseUrl}/reports/${reviewReport.id}/content`} label="Open review report" />
+                  ) : null}
+                </div>
+              </Panel>
             </div>
+          </div>
+
+          <Panel
+            eyebrow="Timeline"
+            title="Review timeline"
+            description="The review timeline carries the key events that shaped the mission outcome."
+          >
+            <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">{JSON.stringify(selected.timeline_json, null, 2)}</pre>
           </Panel>
-        </div>
-      )}
+        </>
+      ) : null}
     </div>
   );
 }

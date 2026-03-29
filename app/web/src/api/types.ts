@@ -18,6 +18,41 @@ export interface HealthResponse {
   storage_root: string;
 }
 
+export interface DashboardActivityRecord {
+  id: string;
+  kind: string;
+  title: string;
+  subtitle: string;
+  timestamp: number;
+  status?: string | null;
+  owner_id?: string | null;
+}
+
+export interface DashboardSuggestedAction {
+  label: string;
+  description: string;
+  route: string;
+}
+
+export interface DashboardSummaryResponse {
+  counts: {
+    scenarios: number;
+    plans: number;
+    comparisons: number;
+    runs: number;
+    reviews: number;
+    reports: number;
+  };
+  active_runs: number;
+  completed_runs: number;
+  queued_jobs: number;
+  backend_status: string;
+  recent_runs: RunRecord[];
+  recent_reports: ReportRecord[];
+  recent_activity: DashboardActivityRecord[];
+  suggested_actions: DashboardSuggestedAction[];
+}
+
 export interface ScenarioRecord {
   id: string;
   name: string;

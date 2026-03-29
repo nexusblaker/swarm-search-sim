@@ -10,6 +10,8 @@ import { DataTable } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { MetricCard } from "@/components/ui/MetricCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -59,9 +61,31 @@ export function ExperimentsPage() {
   const summaryRows = normalizeExperimentSummary(summaryQuery.data?.summary);
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.2fr]">
-        <Panel title="Launch Experiment Batch" description="Grouped robustness experiments across strategies, scenario families, and target behaviors.">
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Analyst workspace"
+        title="Experiments"
+        description="Launch grouped robustness experiments, then browse the summary outputs and plots in a calmer, more presentation-ready layout."
+        actions={
+          <button type="button" onClick={() => createExperiment.mutate()} className="primary-button">
+            Launch experiment
+          </button>
+        }
+      />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Experiments" value={experiments.length} />
+        <MetricCard label="Selected status" value={selected?.status ?? "n/a"} emphasis="accent" />
+        <MetricCard label="Summary rows" value={summaryRows.length} />
+        <MetricCard label="Artifacts" value={Object.keys(selected?.artifact_paths ?? {}).length} />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[0.94fr_1.06fr]">
+        <Panel
+          eyebrow="Launch"
+          title="Experiment setup"
+          description="Use this form to define the parameter sweep. Keep it focused enough that the results remain easy to explain."
+        >
           <div className="grid gap-4 md:grid-cols-2">
             {[
               ["Strategies", "strategies"],
@@ -70,58 +94,43 @@ export function ExperimentsPage() {
               ["Coordination modes", "coordinationModes"],
               ["Drone counts", "droneCounts"],
             ].map(([label, key]) => (
-              <label key={key} className="space-y-2 text-sm text-muted">
-                <span>{label}</span>
+              <label key={key}>
+                <span className="field-label">{label}</span>
                 <input
-                  className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
+                  className="field-input"
                   value={form[key as keyof typeof form]}
                   onChange={(event) => setForm((current) => ({ ...current, [key]: event.target.value }))}
                 />
               </label>
             ))}
-            <label className="space-y-2 text-sm text-muted">
-              <span>Benchmark seeds</span>
-              <input
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.benchmarkSeeds}
-                onChange={(event) => setForm((current) => ({ ...current, benchmarkSeeds: event.target.value }))}
-              />
+            <label>
+              <span className="field-label">Benchmark seeds</span>
+              <input className="field-input" value={form.benchmarkSeeds} onChange={(event) => setForm((current) => ({ ...current, benchmarkSeeds: event.target.value }))} />
             </label>
-            <label className="space-y-2 text-sm text-muted">
-              <span>Experiment seeds</span>
-              <input
-                className="w-full rounded-2xl border border-border bg-surfaceAlt px-4 py-3 text-white"
-                value={form.experimentSeeds}
-                onChange={(event) => setForm((current) => ({ ...current, experimentSeeds: event.target.value }))}
-              />
+            <label>
+              <span className="field-label">Experiment seeds</span>
+              <input className="field-input" value={form.experimentSeeds} onChange={(event) => setForm((current) => ({ ...current, experimentSeeds: event.target.value }))} />
             </label>
           </div>
-          <button
-            type="button"
-            onClick={() => createExperiment.mutate()}
-            className="mt-5 rounded-2xl bg-accent px-5 py-3 text-sm font-semibold text-slate-950 hover:bg-sky-300"
-          >
-            Launch Experiment
-          </button>
         </Panel>
 
-        <Panel title="Experiment History" description="Tracked experiment jobs, statuses, and artifact bundles.">
+        <Panel
+          eyebrow="History"
+          title="Experiment runs"
+          description="Select an experiment to open its summary table, plots, and artifacts."
+        >
           {experiments.length === 0 ? (
             <EmptyState title="No experiments yet" body="Launch a grouped experiment batch to build comparative evidence." />
           ) : (
             <DataTable
               columns={["Experiment", "Status", "Progress", "Updated"]}
               rows={experiments.map((experiment) => [
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(experiment.id)}
-                  className="text-left font-medium hover:text-accent"
-                >
+                <button type="button" onClick={() => setSelectedId(experiment.id)} className="text-left font-medium hover:text-accentStrong">
                   {experiment.id}
                 </button>,
                 <StatusBadge status={experiment.status} />,
                 <div className="w-32">
-                  <ProgressBar value={Math.round((experiment.job?.progress ?? 0) * 100)} />
+                  <ProgressBar value={experiment.job?.progress ?? 0} />
                 </div>,
                 formatTimestamp(experiment.updated_at),
               ])}
@@ -130,14 +139,18 @@ export function ExperimentsPage() {
         </Panel>
       </div>
 
-      {selected && (
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.95fr]">
-          <Panel title="Summary Table" description="Aggregated experiment outputs from the stored summary artifact.">
+      {selected ? (
+        <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+          <Panel
+            eyebrow="Summary"
+            title="Experiment outputs"
+            description="Lead with the summary table so the experiment is understandable before diving into raw artifacts."
+          >
             {summaryRows.length === 0 ? (
               <EmptyState title="No summary yet" body="This experiment may still be queued or the summary artifact is empty." />
             ) : (
               <DataTable
-                columns={["Strategy", "Family", "Success", "Detection Time", "Overlap"]}
+                columns={["Strategy", "Family", "Success", "Detection time", "Overlap"]}
                 rows={summaryRows.map((row) => [
                   String(row.strategy ?? "n/a"),
                   String(row.scenario_family ?? row.family ?? "n/a"),
@@ -149,34 +162,47 @@ export function ExperimentsPage() {
             )}
           </Panel>
 
-          <Panel title="Comparison Plot" description="Quick view of success-rate differences across strategies.">
-            {summaryRows.length === 0 ? (
-              <EmptyState title="No chart data yet" body="A completed experiment summary is needed to render the chart." />
-            ) : (
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={summaryRows.slice(0, 8)}>
-                    <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
-                    <XAxis dataKey="strategy" tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                    <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                    <Tooltip />
-                    <Bar dataKey="success_rate" fill="#38bdf8" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+          <div className="space-y-6">
+            <Panel
+              eyebrow="Plot"
+              title="Success-rate comparison"
+              description="A compact visual for the current selected experiment."
+            >
+              {summaryRows.length === 0 ? (
+                <EmptyState title="No chart data yet" body="A completed experiment summary is needed to render the chart." />
+              ) : (
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={summaryRows.slice(0, 8)}>
+                      <CartesianGrid stroke="rgba(152,160,171,0.12)" vertical={false} />
+                      <XAxis dataKey="strategy" tick={{ fill: "#98a0ab", fontSize: 12 }} />
+                      <YAxis tick={{ fill: "#98a0ab", fontSize: 12 }} />
+                      <Tooltip />
+                      <Bar dataKey="success_rate" fill="#8fb4d6" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </Panel>
+
+            <Panel
+              eyebrow="Artifacts"
+              title="Experiment files"
+              description="Open the stored plots, CSVs, and other generated experiment outputs."
+            >
+              <div className="flex flex-wrap gap-3">
+                {Object.entries(selected.artifact_paths ?? {}).map(([name]) => (
+                  <ArtifactLink
+                    key={name}
+                    href={`${api.baseUrl}/artifacts/experiment/${selected.id}/${name}`}
+                    label={name}
+                  />
+                ))}
               </div>
-            )}
-            <div className="mt-4 flex flex-wrap gap-3">
-              {Object.entries(selected.artifact_paths ?? {}).map(([name, path]) => (
-                <ArtifactLink
-                  key={name}
-                  href={`${api.baseUrl}/artifacts/experiment/${selected.id}/${name}`}
-                  label={name}
-                />
-              ))}
-            </div>
-          </Panel>
+            </Panel>
+          </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

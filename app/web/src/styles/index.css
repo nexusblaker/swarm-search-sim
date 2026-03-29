@@ -16,12 +16,87 @@ body {
   margin: 0;
   font-family: Inter, "Segoe UI", system-ui, sans-serif;
   background:
-    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 30%),
-    linear-gradient(180deg, #08101c 0%, #0b1220 100%);
+    radial-gradient(circle at top right, rgba(143, 180, 214, 0.06), transparent 28%),
+    linear-gradient(180deg, #0d0f13 0%, #12151b 100%);
+  color: #f5f7fa;
 }
 
 * {
   box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(143, 180, 214, 0.24);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.02em;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .page-stack {
+    @apply space-y-8;
+  }
+
+  .page-grid {
+    @apply grid gap-6;
+  }
+
+  .panel-surface {
+    @apply rounded-[28px] border border-border/80 bg-surface shadow-panel backdrop-blur;
+  }
+
+  .panel-subtle {
+    @apply rounded-[24px] border border-border/70 bg-surfaceAlt shadow-soft;
+  }
+
+  .section-kicker {
+    @apply text-[11px] font-medium uppercase tracking-[0.24em] text-muted;
+  }
+
+  .field-label {
+    @apply mb-2 block text-xs font-medium uppercase tracking-[0.16em] text-muted;
+  }
+
+  .field-input {
+    @apply w-full rounded-[20px] border border-border bg-surfaceAlt px-4 py-3 text-sm text-white outline-none transition placeholder:text-muted/60 focus:border-accentStrong/70 focus:ring-2 focus:ring-accentStrong/15;
+  }
+
+  .field-textarea {
+    @apply field-input min-h-28 resize-y;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center rounded-[20px] bg-accent px-4 py-3 text-sm font-semibold text-[#101317] transition hover:bg-[#e7ebf1] focus:outline-none focus:ring-2 focus:ring-accentStrong/25;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center rounded-[20px] border border-border bg-surfaceAlt px-4 py-3 text-sm font-medium text-white transition hover:border-accentStrong/45 hover:bg-surfaceAlt hover:text-white;
+  }
+
+  .ghost-button {
+    @apply inline-flex items-center justify-center rounded-[18px] px-3 py-2 text-sm font-medium text-muted transition hover:bg-surfaceAlt/70 hover:text-white;
+  }
+
+  .pill {
+    @apply inline-flex items-center rounded-full border border-border bg-surfaceAlt px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-muted;
+  }
+
+  .metric-value {
+    @apply text-[28px] font-semibold leading-none text-white md:text-[32px];
+  }
 }
 
 .scrollbar-subtle::-webkit-scrollbar {
@@ -30,6 +105,6 @@ body {
 }
 
 .scrollbar-subtle::-webkit-scrollbar-thumb {
-  background: rgba(138, 160, 185, 0.28);
+  background: rgba(152, 160, 171, 0.28);
   border-radius: 999px;
 }
