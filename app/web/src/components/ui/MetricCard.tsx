@@ -14,7 +14,7 @@ export function MetricCard({
   return (
     <motion.div
       layout
-      className="panel-subtle p-5"
+      className={emphasis === "accent" ? "panel-subtle border-accentStrong/25 bg-white/[0.04] p-5" : "panel-subtle p-5"}
       transition={{ type: "spring", stiffness: 280, damping: 30 }}
     >
       <p className="section-kicker">{label}</p>

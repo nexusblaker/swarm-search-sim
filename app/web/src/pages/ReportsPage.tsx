@@ -4,6 +4,7 @@ import { api } from "@/api/client";
 import { useReports } from "@/api/hooks";
 import type { BatteryLifecycleSummary, ReportSummaryRecord, SensingLifecycleSummary } from "@/api/types";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
+import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { DataTable } from "@/components/ui/DataTable";
 import { DetailPanel } from "@/components/ui/DetailPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -39,13 +40,21 @@ export function ReportsPage() {
   const summary = (selected.summary_json ?? {}) as ReportSummaryRecord;
   const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
   const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
+  const reportTitle =
+    selected.owner_type === "review"
+      ? "After-action report"
+      : selected.owner_type === "run"
+        ? "Run summary"
+        : selected.owner_type === "plan"
+          ? "Mission brief"
+          : "Mission report";
 
   return (
     <div className="page-stack">
       <PageHeader
         eyebrow="Exports and artifacts"
         title="Reports"
-        description="Browse indexed HTML reports, filter by owner type, and move directly from plans, runs, and reviews into shareable outputs."
+        description="Browse mission briefs, run summaries, and after-action reports with cleaner titles and easier export language."
       />
 
       <Panel
@@ -72,16 +81,22 @@ export function ReportsPage() {
         <Panel
           eyebrow="Index"
           title="Indexed reports"
-          description="Open a report to inspect its metadata, linkage, and export path."
+          description="Open a report to inspect its summary, export actions, and linked mission context."
         >
           <DataTable
             columns={["Report", "Owner", "Type", "Created"]}
             rows={filteredReports.map((report) => [
               <button type="button" onClick={() => setSelectedId(report.id)} className="font-medium hover:text-accentStrong">
-                {report.id}
+                {report.owner_type === "review"
+                  ? "After-action report"
+                  : report.owner_type === "run"
+                    ? "Run summary"
+                    : report.owner_type === "plan"
+                      ? "Mission brief"
+                      : report.id}
               </button>,
               `${report.owner_type}:${report.owner_id ?? "n/a"}`,
-              report.report_type,
+              report.report_type.replaceAll("_", " "),
               formatTimestamp(report.created_at),
             ])}
           />
@@ -89,21 +104,35 @@ export function ReportsPage() {
 
         <div className="space-y-6">
           <DetailPanel
-            title="Selected report"
+            title={reportTitle}
             items={[
               { label: "Report ID", value: selected.id },
               { label: "Owner", value: `${selected.owner_type}:${selected.owner_id ?? "n/a"}` },
-              { label: "Type", value: selected.report_type },
+              { label: "Type", value: selected.report_type.replaceAll("_", " ") },
               { label: "Created", value: formatTimestamp(selected.created_at) },
               { label: "Run phase", value: summary.run_phase ?? "n/a" },
             ]}
           />
           <Panel
-            eyebrow="Lifecycle summary"
+            eyebrow="Export actions"
             title="Report highlights"
-            description="This summary surfaces the main battery lifecycle, sensing workflow, and continuity points before you open the full HTML export."
+            description="Start with the readable export actions, then review the operational summary before opening the full HTML report."
           >
-            <ArtifactLink href={`${api.baseUrl}/reports/${selected.id}/content`} label="Open HTML report" />
+            <div className="flex flex-wrap gap-3">
+              <ArtifactLink
+                href={`${api.baseUrl}/reports/${selected.id}/content`}
+                label={
+                  selected.owner_type === "review"
+                    ? "Export after-action report"
+                    : selected.owner_type === "run"
+                      ? "Export run summary"
+                      : selected.owner_type === "plan"
+                        ? "Export mission brief"
+                        : "Open report"
+                }
+              />
+              <ArtifactLink href={`${api.baseUrl}/reports/${selected.id}/content`} label="Download technical report" />
+            </div>
             <div className="mt-5 space-y-4">
               <div className="panel-subtle p-4">
                 <p className="section-kicker">Reserve policy</p>
@@ -141,14 +170,15 @@ export function ReportsPage() {
             </div>
           </Panel>
 
-          <details className="panel-surface p-6">
-            <summary className="cursor-pointer text-xs uppercase tracking-[0.14em] text-muted">
-              Technical details
-            </summary>
-            <pre className="mt-4 whitespace-pre-wrap text-xs leading-6 text-muted">
+          <CollapsiblePanel
+            title="Technical details"
+            description="Open the structured report summary behind this export view."
+            defaultOpen={false}
+          >
+            <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">
               {JSON.stringify(summary, null, 2)}
             </pre>
-          </details>
+          </CollapsiblePanel>
         </div>
       </div>
     </div>

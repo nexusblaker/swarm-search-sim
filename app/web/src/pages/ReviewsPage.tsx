@@ -11,6 +11,7 @@ import type {
 } from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
+import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { DataTable } from "@/components/ui/DataTable";
 import { DetailPanel } from "@/components/ui/DetailPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -58,6 +59,12 @@ export function ReviewsPage() {
   const timeline = (selected?.timeline_json ?? {}) as ReviewTimelineRecord;
   const actualOutcome = summary.actual_outcome ?? {};
   const actualMetrics = (actualOutcome.metrics as Record<string, unknown> | undefined) ?? {};
+  const deviationEntries = Object.entries((summary.deviation_from_recommendation ?? {}) as Record<string, unknown>);
+  const alternatePlanSummary = (selected?.alternate_plan_json?.summary as string | undefined) ?? "No alternate-plan analysis was captured.";
+  const nextAdjustment =
+    batteryLifecycle.mission_continuity_impact ??
+    sensingLifecycle.inspection_burden_summary ??
+    "Use this review to adjust the next mission plan before launch.";
 
   return (
     <div className="page-stack">
@@ -67,7 +74,7 @@ export function ReviewsPage() {
         description="Understand what happened, why it mattered, and what should be learned from the completed mission. This page is the review center for replay-backed evaluation."
         actions={
           <button type="button" onClick={() => createReview.mutate()} className="primary-button">
-            Generate AAR
+            Generate after-action review
           </button>
         }
       />
@@ -151,13 +158,23 @@ export function ReviewsPage() {
             <Panel
               eyebrow="Outcome summary"
               title={selected.name}
-              description="Use this view to explain the mission outcome, the fleet rotation burden, and what the team should take away from the run."
+              description="Start with the mission outcome, what happened, and what to change next. Technical context stays available, but secondary."
             >
               <div className="space-y-4">
                 <div className="panel-subtle p-4">
-                  <p className="section-kicker">Mission narrative</p>
+                  <p className="section-kicker">Mission outcome</p>
+                  <p className="mt-3 text-lg font-semibold text-white">{String(actualOutcome.status ?? "Outcome not recorded")}</p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
                     {summary.mission_timeline ?? "Generated from replay, events, and intervention history."}
+                  </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">What happened</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {batteryLifecycle.asset_utilization_summary ?? "No fleet rotation summary available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {sensingLifecycle.operator_summary ?? "No sensing workflow summary available."}
                   </p>
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
@@ -167,17 +184,40 @@ export function ReviewsPage() {
                   <ReviewMetric label="Coverage gaps" value={batteryLifecycle.coverage_gap_count ?? 0} />
                 </div>
                 <div className="panel-subtle p-4">
-                  <p className="section-kicker">Battery rotation summary</p>
+                  <p className="section-kicker">Main takeaways</p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
-                    {batteryLifecycle.asset_utilization_summary ?? "No fleet rotation summary available."}
+                    {batteryLifecycle.mission_continuity_impact ?? "No mission continuity note available."}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-muted">
-                    {batteryLifecycle.mission_continuity_impact ?? "No mission continuity note available."}
+                    {sensingLifecycle.mission_impact_summary ?? "No sensing impact note available."}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
                     Battery margin: min {String(batteryLifecycle.battery_margin_summary?.minimum_margin ?? "n/a")} /
                     avg {String(batteryLifecycle.battery_margin_summary?.average_margin ?? "n/a")}
                   </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Deviation from recommendation</p>
+                  {deviationEntries.length > 0 ? (
+                    <div className="mt-3 space-y-2">
+                      {deviationEntries.map(([key, value]) => (
+                        <div key={key} className="flex items-start justify-between gap-4">
+                          <p className="text-sm text-muted">{key.replaceAll("_", " ")}</p>
+                          <p className="text-right text-sm font-medium text-white">{String(value ?? "n/a")}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm leading-6 text-muted">No deviation from the recommendation was recorded.</p>
+                  )}
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Alternate-plan perspective</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">{alternatePlanSummary}</p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Recommended next adjustment</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">{nextAdjustment}</p>
                 </div>
                 <div className="panel-subtle p-4">
                   <p className="section-kicker">Sensing workflow summary</p>
@@ -194,41 +234,35 @@ export function ReviewsPage() {
                     <ReviewMetric label="Rejected false alarms" value={sensingLifecycle.false_positive_count ?? 0} />
                   </div>
                 </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Alternate plan summary</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {String(selected.alternate_plan_json.summary ?? "No alternate-plan analysis was captured.")}
-                  </p>
-                </div>
               </div>
             </Panel>
 
             <div className="space-y-6">
-              <DetailPanel
-                title="Linked objects"
-                items={[
-                  { label: "Run", value: selected.run_id },
-                  { label: "Plan", value: selected.plan_id ?? "n/a" },
-                  { label: "Comparison", value: selected.comparison_id ?? "n/a" },
-                  { label: "Report", value: selected.report_id ?? "n/a" },
-                ]}
-              />
-              <Panel
-                eyebrow="Artifacts"
-                title="Review links"
+              <CollapsiblePanel
+                title="Linked replay and report"
                 description="Open the linked report or inspect the run status associated with this review."
               >
-                <div className="flex flex-wrap items-center gap-3">
+                <DetailPanel
+                  title="Linked objects"
+                  items={[
+                    { label: "Run", value: selected.run_id },
+                    { label: "Plan", value: selected.plan_id ?? "n/a" },
+                    { label: "Comparison", value: selected.comparison_id ?? "n/a" },
+                    { label: "Report", value: selected.report_id ?? "n/a" },
+                  ]}
+                />
+                <div className="mt-4 flex flex-wrap items-center gap-3">
                   <StatusBadge status={runQuery.data?.status ?? "completed"} />
                   {reviewReport ? (
-                    <ArtifactLink href={`${api.baseUrl}/reports/${reviewReport.id}/content`} label="Open review report" />
+                    <ArtifactLink href={`${api.baseUrl}/reports/${reviewReport.id}/content`} label="Open after-action report" />
                   ) : null}
                 </div>
-              </Panel>
-              <Panel
-                eyebrow="Mission metrics"
-                title="Captured outcome metrics"
-                description="These values summarize what the completed mission achieved."
+              </CollapsiblePanel>
+
+              <CollapsiblePanel
+                title="Captured mission metrics"
+                description="Open the structured outcome metrics behind this review."
+                defaultOpen={false}
               >
                 <div className="space-y-3">
                   <ReviewMetric label="Mission success" value={String(actualMetrics.mission_success ?? "n/a")} />
@@ -239,7 +273,7 @@ export function ReviewsPage() {
                     value={String(actualMetrics.average_active_search_drones ?? "n/a")}
                   />
                 </div>
-              </Panel>
+              </CollapsiblePanel>
             </div>
           </div>
 
@@ -255,14 +289,15 @@ export function ReviewsPage() {
             )}
           </Panel>
 
-          <details className="panel-surface p-6">
-            <summary className="cursor-pointer text-xs uppercase tracking-[0.14em] text-muted">
-              Technical details
-            </summary>
-            <pre className="mt-4 whitespace-pre-wrap text-xs leading-6 text-muted">
+          <CollapsiblePanel
+            title="Technical details"
+            description="Open the structured review summary behind this after-action view."
+            defaultOpen={false}
+          >
+            <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">
               {JSON.stringify(summary, null, 2)}
             </pre>
-          </details>
+          </CollapsiblePanel>
         </>
       ) : null}
     </div>

@@ -29,7 +29,7 @@ describe("MissionIntakePage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Start a mission in five calm steps")).toBeInTheDocument();
+    expect(screen.getByText("Build a new mission in five guided steps")).toBeInTheDocument();
     expect(screen.getByText("Describe the situation")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /step 2 assets/i }));
@@ -41,4 +41,3 @@ describe("MissionIntakePage", () => {
     expect(screen.getByText("Drone type 3")).toBeInTheDocument();
   });
 });
-

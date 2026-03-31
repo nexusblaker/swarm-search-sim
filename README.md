@@ -150,10 +150,12 @@ The React UI is now tuned around a restrained mission-console style:
 
 - calm dark achromatic palette with subtle accent usage
 - generous spacing and clearer page hierarchy
+- collapsible sidebar with lighter persistent navigation weight
 - reusable metric, status, risk, recommendation, and comparison briefing cards
 - cleaner empty, loading, and error states
 - stronger page framing so each screen makes the next action obvious
-- live-focused Mission Control and clearer replay/review workspaces
+- collapsible technical and secondary panels so the main operator path stays readable
+- live-focused Mission Control and clearer replay/review workspaces with a dominant visual anchor
 
 Contributors should prefer extending the shared UI primitives in `app/web/src/components/ui/` before creating one-off page styling.
 
@@ -343,6 +345,7 @@ Mission Control is the live operator view. It supports:
 - seeing return-to-service timing and reserve status for each drone
 - applying interventions
 - clearer separation between mission state and operator actions
+- a dominant mission visual with collapsible event, roster, intervention, and contact modules
 - subtle live refresh behavior while the run is active
 
 Supported interventions include:
@@ -367,6 +370,7 @@ Replay supports:
 - step summaries with clearer battery rotation context
 - step summaries with clearer sensing progression context
 - readable fleet state at each replay step
+- a fixed playback workstation layout with collapsible event and roster panels
 
 ### Experiments
 
@@ -395,22 +399,23 @@ Reports and review workflows support:
 - sensing highlights for cue, inspect, confirm, reject, and search-resume moments
 - links back to replay and run artifacts
 - clearer artifact linkage and cleaner export browsing
+- human-readable report actions such as mission brief, run summary, and after-action report exports
 
 ## Page Overview
 
-- `Mission Desk`: start-here view with primary actions, quieter status context, and recent mission access
-- `New Mission`: guided intake workflow from situation through recommendation and save / compare / launch actions
+- `Mission Desk`: start-here view with primary actions, a calmer right-hand handoff panel, quieter status context, and recent mission access
+- `New Mission`: guided intake workflow with one dominant working column, a compact sticky summary rail, collapsed advanced asset detail, and recommendation-first briefings
 - `Scenarios`: grouped editor for map, target, drone, sensing, battery, and planner settings
 - `Mission Plans`: central workspace for planning context, notes, recommendation snapshot, and downstream links
 - `Doctrine Library`: operational presets with intended use, assumptions, risks, and recommended strategies
 - `Plan Comparison`: saved candidate analysis workspace with ranked options and tradeoff summaries
 - `Recommendations`: decision-support briefing for a selected mission plan
-- `Mission Control`: live monitoring page with status, metrics, snapshot, event feed, and interventions
-- `Replay`: playback workstation for completed runs
+- `Mission Control`: live monitoring page with a dominant mission visual and collapsible mission context, event, roster, intervention, and contact modules
+- `Replay`: playback workstation for completed runs with a fixed visual anchor, richer timeline markers, and collapsible secondary panels
 - `Run History`: filterable ledger of mission runs
 - `Experiments`: grouped robustness experiments and artifact browsing
-- `Reports`: indexed report browser
-- `After-Action Review`: operational review center for completed missions
+- `Reports`: indexed report browser with operator-friendly export language
+- `After-Action Review`: operational review center with human-readable summary-first narrative and collapsed technical details
 
 ## Storage And Artifacts
 

@@ -34,9 +34,9 @@ describe("ReportsPage", () => {
     render(<ReportsPage />);
 
     expect(screen.getByText("Indexed reports")).toBeInTheDocument();
-    expect(screen.getAllByText("report-1").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("After-action report").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/review:review-1/i).length).toBeGreaterThan(0);
-    expect(screen.getByText("Open HTML report")).toBeInTheDocument();
+    expect(screen.getByText("Export after-action report")).toBeInTheDocument();
     expect(screen.getByText("Sensing workflow")).toBeInTheDocument();
   });
 });

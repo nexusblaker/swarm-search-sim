@@ -3,13 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
-import type { MissionIntent, RecommendationResponse } from "@/api/types";
-import { RecommendationCard } from "@/components/ui/RecommendationCard";
+import type { MissionIntent } from "@/api/types";
+import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { InlineHint } from "@/components/ui/InlineHint";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
+import { RecommendationCard } from "@/components/ui/RecommendationCard";
 import { useInvalidateResources } from "@/api/hooks";
+import { cn } from "@/lib/cn";
 import {
   buildAssetPackage,
   buildIntakeSummary,
@@ -137,51 +139,62 @@ export function MissionIntakePage() {
     <div className="page-stack">
       <PageHeader
         eyebrow="Guided setup"
-        title="Start a mission in five calm steps"
-        description="Capture the situation, define the available fleet, review a concise recommendation, and hand the mission into the existing planning or simulation workflow."
+        title="Build a new mission in five guided steps"
+        description="Describe the situation, define the available fleet, review the recommended plan, and continue into the existing mission workflow without getting pulled into technical setup."
         actions={
-          <Link to="/plans" className="secondary-button">
-            Open saved missions
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <span className="pill">{`Step ${step + 1} of ${stepLabels.length}`}</span>
+            <Link to="/plans" className="ghost-button">
+              Open saved missions
+            </Link>
+          </div>
         }
       />
 
-      <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
-          <Panel
-            eyebrow="Mission intake"
-            title="Mission setup"
-            description="The main path keeps only the choices an operator needs for an initial search brief. Technical settings stay tucked away until they are useful."
-          >
-            <div className="grid gap-3 md:grid-cols-5">
-              {stepLabels.map((label, index) => {
-                const stepIndex = index as StepIndex;
-                const active = step === stepIndex;
-                return (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => setStep(stepIndex)}
-                    className={[
-                      "rounded-[22px] border px-4 py-4 text-left transition",
-                      active
-                        ? "border-accentStrong/60 bg-white/[0.06] text-white"
-                        : "border-border bg-surfaceAlt/45 text-muted hover:border-accentStrong/35 hover:text-white",
-                    ].join(" ")}
-                  >
-                    <p className="text-[11px] uppercase tracking-[0.22em]">{`Step ${index + 1}`}</p>
-                    <p className="mt-2 text-sm font-semibold">{label}</p>
-                  </button>
-                );
-              })}
+          <div className="panel-surface p-5 md:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="section-kicker">Mission intake</p>
+                <h2 className="mt-2 text-[26px] font-semibold text-white">{stepLabels[step]}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted">
+                  Complete the current step, then continue when you are ready.
+                </p>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-5 md:max-w-[540px]">
+                {stepLabels.map((label, index) => {
+                  const stepIndex = index as StepIndex;
+                  const active = step === stepIndex;
+                  const complete = step > stepIndex;
+                  return (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => setStep(stepIndex)}
+                      className={cn(
+                        "rounded-[18px] border px-3 py-3 text-left transition duration-150",
+                        active
+                          ? "border-accentStrong/55 bg-white/[0.07] text-white"
+                          : complete
+                            ? "border-border/80 bg-surfaceAlt/55 text-white/90 hover:bg-white/[0.06]"
+                            : "border-border bg-surfaceAlt/40 text-muted hover:border-accentStrong/30 hover:text-white",
+                      )}
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.18em]">{`Step ${index + 1}`}</p>
+                      <p className="mt-1.5 text-sm font-semibold">{label}</p>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </Panel>
+          </div>
 
           {step === 0 ? (
             <Panel
               eyebrow="Step 1"
               title="Describe the situation"
-              description="Keep the first brief high level. The product turns these answers into a practical search setup behind the scenes."
+              description="Keep the first brief high level. The product will translate this into a practical search setup behind the scenes."
             >
               <div className="grid gap-6">
                 <div>
@@ -284,12 +297,17 @@ export function MissionIntakePage() {
                   </label>
                 </div>
 
-                <details className="rounded-[24px] border border-border bg-surfaceAlt/45 p-5">
-                  <summary className="cursor-pointer text-sm font-semibold text-white">Technical details</summary>
-                  <p className="mt-3 text-sm leading-6 text-muted">
+                <CollapsiblePanel
+                  title="Technical details"
+                  description="Open the hidden setup assumptions behind this simplified situation brief."
+                  defaultOpen={false}
+                  className="border-none bg-transparent shadow-none"
+                  headerClassName="rounded-[24px] border border-border bg-surfaceAlt/45"
+                >
+                  <p className="text-sm leading-6 text-muted">
                     The intake keeps map size, uncertainty radius, and default reserve assumptions behind the scenes so the first brief stays focused on operator language.
                   </p>
-                </details>
+                </CollapsiblePanel>
               </div>
             </Panel>
           ) : null}
@@ -298,7 +316,7 @@ export function MissionIntakePage() {
             <Panel
               eyebrow="Step 2"
               title="Describe the available fleet"
-              description="Add a simple package for a uniform fleet or define a mixed fleet with multiple drone types."
+              description="Use a single profile for a uniform fleet or add multiple drone types for a mixed package."
             >
               <div className="space-y-6">
                 <div className="grid gap-3 md:grid-cols-2">
@@ -435,51 +453,62 @@ export function MissionIntakePage() {
                             onChange={(event) => updateAsset(asset.id, "turnaroundTimeMinutes", event.target.value)}
                           />
                         </label>
-                        <label>
-                          <span className="field-label">Sensor capability</span>
-                          <select
-                            className="field-input"
-                            value={asset.sensorCapabilityLevel}
-                            onChange={(event) => updateAsset(asset.id, "sensorCapabilityLevel", event.target.value)}
-                          >
-                            {["basic", "standard", "enhanced", "advanced"].map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label>
-                          <span className="field-label">Thermal capability</span>
-                          <select
-                            className="field-input"
-                            value={asset.thermalCapabilityLevel}
-                            onChange={(event) => updateAsset(asset.id, "thermalCapabilityLevel", event.target.value)}
-                          >
-                            {["none", "assisted", "full"].map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label>
-                          <span className="field-label">Detection proxy</span>
-                          <input
-                            className="field-input"
-                            value={asset.detectionCapabilityProxy}
-                            onChange={(event) => updateAsset(asset.id, "detectionCapabilityProxy", event.target.value)}
-                          />
-                        </label>
                       </div>
-                      <label className="mt-4 block">
-                        <span className="field-label">Notes</span>
-                        <textarea
-                          className="field-textarea"
-                          value={asset.notes}
-                          onChange={(event) => updateAsset(asset.id, "notes", event.target.value)}
-                        />
-                      </label>
+                      <div className="mt-4">
+                        <CollapsiblePanel
+                          title="Advanced asset details"
+                          description="Open sensor detail, detection strength, and notes only when they matter."
+                          defaultOpen={false}
+                          className="border-border bg-surfaceAlt/30"
+                        >
+                          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                            <label>
+                              <span className="field-label">Sensor capability</span>
+                              <select
+                                className="field-input"
+                                value={asset.sensorCapabilityLevel}
+                                onChange={(event) => updateAsset(asset.id, "sensorCapabilityLevel", event.target.value)}
+                              >
+                                {["basic", "standard", "enhanced", "advanced"].map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label>
+                              <span className="field-label">Thermal capability</span>
+                              <select
+                                className="field-input"
+                                value={asset.thermalCapabilityLevel}
+                                onChange={(event) => updateAsset(asset.id, "thermalCapabilityLevel", event.target.value)}
+                              >
+                                {["none", "assisted", "full"].map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label>
+                              <span className="field-label">Detection proxy</span>
+                              <input
+                                className="field-input"
+                                value={asset.detectionCapabilityProxy}
+                                onChange={(event) => updateAsset(asset.id, "detectionCapabilityProxy", event.target.value)}
+                              />
+                            </label>
+                          </div>
+                          <label className="mt-4 block">
+                            <span className="field-label">Notes</span>
+                            <textarea
+                              className="field-textarea"
+                              value={asset.notes}
+                              onChange={(event) => updateAsset(asset.id, "notes", event.target.value)}
+                            />
+                          </label>
+                        </CollapsiblePanel>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -510,7 +539,7 @@ export function MissionIntakePage() {
             <Panel
               eyebrow="Step 3"
               title="Choose the search style"
-              description="These choices use operator language and guide the recommendation engine toward the right tradeoffs."
+              description="Choose the operational intent that matters most. The recommendation engine will balance around that goal."
             >
               <div className="grid gap-3 md:grid-cols-2">
                 {missionIntentOptions.map((option) => (
@@ -541,7 +570,7 @@ export function MissionIntakePage() {
             <Panel
               eyebrow="Step 4"
               title="Review the recommended plan"
-              description="Generate a short operator-ready summary first. Technical detail stays available below it, but out of the way."
+              description="Generate a concise recommendation first. The visible result should read like a decision briefing, not a settings dump."
               actions={
                 <button
                   type="button"
@@ -581,7 +610,7 @@ export function MissionIntakePage() {
             <Panel
               eyebrow="Step 5"
               title="Continue into the mission workflow"
-              description="The new intake creates a standard mission plan, so the rest of the app keeps working as before."
+              description="The guided intake creates a standard mission plan, so the rest of the workflow keeps working as before."
             >
               <div className="grid gap-3 md:grid-cols-3">
                 <button
@@ -637,38 +666,42 @@ export function MissionIntakePage() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <Panel
-            eyebrow="Mission brief"
-            title="Operator summary"
-            description="This running summary stays plain-English so the intake never feels like a wall of technical fields."
-          >
-            <SummaryRow label="Mission" value={draft.missionName} />
-            <SummaryRow
-              label="Situation"
-              value={`${intakeSummary.search_area_size} search, ${draft.environmentType.replace("_", " ")}, ${draft.weather}`}
-            />
-            <SummaryRow
-              label="Last known position"
-              value={draft.lastKnownStatus === "known" ? "Known last contact area" : "Unknown, wider initial uncertainty"}
-            />
-            <SummaryRow label="Time since contact" value={draft.timeSinceContact.replaceAll("_", " ")} />
-            <SummaryRow label="Fleet" value={assetPackage.drone_types.length > 1 ? "Mixed fleet package" : "Uniform fleet"} />
-            <SummaryRow label="Assets" value={`${intakeSummary.total_drones} drones ready`} />
-            <SummaryRow
-              label="Search style"
-              value={missionIntentOptions.find((option) => option.value === draft.missionIntent)?.label ?? draft.missionIntent}
-            />
-            <SummaryRow
-              label="Staging"
-              value={stagingLocationOptions.find((option) => option.value === draft.stagingLocation)?.label ?? ""}
-            />
-          </Panel>
+        <aside className="space-y-4 xl:sticky xl:top-[7.5rem] xl:self-start">
+          <div className="panel-subtle p-5">
+            <p className="section-kicker">Mission summary</p>
+            <p className="mt-3 text-lg font-semibold text-white">{draft.missionName}</p>
+            <div className="mt-4 divide-y divide-border/60">
+              <SummaryRow label="Situation" value={`${intakeSummary.search_area_size} search`} />
+              <SummaryRow label="Environment" value={`${draft.environmentType.replace("_", " ")}, ${draft.weather}`} />
+              <SummaryRow
+                label="Last known position"
+                value={draft.lastKnownStatus === "known" ? "Known contact area" : "Unknown"}
+              />
+              <SummaryRow label="Fleet" value={assetPackage.drone_types.length > 1 ? "Mixed fleet" : "Uniform fleet"} />
+              <SummaryRow label="Assets ready" value={`${intakeSummary.total_drones} drones`} />
+              <SummaryRow
+                label="Search style"
+                value={missionIntentOptions.find((option) => option.value === draft.missionIntent)?.label ?? draft.missionIntent}
+              />
+            </div>
+          </div>
 
-          <Panel
-            eyebrow="Fleet package"
-            title="Asset package snapshot"
-            description="Mixed-fleet support stays visible here without cluttering the main step flow."
+          <div className="panel-subtle p-5">
+            <p className="section-kicker">Quick actions</p>
+            <div className="mt-4 space-y-3">
+              <Link to="/plans" className="secondary-button w-full">
+                Open saved missions
+              </Link>
+              <Link to="/library" className="ghost-button w-full">
+                Explore sample missions
+              </Link>
+            </div>
+          </div>
+
+          <CollapsiblePanel
+            title="Fleet package"
+            description="Open a compact view of the current asset package."
+            defaultOpen={step === 1}
           >
             <div className="space-y-3">
               {assetPackage.drone_types.map((asset, index) => (
@@ -685,16 +718,19 @@ export function MissionIntakePage() {
                 </div>
               ))}
             </div>
-          </Panel>
+          </CollapsiblePanel>
 
-          <details className="panel-surface p-6">
-            <summary className="cursor-pointer text-sm font-semibold text-white">Technical details</summary>
-            <div className="mt-4 space-y-2 text-sm leading-6 text-muted">
+          <CollapsiblePanel
+            title="Technical details"
+            description="Open the product-layer notes behind this mission intake."
+            defaultOpen={false}
+          >
+            <div className="space-y-2 text-sm leading-6 text-muted">
               <p>The intake builds a standard mission scenario payload and stores the asset package with the mission plan.</p>
               <p>Recommendations remain deterministic and explainable. The simulation core still runs on aggregated fleet assumptions where needed.</p>
             </div>
-          </details>
-        </div>
+          </CollapsiblePanel>
+        </aside>
       </div>
     </div>
   );

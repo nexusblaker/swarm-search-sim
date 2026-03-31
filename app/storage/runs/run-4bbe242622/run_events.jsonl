@@ -1,0 +1,133 @@
+{"event_type": "scan_event", "step": 1, "drone_id": 0, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 1, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 2, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 3, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 4, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 5, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 6, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 7, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 2, "previous_goal": [8, 5], "new_goal": [9, 6]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 3, "previous_goal": [8, 4], "new_goal": [9, 7]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 4, "previous_goal": [7, 5], "new_goal": [6, 7]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 5, "previous_goal": [9, 5], "new_goal": [12, 8]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 6, "previous_goal": [9, 6], "new_goal": [8, 5]}
+{"event_type": "scan_event", "step": 2, "drone_id": 0, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 1, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 2, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 3, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 4, "scanned_cell_count": 32, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 5, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 6, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 7, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 0, "previous_goal": [6, 6], "new_goal": [6, 8]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 1, "previous_goal": [7, 7], "new_goal": [6, 9]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 2, "previous_goal": [9, 6], "new_goal": [7, 10]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 3, "previous_goal": [9, 7], "new_goal": [13, 9]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 4, "previous_goal": [6, 7], "new_goal": [12, 9]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 5, "previous_goal": [12, 8], "new_goal": [11, 9]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 6, "previous_goal": [8, 5], "new_goal": [13, 8]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 7, "previous_goal": [10, 6], "new_goal": [12, 8]}
+{"event_type": "scan_event", "step": 3, "drone_id": 0, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 1, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 2, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 3, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 4, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 5, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 6, "scanned_cell_count": 24, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 7, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 0, "previous_goal": [6, 8], "new_goal": [6, 9]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 1, "previous_goal": [6, 9], "new_goal": [7, 10]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 2, "previous_goal": [7, 10], "new_goal": [12, 8]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 3, "previous_goal": [13, 9], "new_goal": [12, 10]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 4, "previous_goal": [12, 9], "new_goal": [6, 10]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 5, "previous_goal": [11, 9], "new_goal": [13, 9]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 6, "previous_goal": [13, 8], "new_goal": [12, 9]}
+{"event_type": "task_reassignment", "step": 4, "drone_id": 7, "previous_goal": [12, 8], "new_goal": [11, 9]}
+{"event_type": "scan_event", "step": 4, "drone_id": 0, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 1, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 2, "scanned_cell_count": 33, "candidate_scores": {"12,4": 0.02}}
+{"event_type": "detection_candidate", "step": 4, "drone_id": 2, "position": [12, 4], "score": 0.02, "channels": {"thermal": 0.0, "visual": 0.0}}
+{"event_type": "possible_contact_detected", "step": 4, "drone_id": 2, "contact_id": "contact-1", "position": [12, 4], "confidence": 0.02, "candidate_score": 0.02, "requires_inspection": true, "note": "Low-confidence contact requires inspection."}
+{"event_type": "scan_event", "step": 4, "drone_id": 3, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 4, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 5, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 6, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 7, "scanned_cell_count": 32, "candidate_scores": {}}
+{"event_type": "inspection_initiated", "step": 5, "drone_id": 5, "contact_id": "contact-1", "position": [12, 4], "confidence": 0.02, "detecting_drone_id": 2}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 0, "previous_goal": [6, 9], "new_goal": [7, 10]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 1, "previous_goal": [7, 10], "new_goal": [7, 11]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 2, "previous_goal": [12, 8], "new_goal": [12, 10]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 3, "previous_goal": [12, 10], "new_goal": [12, 9]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 4, "previous_goal": [6, 10], "new_goal": [11, 9]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 5, "previous_goal": [13, 9], "new_goal": [12, 4]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 6, "previous_goal": [12, 9], "new_goal": [13, 10]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 7, "previous_goal": [11, 9], "new_goal": [11, 10]}
+{"event_type": "scan_event", "step": 5, "drone_id": 0, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 1, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 4, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 5, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 6, "scanned_cell_count": 32, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 7, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "inspection_pass_complete", "step": 5, "drone_id": 5, "contact_id": "contact-1", "position": [12, 4], "confidence": 0.888, "outcome": "rejected", "note": "Contact rejected after close inspection."}
+{"event_type": "false_positive_rejected", "step": 5, "drone_id": 5, "contact_id": "contact-1", "position": [12, 4], "confidence": 0.888, "note": "Contact rejected after close inspection."}
+{"event_type": "search_resumed_after_reject", "step": 5, "drone_id": 5, "contact_id": "contact-1", "position": [12, 4]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 0, "previous_goal": [7, 10], "new_goal": [7, 11]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 1, "previous_goal": [7, 11], "new_goal": [11, 11]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 2, "previous_goal": [12, 10], "new_goal": [10, 10]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 3, "previous_goal": [12, 9], "new_goal": [13, 10]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 4, "previous_goal": [11, 9], "new_goal": [11, 10]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 5, "previous_goal": [12, 4], "new_goal": [12, 11]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 6, "previous_goal": [13, 10], "new_goal": [12, 12]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 7, "previous_goal": [11, 10], "new_goal": [10, 11]}
+{"event_type": "scan_event", "step": 6, "drone_id": 0, "scanned_cell_count": 34, "candidate_scores": {"6,11": 0.02}}
+{"event_type": "detection_candidate", "step": 6, "drone_id": 0, "position": [6, 11], "score": 0.02, "channels": {"thermal": 0.0, "visual": 0.0}}
+{"event_type": "possible_contact_detected", "step": 6, "drone_id": 0, "contact_id": "contact-2", "position": [6, 11], "confidence": 0.02, "candidate_score": 0.02, "requires_inspection": true, "note": "Low-confidence contact requires inspection."}
+{"event_type": "scan_event", "step": 6, "drone_id": 1, "scanned_cell_count": 32, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 3, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 4, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 5, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 6, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 7, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 6, "drone_id": 3, "mode": "packet_loss"}
+{"event_type": "inspection_initiated", "step": 7, "drone_id": 0, "contact_id": "contact-2", "position": [6, 11], "confidence": 0.02, "detecting_drone_id": 0}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 0, "previous_goal": [7, 11], "new_goal": [6, 11]}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 3, "previous_goal": [13, 10], "new_goal": [15, 11]}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 4, "previous_goal": [11, 10], "new_goal": [13, 11]}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 6, "previous_goal": [12, 12], "new_goal": [10, 11]}
+{"event_type": "task_reassignment", "step": 7, "drone_id": 7, "previous_goal": [10, 11], "new_goal": [12, 12]}
+{"event_type": "scan_event", "step": 7, "drone_id": 0, "scanned_cell_count": 32, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 1, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 2, "scanned_cell_count": 21, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 3, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 4, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 5, "scanned_cell_count": 31, "candidate_scores": {"11,10": 0.1423208639075292}}
+{"event_type": "detection_candidate", "step": 7, "drone_id": 5, "position": [11, 10], "score": 0.1423208639075292, "channels": {"thermal": 0.21895517524235264, "visual": 0.0}}
+{"event_type": "possible_contact_detected", "step": 7, "drone_id": 5, "contact_id": "contact-3", "position": [11, 10], "confidence": 0.142, "candidate_score": 0.142, "requires_inspection": true, "note": "Possible thermal contact detected at long range."}
+{"event_type": "scan_event", "step": 7, "drone_id": 6, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 7, "drone_id": 7, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 7, "drone_id": 0, "mode": "packet_loss"}
+{"event_type": "inspection_initiated", "step": 8, "drone_id": 2, "contact_id": "contact-3", "position": [11, 10], "confidence": 0.142, "detecting_drone_id": 5}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 1, "previous_goal": [11, 11], "new_goal": [13, 12]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 2, "previous_goal": [10, 10], "new_goal": [11, 10]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 3, "previous_goal": [15, 11], "new_goal": [10, 10]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 4, "previous_goal": [13, 11], "new_goal": [12, 11]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 5, "previous_goal": [12, 11], "new_goal": [15, 11]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 6, "previous_goal": [10, 11], "new_goal": [16, 12]}
+{"event_type": "task_reassignment", "step": 8, "drone_id": 7, "previous_goal": [12, 12], "new_goal": [12, 13]}
+{"event_type": "scan_event", "step": 8, "drone_id": 0, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 1, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 2, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 4, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 5, "scanned_cell_count": 31, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 6, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 8, "drone_id": 7, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "inspection_pass_complete", "step": 8, "drone_id": 0, "contact_id": "contact-2", "position": [6, 11], "confidence": 0.715, "outcome": "rejected", "note": "Contact rejected after close inspection."}
+{"event_type": "false_positive_rejected", "step": 8, "drone_id": 0, "contact_id": "contact-2", "position": [6, 11], "confidence": 0.715, "note": "Contact rejected after close inspection."}
+{"event_type": "search_resumed_after_reject", "step": 8, "drone_id": 0, "contact_id": "contact-2", "position": [6, 11]}
+{"event_type": "inspection_pass_complete", "step": 8, "drone_id": 2, "contact_id": "contact-3", "position": [11, 10], "confidence": 0.946, "outcome": "confirmed", "note": "Target confirmed after close inspection."}
+{"event_type": "contact_confirmed", "step": 8, "drone_id": 2, "contact_id": "contact-3", "position": [11, 10], "confidence": 0.946, "note": "Target confirmed after close inspection."}
+{"event_type": "confirmed_detection", "step": 8, "drone_id": 2, "contact_id": "contact-3", "position": [11, 10], "confidence": 0.946}

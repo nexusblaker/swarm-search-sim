@@ -88,11 +88,11 @@ describe("DashboardPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Mission desk for search planning, simulation, and review")).toBeInTheDocument();
+    expect(screen.getByText("What would you like to do next?")).toBeInTheDocument();
     expect(screen.getByText("Start a New Mission")).toBeInTheDocument();
     expect(screen.getByText("Open an Existing Mission")).toBeInTheDocument();
     expect(screen.getByText("Explore Sample Missions")).toBeInTheDocument();
     expect(screen.getByText("Recent missions")).toBeInTheDocument();
-    expect(screen.getByText("Run run-1")).toBeInTheDocument();
+    expect(screen.getByText("Recent activity")).toBeInTheDocument();
   });
 });

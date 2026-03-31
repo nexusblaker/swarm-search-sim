@@ -1,0 +1,18 @@
+{"event_type": "scan_event", "step": 1, "drone_id": 0, "scanned_cell_count": 26, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 1, "scanned_cell_count": 33, "candidate_scores": {"7,10": 0.641388684292403}}
+{"event_type": "detection_candidate", "step": 1, "drone_id": 1, "position": [7, 10], "score": 0.641388684292403, "channels": {"thermal": 0.711729754091194, "visual": 0.5107552689517912}}
+{"event_type": "possible_contact_detected", "step": 1, "drone_id": 1, "contact_id": "contact-1", "position": [7, 10], "confidence": 0.641, "candidate_score": 0.641, "requires_inspection": true, "note": "Strong contact detected and ready for close inspection."}
+{"event_type": "scan_event", "step": 1, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 3, "scanned_cell_count": 34, "candidate_scores": {}}
+{"event_type": "inspection_initiated", "step": 2, "drone_id": 1, "contact_id": "contact-1", "position": [7, 10], "confidence": 0.641, "detecting_drone_id": 1}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 0, "previous_goal": [6, 7], "new_goal": [5, 10]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 1, "previous_goal": [7, 7], "new_goal": [7, 10]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 2, "previous_goal": [11, 9], "new_goal": [9, 7]}
+{"event_type": "scan_event", "step": 2, "drone_id": 0, "scanned_cell_count": 18, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 1, "scanned_cell_count": 31, "candidate_scores": {"7,10": 0.8752000000000001}}
+{"event_type": "detection_candidate", "step": 2, "drone_id": 1, "position": [7, 10], "score": 0.8752000000000001, "channels": {"thermal": 0.92, "visual": 0.792}}
+{"event_type": "scan_event", "step": 2, "drone_id": 2, "scanned_cell_count": 21, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 3, "scanned_cell_count": 33, "candidate_scores": {}}
+{"event_type": "inspection_pass_complete", "step": 2, "drone_id": 1, "contact_id": "contact-1", "position": [7, 10], "confidence": 0.99, "outcome": "confirmed", "note": "Target confirmed after close inspection."}
+{"event_type": "contact_confirmed", "step": 2, "drone_id": 1, "contact_id": "contact-1", "position": [7, 10], "confidence": 0.99, "note": "Target confirmed after close inspection."}
+{"event_type": "confirmed_detection", "step": 2, "drone_id": 1, "contact_id": "contact-1", "position": [7, 10], "confidence": 0.99}

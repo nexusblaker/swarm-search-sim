@@ -14,6 +14,7 @@ import type {
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { MissionSnapshotMap } from "@/components/mission/MissionSnapshotMap";
 import { DataTable } from "@/components/ui/DataTable";
+import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { DetailPanel } from "@/components/ui/DetailPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -309,15 +310,15 @@ export function MissionControlPage() {
           <Panel
             eyebrow="Live run"
             title={`Monitoring ${selected.id}`}
-            description="This workspace separates current mission state from operator actions so it is always clear what is happening versus what you can do next."
+            description="Keep the mission visual anchored on the left, then open the right-side modules only when you need more operational detail."
           >
-            <div className="grid gap-4 xl:grid-cols-[1.3fr_0.95fr]">
-              <div className="space-y-5">
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_390px]">
+              <div className="space-y-5 xl:sticky xl:top-[7.5rem] xl:self-start">
                 <div className="flex flex-wrap items-center gap-3">
                   <StatusBadge status={selected.status} />
-                  <span className="pill">{selected.plan_id ? `plan:${selected.plan_id}` : "ad hoc run"}</span>
-                  <span className="pill">{String(runSummary.scenario_family ?? "mixed_terrain")}</span>
-                  <span className="pill">{String(runSummary.strategy ?? "n/a")}</span>
+                  <span className="pill">{selected.plan_id ? `Plan ${selected.plan_id}` : "Ad hoc run"}</span>
+                  <span className="pill">{String(runSummary.scenario_family ?? "mixed terrain").replaceAll("_", " ")}</span>
+                  <span className="pill">{String(runSummary.strategy ?? "n/a").replaceAll("_", " ")}</span>
                   <span className="pill">{reservePreset.replaceAll("_", " ")}</span>
                 </div>
                 <div className="panel-subtle p-4">
@@ -334,19 +335,33 @@ export function MissionControlPage() {
                     <ProgressBar value={selected.job?.progress ?? 0} />
                   </div>
                 </div>
+                <div className="grid gap-4 md:grid-cols-4">
+                  <MetricCard label="Mission Phase" value={runPhase} emphasis="accent" />
+                  <MetricCard label="Contact State" value={confirmedContactCount > 0 ? "Confirmed" : candidateContactCount > 0 ? "Investigating" : "Searching"} />
+                  <MetricCard label="Active Assets" value={activeSearchCount} />
+                  <MetricCard label="Returning / service" value={`${returningCount + rechargingCount}`} />
+                </div>
 
                 {liveSnapshot ? (
                   <>
                     <MissionSnapshotMap snapshot={liveSnapshot} />
-                    <div className="grid gap-4 md:grid-cols-4">
-                      <MetricCard label="Step" value={liveSnapshot.step} />
-                      <MetricCard label="Mission Phase" value={runPhase} emphasis="accent" />
-                      <MetricCard label="Active Search" value={activeSearchCount} />
-                      <MetricCard
-                        label="Detection"
-                        value={liveSnapshot.target_detected ? "Confirmed" : "Searching"}
-                        emphasis={liveSnapshot.target_detected ? "accent" : "default"}
-                      />
+                    <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/50 p-5">
+                      <p className="section-kicker">Mission story</p>
+                      <p className="mt-3 text-base leading-7 text-white">
+                        {confirmedContactCount > 0
+                          ? "A contact has been confirmed. Keep attention on the latest event feed and active asset assignment."
+                          : candidateContactCount > 0
+                            ? sensingNarrative
+                            : lifecycleSummary.coverage_gap_active
+                              ? "The mission is managing temporary coverage loss while assets rotate through return and service."
+                              : "The mission remains in broad search with coverage holding steady across the active fleet."}
+                      </p>
+                      <div className="mt-4 grid gap-3 md:grid-cols-4">
+                        <RotationStat label="Step" value={liveSnapshot.step} />
+                        <RotationStat label="Returning to base" value={returningCount} />
+                        <RotationStat label="Recharging" value={rechargingCount} />
+                        <RotationStat label="Ready to redeploy" value={readyCount} />
+                      </div>
                     </div>
                   </>
                 ) : (
@@ -358,40 +373,37 @@ export function MissionControlPage() {
               </div>
 
               <div className="space-y-4">
-                <DetailPanel
-                  title="Run context"
-                  items={[
-                    { label: "Run ID", value: selected.id },
-                    { label: "Plan", value: selected.plan_id ?? "n/a" },
-                    { label: "Comparison", value: selected.comparison_id ?? "n/a" },
-                    { label: "Scenario family", value: String(runSummary.scenario_family ?? "n/a") },
-                    { label: "Team coordination", value: String(runSummary.coordination_mode ?? "n/a") },
-                    { label: "Reserve policy", value: reservePreset.replaceAll("_", " ") },
-                    { label: "Run phase", value: runPhase },
-                  ]}
-                />
-
-                <div className="panel-subtle p-5">
-                  <p className="section-kicker">Battery rotation</p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <RotationStat label="Returning to base" value={returningCount} />
-                    <RotationStat label="Recharging" value={rechargingCount} />
-                    <RotationStat label="Ready to redeploy" value={readyCount} />
-                    <RotationStat
-                      label="Coverage gap"
-                      value={lifecycleSummary.coverage_gap_active ? "Active" : "Covered"}
-                    />
+                <CollapsiblePanel
+                  title="Mission context"
+                  description="Open the plan, coordination, and reserve context behind this live run."
+                >
+                  <DetailPanel
+                    title="Run context"
+                    items={[
+                      { label: "Run ID", value: selected.id },
+                      { label: "Plan", value: selected.plan_id ?? "n/a" },
+                      { label: "Comparison", value: selected.comparison_id ?? "n/a" },
+                      { label: "Scenario family", value: String(runSummary.scenario_family ?? "n/a").replaceAll("_", " ") },
+                      { label: "Team coordination", value: String(runSummary.coordination_mode ?? "n/a").replaceAll("_", " ") },
+                      { label: "Reserve policy", value: reservePreset.replaceAll("_", " ") },
+                      { label: "Run phase", value: runPhase },
+                    ]}
+                  />
+                  <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Battery rotation</p>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {lifecycleSummary.coverage_gap_active
+                        ? "The mission is compensating for temporary coverage loss while assets rotate through base."
+                        : "Coverage remains stable while the fleet cycles through search, return, service, and redeploy."}
+                    </p>
                   </div>
-                  <p className="mt-4 text-sm leading-6 text-muted">
-                    {lifecycleSummary.coverage_gap_active
-                      ? "The mission is compensating for temporary coverage loss while assets rotate through base."
-                      : "Coverage remains stable while the fleet cycles through search, return, service, and redeploy."}
-                  </p>
-                </div>
+                </CollapsiblePanel>
 
-                <div className="panel-subtle p-5">
-                  <p className="section-kicker">Contact workflow</p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <CollapsiblePanel
+                  title="Contact workflow"
+                  description="Track possible contacts, inspections, and confirmed detections."
+                >
+                  <div className="grid gap-3 sm:grid-cols-3">
                     <RotationStat label="Possible contacts" value={candidateContactCount} />
                     <RotationStat label="Inspecting now" value={contactsUnderInspection} />
                     <RotationStat label="Confirmed" value={confirmedContactCount} />
@@ -406,202 +418,205 @@ export function MissionControlPage() {
                         </div>
                       ))}
                     </div>
-                  ) : null}
-                </div>
+                  ) : (
+                    <p className="mt-4 text-sm leading-6 text-muted">No active contact investigation is underway right now.</p>
+                  )}
+                </CollapsiblePanel>
 
-                <div className="panel-subtle p-5">
-                  <p className="section-kicker">Fleet roster</p>
-                  <div className="mt-4 space-y-3">
+                <CollapsiblePanel
+                  title="Fleet roster"
+                  description="See which drones are searching, rotating through base, or ready to rejoin coverage."
+                  defaultOpen={false}
+                >
+                  <div className="space-y-3">
                     {liveDrones.length === 0 ? (
                       <p className="text-sm text-muted">Drone status will appear once the run emits a snapshot.</p>
                     ) : (
                       liveDrones.map((drone) => <DroneRosterCard key={drone.id} drone={drone} />)
                     )}
                   </div>
-                </div>
+                </CollapsiblePanel>
 
-                <details className="panel-subtle p-5">
-                  <summary className="cursor-pointer text-xs uppercase tracking-[0.14em] text-muted">
-                    Technical details
-                  </summary>
-                  <pre className="mt-4 whitespace-pre-wrap text-xs leading-6 text-muted">
+                <CollapsiblePanel
+                  title="Interventions"
+                  description="Use these sparingly. Each action is recorded in the event feed and replay."
+                  defaultOpen={false}
+                >
+                  <div className="grid gap-3 md:grid-cols-3">
+                    {[
+                      { label: "Pause", action: "pause" },
+                      { label: "Resume", action: "resume" },
+                      { label: "Force return", action: "force_return", payload: { drone_id: Number(interventionPayload.droneId) } },
+                    ].map((item) => (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => intervention.mutate({ action: item.action, payload: item.payload })}
+                        className="secondary-button"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    <label>
+                      <span className="field-label">Drone ID</span>
+                      <input
+                        className="field-input"
+                        value={interventionPayload.droneId}
+                        onChange={(event) =>
+                          setInterventionPayload((current) => ({ ...current, droneId: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span className="field-label">Switch strategy</span>
+                      <select
+                        className="field-input"
+                        value={interventionPayload.strategy}
+                        onChange={(event) =>
+                          setInterventionPayload((current) => ({ ...current, strategy: event.target.value }))
+                        }
+                      >
+                        {strategyOptions.map((item) => (
+                          <option key={item} value={item}>
+                            {item}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <label>
+                      <span className="field-label">Waypoint X</span>
+                      <input
+                        className="field-input"
+                        value={interventionPayload.waypointX}
+                        onChange={(event) =>
+                          setInterventionPayload((current) => ({ ...current, waypointX: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span className="field-label">Waypoint Y</span>
+                      <input
+                        className="field-input"
+                        value={interventionPayload.waypointY}
+                        onChange={(event) =>
+                          setInterventionPayload((current) => ({ ...current, waypointY: event.target.value }))
+                        }
+                      />
+                    </label>
+                  </div>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        intervention.mutate({
+                          action: "assign_waypoint",
+                          payload: {
+                            drone_id: Number(interventionPayload.droneId),
+                            waypoint: [Number(interventionPayload.waypointX), Number(interventionPayload.waypointY)],
+                          },
+                        })
+                      }
+                      className="secondary-button"
+                    >
+                      Assign waypoint
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        intervention.mutate({
+                          action: "switch_strategy",
+                          payload: { strategy: interventionPayload.strategy },
+                        })
+                      }
+                      className="secondary-button"
+                    >
+                      Apply strategy switch
+                    </button>
+                  </div>
+
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    <label>
+                      <span className="field-label">Priority zone JSON</span>
+                      <textarea
+                        className="field-textarea"
+                        value={interventionPayload.priorityZone}
+                        onChange={(event) =>
+                          setInterventionPayload((current) => ({ ...current, priorityZone: event.target.value }))
+                        }
+                      />
+                    </label>
+                    <label>
+                      <span className="field-label">Exclusion zone JSON</span>
+                      <textarea
+                        className="field-textarea"
+                        value={interventionPayload.exclusionZone}
+                        onChange={(event) =>
+                          setInterventionPayload((current) => ({ ...current, exclusionZone: event.target.value }))
+                        }
+                      />
+                    </label>
+                  </div>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        intervention.mutate({
+                          action: "set_priority_zone",
+                          payload: safeJson(interventionPayload.priorityZone),
+                        })
+                      }
+                      className="secondary-button"
+                    >
+                      Add priority zone
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        intervention.mutate({
+                          action: "set_exclusion_zone",
+                          payload: safeJson(interventionPayload.exclusionZone),
+                        })
+                      }
+                      className="secondary-button"
+                    >
+                      Add exclusion zone
+                    </button>
+                  </div>
+                  {intervention.error ? <ErrorState message={(intervention.error as Error).message} /> : null}
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Recent events"
+                  description="See what changed most recently and why the mission shifted."
+                >
+                  {recentEvents.length === 0 ? (
+                    <EmptyState
+                      title="No events yet"
+                      body="Events will appear here once the run starts stepping or receives interventions."
+                    />
+                  ) : (
+                    <EventTimeline events={recentEvents.slice(-12).reverse()} />
+                  )}
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="Technical details"
+                  description="Open the structured run summary behind this live view."
+                  defaultOpen={false}
+                >
+                  <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">
                     {JSON.stringify(runSummary, null, 2)}
                   </pre>
-                </details>
+                </CollapsiblePanel>
               </div>
             </div>
           </Panel>
-
-          <div className="grid gap-6 xl:grid-cols-[0.98fr_1.02fr]">
-            <Panel
-              eyebrow="Operator actions"
-              title="Interventions"
-              description="Use interventions deliberately. Each action is recorded in the event stream and replay artifacts."
-            >
-              <div className="grid gap-3 md:grid-cols-3">
-                {[
-                  { label: "Pause", action: "pause" },
-                  { label: "Resume", action: "resume" },
-                  { label: "Force return", action: "force_return", payload: { drone_id: Number(interventionPayload.droneId) } },
-                ].map((item) => (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={() => intervention.mutate({ action: item.action, payload: item.payload })}
-                    className="secondary-button"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <label>
-                  <span className="field-label">Drone ID</span>
-                  <input
-                    className="field-input"
-                    value={interventionPayload.droneId}
-                    onChange={(event) =>
-                      setInterventionPayload((current) => ({ ...current, droneId: event.target.value }))
-                    }
-                  />
-                </label>
-                <label>
-                  <span className="field-label">Switch strategy</span>
-                  <select
-                    className="field-input"
-                    value={interventionPayload.strategy}
-                    onChange={(event) =>
-                      setInterventionPayload((current) => ({ ...current, strategy: event.target.value }))
-                    }
-                  >
-                    {strategyOptions.map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                <label>
-                  <span className="field-label">Waypoint X</span>
-                  <input
-                    className="field-input"
-                    value={interventionPayload.waypointX}
-                    onChange={(event) =>
-                      setInterventionPayload((current) => ({ ...current, waypointX: event.target.value }))
-                    }
-                  />
-                </label>
-                <label>
-                  <span className="field-label">Waypoint Y</span>
-                  <input
-                    className="field-input"
-                    value={interventionPayload.waypointY}
-                    onChange={(event) =>
-                      setInterventionPayload((current) => ({ ...current, waypointY: event.target.value }))
-                    }
-                  />
-                </label>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    intervention.mutate({
-                      action: "assign_waypoint",
-                      payload: {
-                        drone_id: Number(interventionPayload.droneId),
-                        waypoint: [Number(interventionPayload.waypointX), Number(interventionPayload.waypointY)],
-                      },
-                    })
-                  }
-                  className="secondary-button"
-                >
-                  Assign waypoint
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    intervention.mutate({
-                      action: "switch_strategy",
-                      payload: { strategy: interventionPayload.strategy },
-                    })
-                  }
-                  className="secondary-button"
-                >
-                  Apply strategy switch
-                </button>
-              </div>
-
-              <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <label>
-                  <span className="field-label">Priority zone JSON</span>
-                  <textarea
-                    className="field-textarea"
-                    value={interventionPayload.priorityZone}
-                    onChange={(event) =>
-                      setInterventionPayload((current) => ({ ...current, priorityZone: event.target.value }))
-                    }
-                  />
-                </label>
-                <label>
-                  <span className="field-label">Exclusion zone JSON</span>
-                  <textarea
-                    className="field-textarea"
-                    value={interventionPayload.exclusionZone}
-                    onChange={(event) =>
-                      setInterventionPayload((current) => ({ ...current, exclusionZone: event.target.value }))
-                    }
-                  />
-                </label>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    intervention.mutate({
-                      action: "set_priority_zone",
-                      payload: safeJson(interventionPayload.priorityZone),
-                    })
-                  }
-                  className="secondary-button"
-                >
-                  Add priority zone
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    intervention.mutate({
-                      action: "set_exclusion_zone",
-                      payload: safeJson(interventionPayload.exclusionZone),
-                    })
-                  }
-                  className="secondary-button"
-                >
-                  Add exclusion zone
-                </button>
-              </div>
-              {intervention.error ? <ErrorState message={(intervention.error as Error).message} /> : null}
-            </Panel>
-
-            <Panel
-              eyebrow="Event feed"
-              title="What changed recently"
-              description="The event stream explains why a drone left search, when service started, and when coverage was restored."
-            >
-                    {recentEvents.length === 0 ? (
-                      <EmptyState
-                        title="No events yet"
-                        body="Events will appear here once the run starts stepping or receives interventions."
-                      />
-              ) : (
-                <EventTimeline events={recentEvents.slice(-12).reverse()} />
-              )}
-            </Panel>
-          </div>
         </>
       ) : (
         <EmptyState

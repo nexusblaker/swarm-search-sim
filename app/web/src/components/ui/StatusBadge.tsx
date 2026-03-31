@@ -16,6 +16,7 @@ const statusStyles: Record<string, string> = {
 
 export function StatusBadge({ status }: { status?: string | ResourceStatus | null }) {
   const normalized = (status ?? "unknown").toString().toLowerCase();
+  const label = normalized.replace(/_/g, " ");
   return (
     <span
       className={cn(
@@ -23,7 +24,7 @@ export function StatusBadge({ status }: { status?: string | ResourceStatus | nul
         statusStyles[normalized] ?? "border-border bg-surfaceAlt text-muted",
       )}
     >
-      {normalized}
+      {label}
     </span>
   );
 }

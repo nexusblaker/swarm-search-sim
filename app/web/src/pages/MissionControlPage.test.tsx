@@ -124,9 +124,9 @@ describe("MissionControlPage", () => {
 
     expect(screen.getByText("Mission control")).toBeInTheDocument();
     expect(screen.getByText("Monitoring run-1")).toBeInTheDocument();
-    expect(screen.getByText("What changed recently")).toBeInTheDocument();
+    expect(screen.getByText("Recent events")).toBeInTheDocument();
     expect(screen.getByText("Launch mission run")).toBeInTheDocument();
     expect(screen.getByText("Contact workflow")).toBeInTheDocument();
-    expect(screen.getByText("Assigned contact: contact-1")).toBeInTheDocument();
+    expect(screen.getByText("Fleet roster")).toBeInTheDocument();
   });
 });

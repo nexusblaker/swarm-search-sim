@@ -6,6 +6,7 @@ import { useRuns } from "@/api/hooks";
 import type { CandidateContact, LifecycleSummaryRecord, Snapshot } from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { MissionSnapshotMap } from "@/components/mission/MissionSnapshotMap";
+import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { DetailPanel } from "@/components/ui/DetailPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -177,11 +178,12 @@ export function ReplayPage() {
             />
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[1.22fr_0.92fr]">
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.28fr)_390px]">
             <Panel
               eyebrow="Playback"
               title="Mission replay"
-              description="Replay the spatial state, then correlate it with the timeline and asset rotation events."
+              description="Keep the mission visual anchored while you scrub, then open the right-side modules for event detail, roster state, and technical context."
+              className="xl:sticky xl:top-[7.5rem] xl:self-start"
             >
               <MissionSnapshotMap snapshot={frame} />
               <div className="mt-5 space-y-4">
@@ -218,128 +220,130 @@ export function ReplayPage() {
                   }}
                   className="w-full accent-[#8fb4d6]"
                 />
-                <div className="flex flex-wrap gap-2">
-                  {lifecycleEvents.slice(0, 10).map((event, index) => {
-                    const view = eventPresentation(event);
-                    return (
-                      <span key={`${String(event.step)}-${index}`} className="pill">
-                        Step {String(event.step ?? "?")} | {view.title}
-                      </span>
-                    );
-                  })}
+                <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/50 p-4">
+                  <p className="section-kicker">Timeline markers</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {lifecycleEvents.slice(0, 10).map((event, index) => {
+                      const view = eventPresentation(event);
+                      return (
+                        <span key={`${String(event.step)}-${index}`} className="pill">
+                          Step {String(event.step ?? "?")} | {view.title}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </Panel>
 
-            <div className="space-y-6">
-              <DetailPanel
-                title="Selected step"
-                items={[
-                  { label: "Step", value: frame.step },
-                  { label: "Mission phase", value: runPhase },
-                  { label: "Strategy", value: frame.strategy },
-                  { label: "Team coordination", value: frame.coordination_mode },
-                  { label: "Active search assets", value: activeSearchCount },
-                  { label: "Possible contacts", value: candidateContactCount },
-                  { label: "Coverage gap", value: lifecycleSummary.coverage_gap_active ? "Managing gap" : "Covered" },
-                ]}
-              />
-              <Panel
-                eyebrow="Event stream"
-                title="Events at or before this frame"
-                description="Use the event feed to understand why drones returned, when service completed, and how the mission rebalanced."
+            <div className="space-y-4">
+              <CollapsiblePanel
+                title="Frame summary"
+                description="Review the main mission picture at the current step."
+              >
+                <DetailPanel
+                  title="Selected step"
+                  items={[
+                    { label: "Step", value: frame.step },
+                    { label: "Mission phase", value: runPhase },
+                    { label: "Strategy", value: frame.strategy },
+                    { label: "Team coordination", value: frame.coordination_mode },
+                    { label: "Active search assets", value: activeSearchCount },
+                    { label: "Possible contacts", value: candidateContactCount },
+                    { label: "Coverage gap", value: lifecycleSummary.coverage_gap_active ? "Managing gap" : "Covered" },
+                  ]}
+                />
+                <div className="mt-4 space-y-4">
+                  <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Contact workflow</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">{sensingNarrative}</p>
+                  </div>
+                  <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Mission continuity</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">
+                      {lifecycleSummary.coverage_gap_active
+                        ? "Coverage is thinner at this moment because one or more assets are away from the search area."
+                        : "Coverage is currently stable, with returning and redeployed assets balanced into the mission."}
+                    </p>
+                  </div>
+                </div>
+              </CollapsiblePanel>
+
+              <CollapsiblePanel
+                title="Event stream"
+                description="See what happened at or before the current frame."
               >
                 {filteredEvents.length === 0 ? (
                   <EmptyState title="No events at this point" body="Move later in the timeline or inspect a different run." />
                 ) : (
                   <EventTimeline events={filteredEvents.slice(-12).reverse()} />
                 )}
-              </Panel>
-            </div>
-          </div>
+              </CollapsiblePanel>
 
-          <div className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
-            <Panel
-              eyebrow="Asset roster"
-              title="Fleet state at this step"
-              description="This roster shows who is still searching, who is rotating through base, and who is ready to rejoin coverage."
-            >
-              <div className="space-y-3">
-                {frame.drones.map((drone) => (
-                  <div key={drone.id} className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-medium text-white">Drone {drone.id}</p>
-                        <p className="mt-1 text-sm text-muted">{drone.operator_status ?? "Status unavailable"}</p>
-                      </div>
-                      <span className="pill whitespace-nowrap">{drone.reserve_status_label ?? "Reserve stable"}</span>
-                    </div>
-                    <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/10">
-                      <div
-                        className={`h-full rounded-full transition-all ${batteryBarClass(drone.battery_pct ?? drone.battery)}`}
-                        style={{
-                          width: `${Math.max(0, Math.min(100, Number(drone.battery_pct ?? drone.battery ?? 0)))}%`,
-                        }}
-                      />
-                    </div>
-                    <div className="mt-3 grid gap-2 text-sm text-white/90 md:grid-cols-2">
-                      <span>Battery: {formatBatteryPercent(drone.battery_pct ?? drone.battery)}</span>
-                      <span>{serviceEtaLabel(drone)}</span>
-                    </div>
-                    {drone.assigned_contact_id ? (
-                      <p className="mt-3 text-sm leading-6 text-muted">Assigned contact: {drone.assigned_contact_id}</p>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </Panel>
-
-            <Panel
-              eyebrow="Interpretation"
-              title="Selected frame summary"
-              description="This view explains what the replay frame implies operationally without dropping straight into raw telemetry."
-            >
-              <div className="space-y-4">
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Contact workflow</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">{sensingNarrative}</p>
-                  {candidateContacts.length > 0 ? (
-                    <div className="mt-4 space-y-2">
-                      {candidateContacts.slice(0, 3).map((contact) => (
-                        <div key={contact.id} className="rounded-[16px] border border-border/70 bg-surfaceAlt/55 px-4 py-3">
-                          <p className="text-sm font-medium text-white">{contact.status_label ?? "Possible Contact"}</p>
-                          <p className="mt-1 text-sm text-muted">{contact.note ?? "No contact note recorded."}</p>
+              <CollapsiblePanel
+                title="Fleet roster"
+                description="See who is still searching, who is rotating through base, and who is ready to rejoin coverage."
+                defaultOpen={false}
+              >
+                <div className="space-y-3">
+                  {frame.drones.map((drone) => (
+                    <div key={drone.id} className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium text-white">Drone {drone.id}</p>
+                          <p className="mt-1 text-sm text-muted">{drone.operator_status ?? "Status unavailable"}</p>
                         </div>
-                      ))}
+                        <span className="pill whitespace-nowrap">{drone.reserve_status_label ?? "Reserve stable"}</span>
+                      </div>
+                      <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/10">
+                        <div
+                          className={`h-full rounded-full transition-all ${batteryBarClass(drone.battery_pct ?? drone.battery)}`}
+                          style={{
+                            width: `${Math.max(0, Math.min(100, Number(drone.battery_pct ?? drone.battery ?? 0)))}%`,
+                          }}
+                        />
+                      </div>
+                      <div className="mt-3 grid gap-2 text-sm text-white/90 md:grid-cols-2">
+                        <span>Battery: {formatBatteryPercent(drone.battery_pct ?? drone.battery)}</span>
+                        <span>{serviceEtaLabel(drone)}</span>
+                      </div>
+                      {drone.assigned_contact_id ? (
+                        <p className="mt-3 text-sm leading-6 text-muted">Assigned contact: {drone.assigned_contact_id}</p>
+                      ) : null}
                     </div>
-                  ) : null}
+                  ))}
                 </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Mission continuity</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {lifecycleSummary.coverage_gap_active
-                      ? "Coverage is thinner at this moment because one or more assets are away from the search area."
-                      : "Coverage is currently stable, with returning and redeployed assets balanced into the mission."}
-                  </p>
-                </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Battery rotation</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {returningCount + rechargingCount > 0
-                      ? `${returningCount + rechargingCount} asset(s) are in the return or service cycle at this step.`
-                      : "All visible assets remain in the active search cycle at this step."}
-                  </p>
-                </div>
-                <details className="panel-subtle p-4">
-                  <summary className="cursor-pointer text-xs uppercase tracking-[0.14em] text-muted">
-                    Technical details
-                  </summary>
-                  <pre className="mt-4 whitespace-pre-wrap text-xs leading-6 text-muted">
-                    {JSON.stringify(frame.metrics, null, 2)}
-                  </pre>
-                </details>
-              </div>
-            </Panel>
+              </CollapsiblePanel>
+
+              <CollapsiblePanel
+                title="Contact details"
+                description="Open the current possible or confirmed contacts at this step."
+                defaultOpen={false}
+              >
+                {candidateContacts.length > 0 ? (
+                  <div className="space-y-2">
+                    {candidateContacts.slice(0, 4).map((contact) => (
+                      <div key={contact.id} className="rounded-[16px] border border-border/70 bg-surfaceAlt/55 px-4 py-3">
+                        <p className="text-sm font-medium text-white">{contact.status_label ?? "Possible Contact"}</p>
+                        <p className="mt-1 text-sm text-muted">{contact.note ?? "No contact note recorded."}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm leading-6 text-muted">No candidate contacts are active at this replay step.</p>
+                )}
+              </CollapsiblePanel>
+
+              <CollapsiblePanel
+                title="Technical details"
+                description="Open the raw frame metrics behind this replay step."
+                defaultOpen={false}
+              >
+                <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">
+                  {JSON.stringify(frame.metrics, null, 2)}
+                </pre>
+              </CollapsiblePanel>
+            </div>
           </div>
         </>
       )}

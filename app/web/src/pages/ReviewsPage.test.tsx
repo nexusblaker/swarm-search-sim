@@ -96,9 +96,9 @@ describe("ReviewsPage", () => {
     render(<ReviewsPage />);
 
     expect(screen.getByText("After-action review")).toBeInTheDocument();
-    expect(screen.getByText("Battery rotation summary")).toBeInTheDocument();
+    expect(screen.getByText("Mission outcome")).toBeInTheDocument();
     expect(screen.getByText("Sensing workflow summary")).toBeInTheDocument();
     expect(screen.getByText("Review timeline")).toBeInTheDocument();
-    expect(screen.getByText("Open review report")).toBeInTheDocument();
+    expect(screen.getByText("Open after-action report")).toBeInTheDocument();
   });
 });

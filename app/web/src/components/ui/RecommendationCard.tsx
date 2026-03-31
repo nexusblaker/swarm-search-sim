@@ -1,4 +1,5 @@
 import type { AssetPackage } from "@/api/types";
+import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { RiskIndicator } from "@/components/ui/RiskIndicator";
 
 function formatDetailValue(value: unknown): string {
@@ -65,10 +66,50 @@ export function RecommendationCard({
   uncertaintySummary?: Record<string, unknown>;
   technicalDetails?: Record<string, unknown>;
 }) {
+  const primarySummary = conciseSummary ?? explanation;
+  const mainRisk = (keyRisks.length ? keyRisks : ["No major operational risk was flagged in the short evaluation bundle."])[0];
+  const mainTradeoff = (keyTradeoffs.length
+    ? keyTradeoffs
+    : ["Balances speed, confidence, and reserve without a major compromise."])[0];
+
   return (
-    <div className="panel-subtle p-5">
+    <div className="panel-subtle p-5 md:p-6">
       <p className="section-kicker">Recommended plan</p>
-      <h3 className="mt-3 text-2xl font-semibold text-white">{conciseSummary ?? explanation}</h3>
+      <h3 className="mt-3 max-w-4xl text-[28px] font-semibold leading-tight text-white">{primarySummary}</h3>
+      <p className="mt-3 max-w-3xl text-base leading-7 text-muted">{explanation}</p>
+
+      <div className="mt-6 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-[24px] border border-border bg-white/[0.04] p-5">
+          <p className="section-kicker">Why this is the best fit</p>
+          <p className="mt-3 text-sm leading-7 text-muted">{mainTradeoff}</p>
+          {assetPackage?.operator_summary ? (
+            <p className="mt-3 text-sm leading-7 text-muted">{assetPackage.operator_summary}</p>
+          ) : null}
+          {teamCoordinationLabel ? (
+            <p className="mt-3 text-sm leading-7 text-muted">Team coordination style: {teamCoordinationLabel}.</p>
+          ) : null}
+          <div className="mt-5 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+            <p className="micro-label">Next action</p>
+            <p className="mt-2 text-sm leading-6 text-white">
+              Continue to save the mission plan, compare it against alternatives, or launch a simulation.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-[24px] border border-danger/20 bg-danger/10 p-5">
+            <p className="section-kicker">Main risk</p>
+            <p className="mt-3 text-sm leading-7 text-white/92">{mainRisk}</p>
+          </div>
+
+          <div className="rounded-[24px] border border-border bg-surfaceAlt/50 p-5">
+            <p className="section-kicker">Best alternative</p>
+            <p className="mt-3 text-sm leading-7 text-muted">
+              {topAlternativeSummary ?? "No close alternative was returned in this evaluation bundle."}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <RiskIndicator label="Search style" value={strategy ?? "n/a"} tone="good" />
@@ -77,26 +118,6 @@ export function RecommendationCard({
           label="Reserve threshold"
           value={reserveThreshold !== null && reserveThreshold !== undefined ? `${reserveThreshold}%` : "n/a"}
         />
-      </div>
-
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <div className="rounded-[22px] border border-border bg-surfaceAlt/45 p-4">
-          <p className="section-kicker">Why this fits</p>
-          <p className="mt-3 text-sm leading-7 text-muted">{explanation}</p>
-          {assetPackage?.operator_summary ? (
-            <p className="mt-3 text-sm leading-7 text-muted">{assetPackage.operator_summary}</p>
-          ) : null}
-          {teamCoordinationLabel ? (
-            <p className="mt-3 text-sm leading-7 text-muted">Team coordination: {teamCoordinationLabel}.</p>
-          ) : null}
-        </div>
-
-        <div className="rounded-[22px] border border-border bg-surfaceAlt/45 p-4">
-          <p className="section-kicker">Top alternative</p>
-          <p className="mt-3 text-sm leading-7 text-muted">
-            {topAlternativeSummary ?? "No close alternative was returned in this evaluation bundle."}
-          </p>
-        </div>
       </div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -123,21 +144,25 @@ export function RecommendationCard({
         </div>
       </div>
 
-      <details className="mt-5 rounded-[22px] border border-border bg-surfaceAlt/35 p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-white">Technical details</summary>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <DetailRows title="Risk summary" record={riskSummary} />
-          <DetailRows title="Uncertainty" record={uncertaintySummary} />
-          <DetailRows title="Recommendation details" record={technicalDetails} />
-          {assetPackage?.fleet_composition ? (
-            <DetailRows
-              title="Fleet composition"
-              record={assetPackage.fleet_composition as unknown as Record<string, unknown>}
-            />
-          ) : null}
-        </div>
-      </details>
+      <div className="mt-5">
+        <CollapsiblePanel
+          title="Technical details"
+          description="Open the structured inputs and risk notes behind this recommendation."
+          defaultOpen={false}
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <DetailRows title="Risk summary" record={riskSummary} />
+            <DetailRows title="Uncertainty" record={uncertaintySummary} />
+            <DetailRows title="Recommendation details" record={technicalDetails} />
+            {assetPackage?.fleet_composition ? (
+              <DetailRows
+                title="Fleet composition"
+                record={assetPackage.fleet_composition as unknown as Record<string, unknown>}
+              />
+            ) : null}
+          </div>
+        </CollapsiblePanel>
+      </div>
     </div>
   );
 }
-

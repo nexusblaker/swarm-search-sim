@@ -1,0 +1,87 @@
+scenario:
+  name: New search mission
+  map_size:
+  - 18
+  - 14
+  weather: clear
+  num_drones: 4
+  last_known_position:
+  - 9
+  - 7
+  target_assumptions:
+    behavior: terrain_biased
+    target_move_probability: 0.34
+    target_speed: 1
+    drift_sigma: 5
+  target_start_radius: 4
+  max_steps: 40
+  strategy: auction_based
+  scenario_family: mixed_terrain
+  base_position:
+  - 9
+  - 12
+  communication:
+    coordination_mode: centralized
+  battery_policy:
+    return_threshold: 22
+  render:
+    save_frames: false
+    frame_stride: 3
+  mission_intent: fast_containment
+  asset_package:
+    package_name: New search mission fleet
+    uniform_fleet: true
+    staging_location: Southern base
+    notes: ''
+    drone_types:
+    - display_name: General purpose drone
+      model_name: General purpose drone
+      count: 4
+      max_endurance_minutes: 120.0
+      estimated_max_range_km: 14.0
+      cruise_speed_kph: 30.0
+      sensor_capability_level: standard
+      thermal_capability_level: assisted
+      detection_capability_proxy: 1.0
+      turnaround_time_minutes: 18.0
+      notes: ''
+    fleet_composition:
+      mix_type: uniform
+      total_drones: 4
+      drone_type_count: 1
+      aggregate_endurance_minutes: 120.0
+      aggregate_range_km: 14.0
+      aggregate_speed_kph: 30.0
+      sensor_score: 1.0
+      thermal_score: 1.0
+      detection_score: 1.0
+      endurance_score: 1.2
+      coverage_score: 1.45
+      coordination_complexity: low
+      average_turnaround_minutes: 18.0
+    operator_summary: 4 General purpose drone staged from Southern base available
+      for this mission.
+  drone:
+    battery: 120.0
+    speed: 1
+    sensor_range: 5.31
+    fov: 130.0
+    estimated_max_range_km: 14.0
+    cruise_speed_kph: 30.0
+    sensor_capability_level: standard
+    thermal_capability_level: assisted
+    turnaround_time_minutes: 18.0
+    fleet_composition:
+      mix_type: uniform
+      total_drones: 4
+      drone_type_count: 1
+      aggregate_endurance_minutes: 120.0
+      aggregate_range_km: 14.0
+      aggregate_speed_kph: 30.0
+      sensor_score: 1.0
+      thermal_score: 1.0
+      detection_score: 1.0
+      endurance_score: 1.2
+      coverage_score: 1.45
+      coordination_complexity: low
+      average_turnaround_minutes: 18.0

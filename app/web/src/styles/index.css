@@ -14,10 +14,11 @@ body,
 
 body {
   margin: 0;
-  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  font-family: "Segoe UI Variable Display", Aptos, "Segoe UI", system-ui, sans-serif;
   background:
-    radial-gradient(circle at top right, rgba(143, 180, 214, 0.06), transparent 28%),
-    linear-gradient(180deg, #0d0f13 0%, #12151b 100%);
+    radial-gradient(circle at top right, rgba(143, 180, 214, 0.08), transparent 26%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 24%),
+    linear-gradient(180deg, #0b0d11 0%, #12161c 100%);
   color: #f5f7fa;
 }
 
@@ -47,31 +48,39 @@ body {
 
 @layer components {
   .page-stack {
-    @apply space-y-8;
+    @apply space-y-10;
   }
 
   .page-grid {
-    @apply grid gap-6;
+    @apply grid gap-7;
   }
 
   .panel-surface {
-    @apply rounded-[28px] border border-border/80 bg-surface shadow-panel backdrop-blur;
+    @apply rounded-[30px] border border-border/80 bg-surface/95 shadow-panel backdrop-blur;
   }
 
   .panel-subtle {
-    @apply rounded-[24px] border border-border/70 bg-surfaceAlt shadow-soft;
+    @apply rounded-[24px] border border-border/70 bg-surfaceAlt/90 shadow-soft;
   }
 
   .section-kicker {
-    @apply text-[11px] font-medium uppercase tracking-[0.24em] text-muted;
+    @apply text-[11px] font-medium uppercase tracking-[0.28em] text-muted/85;
+  }
+
+  .micro-label {
+    @apply text-[11px] font-medium uppercase tracking-[0.18em] text-muted/75;
+  }
+
+  .helper-text {
+    @apply text-sm leading-6 text-muted;
   }
 
   .field-label {
-    @apply mb-2 block text-xs font-medium uppercase tracking-[0.16em] text-muted;
+    @apply mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-muted/85;
   }
 
   .field-input {
-    @apply w-full rounded-[20px] border border-border bg-surfaceAlt px-4 py-3 text-sm text-white outline-none transition placeholder:text-muted/60 focus:border-accentStrong/70 focus:ring-2 focus:ring-accentStrong/15;
+    @apply w-full rounded-[20px] border border-border/90 bg-surfaceAlt/95 px-4 py-3.5 text-sm text-white outline-none transition duration-200 placeholder:text-muted/60 focus:border-accentStrong/70 focus:ring-2 focus:ring-accentStrong/15;
   }
 
   .field-textarea {
@@ -79,19 +88,19 @@ body {
   }
 
   .primary-button {
-    @apply inline-flex min-h-[54px] items-center justify-center rounded-[20px] bg-accent px-6 py-4 text-center text-sm font-semibold leading-5 text-[#101317] shadow-soft transition hover:bg-[#eef2f6] active:bg-[#d9dfe7] focus:outline-none focus:ring-2 focus:ring-accentStrong/25 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-[54px] items-center justify-center rounded-[20px] bg-accent px-6 py-4 text-center text-sm font-semibold leading-5 text-[#101317] shadow-soft transition duration-150 hover:bg-[#eef2f6] active:bg-[#d9dfe7] focus:outline-none focus:ring-2 focus:ring-accentStrong/25 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .secondary-button {
-    @apply inline-flex min-h-[54px] items-center justify-center rounded-[20px] border border-border bg-surfaceAlt px-6 py-4 text-center text-sm font-medium leading-5 text-white transition hover:border-accentStrong/45 hover:bg-white/[0.06] active:bg-white/[0.1] hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-[54px] items-center justify-center rounded-[20px] border border-border bg-surfaceAlt/90 px-6 py-4 text-center text-sm font-medium leading-5 text-white transition duration-150 hover:border-accentStrong/45 hover:bg-white/[0.06] active:bg-white/[0.1] hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .ghost-button {
-    @apply inline-flex min-h-[46px] items-center justify-center rounded-[18px] px-4 py-3 text-sm font-medium text-muted transition hover:bg-surfaceAlt/70 active:bg-white/[0.06] hover:text-white;
+    @apply inline-flex min-h-[46px] items-center justify-center rounded-[18px] px-4 py-3 text-sm font-medium text-muted transition duration-150 hover:bg-surfaceAlt/70 active:bg-white/[0.06] hover:text-white;
   }
 
   .hero-button {
-    @apply block rounded-[28px] border border-transparent bg-accent px-6 py-6 text-left text-[#101317] shadow-panel transition hover:bg-[#eef2f6] active:bg-[#d9dfe7];
+    @apply block rounded-[28px] border border-transparent bg-accent px-6 py-6 text-left text-[#101317] shadow-panel transition duration-150 hover:bg-[#eef2f6] active:bg-[#d9dfe7];
   }
 
   .hero-button-secondary {
@@ -99,11 +108,19 @@ body {
   }
 
   .pill {
-    @apply inline-flex items-center rounded-full border border-border bg-surfaceAlt px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-muted;
+    @apply inline-flex items-center rounded-full border border-border/80 bg-surfaceAlt/85 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-muted;
   }
 
   .metric-value {
-    @apply text-[28px] font-semibold leading-none text-white md:text-[32px];
+    @apply text-[28px] font-semibold leading-none text-white md:text-[34px];
+  }
+
+  .nav-chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-border/75 bg-surfaceAlt/80 px-3.5 py-2 text-xs font-medium text-muted transition duration-150 hover:border-border hover:bg-white/[0.06] hover:text-white;
+  }
+
+  .technical-details {
+    @apply rounded-[22px] border border-border/65 bg-surfaceAlt/55 p-4;
   }
 }
 

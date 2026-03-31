@@ -134,8 +134,8 @@ describe("ReplayPage", () => {
     render(<ReplayPage />);
 
     expect(screen.getByText("Mission replay")).toBeInTheDocument();
-    expect(screen.getByText("Fleet state at this step")).toBeInTheDocument();
+    expect(screen.getByText("Fleet roster")).toBeInTheDocument();
     expect(screen.getByText(/Step 4 \| Inspection Started/i)).toBeInTheDocument();
-    expect(screen.getByText("A possible contact is being inspected.")).toBeInTheDocument();
+    expect(screen.getByText("Frame summary")).toBeInTheDocument();
   });
 });
