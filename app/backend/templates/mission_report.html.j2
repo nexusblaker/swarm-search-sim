@@ -63,6 +63,39 @@
   </div>
 
   <div class="card">
+    <h2>Sensing Workflow Summary</h2>
+    <p>{{ sensing_lifecycle.operator_summary }}</p>
+    <p>{{ sensing_lifecycle.inspection_burden_summary }}</p>
+    <p>{{ sensing_lifecycle.mission_impact_summary }}</p>
+    <div class="grid">
+      <div class="metric">
+        <strong>Possible Contacts</strong>
+        <div>{{ sensing_lifecycle.candidate_detection_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Inspections Started</strong>
+        <div>{{ sensing_lifecycle.inspection_initiated_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Inspection Passes</strong>
+        <div>{{ sensing_lifecycle.inspection_pass_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Confirmed Contacts</strong>
+        <div>{{ sensing_lifecycle.confirmed_detection_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Rejected False Alarms</strong>
+        <div>{{ sensing_lifecycle.false_positive_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Contacts Still Open</strong>
+        <div>{{ sensing_lifecycle.active_candidate_contacts + sensing_lifecycle.contacts_under_inspection + sensing_lifecycle.confirmation_pending }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <h2>Mission Metrics</h2>
     <table>
       <tbody>
@@ -94,6 +127,26 @@
     </table>
     {% else %}
     <p>No battery lifecycle events were recorded for this run.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Sensing Highlights</h2>
+    {% if sensing_lifecycle.highlights %}
+    <table>
+      <thead><tr><th>Step</th><th>Event</th><th>Summary</th></tr></thead>
+      <tbody>
+      {% for event in sensing_lifecycle.highlights %}
+        <tr>
+          <td>{{ event.step }}</td>
+          <td>{{ event.title }}</td>
+          <td>{{ event.summary }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No sensing-stage events were recorded for this run.</p>
     {% endif %}
   </div>
 

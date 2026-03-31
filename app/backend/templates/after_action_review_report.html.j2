@@ -65,6 +65,23 @@
   </div>
 
   <div class="card">
+    <h2>Sensing Workflow Review</h2>
+    <p>{{ review.summary_json.sensing_lifecycle.operator_summary }}</p>
+    <p>{{ review.summary_json.sensing_lifecycle.inspection_burden_summary }}</p>
+    <p>{{ review.summary_json.sensing_lifecycle.mission_impact_summary }}</p>
+    <table>
+      <thead><tr><th>Measure</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Possible contacts</td><td>{{ review.summary_json.sensing_lifecycle.candidate_detection_count }}</td></tr>
+        <tr><td>Inspections started</td><td>{{ review.summary_json.sensing_lifecycle.inspection_initiated_count }}</td></tr>
+        <tr><td>Inspection passes</td><td>{{ review.summary_json.sensing_lifecycle.inspection_pass_count }}</td></tr>
+        <tr><td>Confirmed contacts</td><td>{{ review.summary_json.sensing_lifecycle.confirmed_detection_count }}</td></tr>
+        <tr><td>Rejected false alarms</td><td>{{ review.summary_json.sensing_lifecycle.false_positive_count }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
     <h2>Alternate Plan Analysis</h2>
     <p>{{ review.alternate_plan_json.summary }}</p>
   </div>

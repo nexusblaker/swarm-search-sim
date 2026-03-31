@@ -28,13 +28,21 @@ vi.mock("@/api/hooks", () => ({
               redeploy_count: 2,
               coverage_gap_count: 1,
             },
+            sensing_lifecycle: {
+              operator_summary: "The team investigated possible contacts and rejected false alarms before resuming the search.",
+              inspection_burden_summary: "A limited number of inspection passes were needed to resolve possible contacts.",
+              candidate_detection_count: 2,
+              inspection_initiated_count: 2,
+              inspection_pass_count: 2,
+              false_positive_count: 1,
+            },
           },
           timeline_json: {
             key_events: [
               {
-                event_type: "battery_return_ordered",
+                event_type: "false_positive_rejected",
                 step: 3,
-                summary: "Drone 0 returned to base to protect reserve margin.",
+                summary: "Drone 0 rejected the contact as a false alarm.",
               },
             ],
           },
@@ -89,6 +97,7 @@ describe("ReviewsPage", () => {
 
     expect(screen.getByText("After-action review")).toBeInTheDocument();
     expect(screen.getByText("Battery rotation summary")).toBeInTheDocument();
+    expect(screen.getByText("Sensing workflow summary")).toBeInTheDocument();
     expect(screen.getByText("Review timeline")).toBeInTheDocument();
     expect(screen.getByText("Open review report")).toBeInTheDocument();
   });

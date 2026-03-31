@@ -37,6 +37,11 @@ class SimulationMetrics:
     belief_peak_accuracy: float = 0.0
     time_to_first_candidate_detection: int | None = None
     time_to_confirmed_detection: int | None = None
+    candidate_detection_count: int = 0
+    inspections_initiated: int = 0
+    inspections_completed: int = 0
+    confirmed_contact_count: int = 0
+    rejected_contact_count: int = 0
     false_alarm_count: int = 0
     reroute_count: int = 0
     coordination_efficiency: float = 0.0

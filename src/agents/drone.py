@@ -7,6 +7,8 @@ from typing import Any
 
 import numpy as np
 
+from src.simulation.sensing import SENSING_SEARCHING, sensing_label
+
 
 Position = tuple[int, int]
 
@@ -36,6 +38,10 @@ class Drone:
     local_probability_map: np.ndarray | None = None
     lifecycle_state: str = "deploying"
     operator_status: str = "Deploying"
+    sensing_state: str = SENSING_SEARCHING
+    sensing_status: str = field(default_factory=lambda: sensing_label(SENSING_SEARCHING))
+    assigned_contact_id: str | None = None
+    active_contact_position: Position | None = None
     reserve_status: str = "safe"
     reserve_status_label: str = "Safe"
     reserve_reason: str = ""
@@ -56,6 +62,9 @@ class Drone:
     sorties_completed: int = 0
     recharge_cycles: int = 0
     redeployments: int = 0
+    investigations_started: int = 0
+    contacts_confirmed: int = 0
+    contacts_rejected: int = 0
     stale_steps: int = 0
     last_successful_sync_step: int = 0
     heading: tuple[int, int] = (0, 1)
@@ -88,6 +97,9 @@ class Drone:
         target_position: Position,
         confidence: float,
         is_true_positive: bool,
+        stage: str = "cue",
+        outcome: str | None = None,
+        contact_id: str | None = None,
     ) -> None:
         """Store a sensor detection event for later analysis."""
 
@@ -97,6 +109,9 @@ class Drone:
                 "target_position": target_position,
                 "confidence": confidence,
                 "is_true_positive": is_true_positive,
+                "stage": stage,
+                "outcome": outcome,
+                "contact_id": contact_id,
             }
         )
 
@@ -127,7 +142,7 @@ class Drone:
     def contributes_to_search(self) -> bool:
         """Return whether the drone is actively contributing to coverage."""
 
-        return self.can_scan and self.lifecycle_state in {"searching", "redeploying", "deploying"}
+        return self.can_scan and self.lifecycle_state in {"searching", "redeploying", "deploying"} and self.sensing_state == SENSING_SEARCHING
 
     @property
     def distance_from_base(self) -> int:

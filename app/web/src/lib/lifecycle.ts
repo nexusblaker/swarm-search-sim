@@ -33,6 +33,12 @@ const EVENT_LABELS: Record<string, string> = {
   coverage_gap: "Coverage Gap",
   coverage_rebalanced: "Coverage Rebalanced",
   coverage_rebalance_triggered: "Coverage Rebalance Triggered",
+  possible_contact_detected: "Possible Contact",
+  inspection_initiated: "Inspection Started",
+  inspection_pass_complete: "Inspection Pass Complete",
+  contact_confirmed: "Contact Confirmed",
+  false_positive_rejected: "False Alarm Rejected",
+  search_resumed_after_reject: "Search Resumed",
 };
 
 export function lifecycleStateLabel(state?: string | null): string {
@@ -105,6 +111,8 @@ export function eventPresentation(event: Record<string, unknown>): {
       ? event.summary
       : typeof event.reason === "string"
         ? event.reason
+        : typeof event.note === "string"
+          ? event.note
         : title;
   const details = Object.fromEntries(
     Object.entries(event).filter(([key]) => !["summary"].includes(key)),

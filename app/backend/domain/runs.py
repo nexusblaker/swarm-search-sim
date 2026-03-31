@@ -163,13 +163,17 @@ class MissionRunController:
                     "metrics": to_jsonable(asdict(self.engine.metrics)),
                     "run_phase": snapshot.get("run_phase"),
                     "lifecycle_summary": snapshot.get("lifecycle_summary", {}),
+                    "sensing_summary": snapshot.get("sensing_summary", {}),
                     "drone_statuses": [
                         {
                             "id": drone["id"],
                             "operator_status": drone.get("operator_status"),
+                            "sensing_status": drone.get("sensing_status"),
+                            "assigned_contact_id": drone.get("assigned_contact_id"),
                             "reserve_status_label": drone.get("reserve_status_label"),
                             "battery_pct": drone.get("battery_pct"),
                             "return_service_eta_steps": drone.get("return_service_eta_steps"),
+                            "contributing_to_search": drone.get("contributing_to_search"),
                         }
                         for drone in snapshot.get("drones", [])
                     ],

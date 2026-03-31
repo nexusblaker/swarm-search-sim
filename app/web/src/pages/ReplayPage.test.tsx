@@ -40,6 +40,21 @@ const snapshot = {
     active_search_drones: 1,
     coverage_gap_active: true,
   },
+  sensing_summary: {
+    active_candidate_contacts: 1,
+    contacts_under_inspection: 1,
+    operator_summary: "A possible contact is being inspected.",
+  },
+  candidate_contacts: [
+    {
+      id: "contact-1",
+      position: [1, 1],
+      status: "inspecting_contact",
+      status_label: "Inspecting Contact",
+      confidence: 0.61,
+      note: "Inspection pass underway.",
+    },
+  ],
   drones: [
     {
       id: 0,
@@ -55,6 +70,7 @@ const snapshot = {
       operator_status: "Returning to Base",
       reserve_status_label: "Returning Now",
       return_service_eta_steps: 4,
+      assigned_contact_id: "contact-1",
     },
   ],
   metrics: {},
@@ -98,9 +114,9 @@ vi.mock("@tanstack/react-query", async () => {
           data: {
             events: [
               {
-                event_type: "battery_return_ordered",
+                event_type: "inspection_initiated",
                 step: 4,
-                summary: "Drone 0 returned to base to protect reserve margin.",
+                summary: "Drone 0 moved to inspect the possible contact.",
               },
             ],
           },
@@ -119,6 +135,7 @@ describe("ReplayPage", () => {
 
     expect(screen.getByText("Mission replay")).toBeInTheDocument();
     expect(screen.getByText("Fleet state at this step")).toBeInTheDocument();
-    expect(screen.getByText(/Step 4 \| Return to Base Ordered/i)).toBeInTheDocument();
+    expect(screen.getByText(/Step 4 \| Inspection Started/i)).toBeInTheDocument();
+    expect(screen.getByText("A possible contact is being inspected.")).toBeInTheDocument();
   });
 });

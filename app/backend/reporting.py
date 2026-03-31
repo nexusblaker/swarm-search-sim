@@ -8,7 +8,7 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from app.backend.domain.lifecycle import summarize_battery_lifecycle
+from app.backend.domain.lifecycle import summarize_battery_lifecycle, summarize_sensing_lifecycle
 from app.backend.storage import LocalProductPaths
 
 
@@ -41,6 +41,7 @@ class ReportGenerator:
             event_counts=dict(event_counts),
             metrics=run_record.get("metrics", run_record.get("summary_json", {}).get("metrics", {})),
             battery_lifecycle=summarize_battery_lifecycle(run_record, events),
+            sensing_lifecycle=summarize_sensing_lifecycle(run_record, events),
             artifacts=run_record.get("artifact_paths", {}),
             recommendation=run_record.get("recommendation"),
         )

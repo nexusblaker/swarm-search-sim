@@ -32,6 +32,22 @@ const snapshot = {
   communication_links: [],
   reserved_paths: {},
   global_objectives: {},
+  sensing_summary: {
+    active_candidate_contacts: 1,
+    contacts_under_inspection: 0,
+    confirmed_contact_count: 0,
+    operator_summary: "A possible contact is awaiting inspection.",
+  },
+  candidate_contacts: [
+    {
+      id: "contact-1",
+      position: [1, 1],
+      status: "cue_detected",
+      status_label: "Possible Contact",
+      confidence: 0.42,
+      note: "Low-confidence contact requires inspection.",
+    },
+  ],
   drones: [
     {
       id: 0,
@@ -42,6 +58,9 @@ const snapshot = {
       comms_online: true,
       returning_to_base: false,
       stale_steps: 0,
+      operator_status: "Possible Contact",
+      assigned_contact_id: "contact-1",
+      contributing_to_search: false,
     },
   ],
   metrics: {},
@@ -107,5 +126,7 @@ describe("MissionControlPage", () => {
     expect(screen.getByText("Monitoring run-1")).toBeInTheDocument();
     expect(screen.getByText("What changed recently")).toBeInTheDocument();
     expect(screen.getByText("Launch mission run")).toBeInTheDocument();
+    expect(screen.getByText("Contact workflow")).toBeInTheDocument();
+    expect(screen.getByText("Assigned contact: contact-1")).toBeInTheDocument();
   });
 });

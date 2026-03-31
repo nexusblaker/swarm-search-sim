@@ -76,6 +76,9 @@ def test_low_battery_drones_eventually_return_to_base() -> None:
         return_to_base_threshold=18.0,
         max_steps=50,
         strategy="probability_greedy",
+        false_negative_rate=1.0,
+        visual_false_negative_rate=1.0,
+        false_positive_rate=0.0,
     )
     engine = SimulationEngine(config)
     metrics = engine.run()
@@ -83,6 +86,78 @@ def test_low_battery_drones_eventually_return_to_base() -> None:
     assert metrics.forced_low_battery_returns >= 1
     assert metrics.successful_returns_to_base >= 1
     assert any(event["event_type"] == "battery_service_started" for event in engine.logger.events)
+
+
+def test_cue_requires_inspection_before_confirmation() -> None:
+    config = replace(
+        load_scenario_config(),
+        max_steps=8,
+        num_drones=1,
+        false_positive_rate=0.0,
+        false_negative_rate=0.0,
+        visual_false_negative_rate=0.0,
+        target_move_probability=0.0,
+        weather="clear",
+    )
+    engine = SimulationEngine(config)
+    drone = engine.drones[0]
+    anchor = engine._resolve_open_cell((2, 2))
+    target = anchor
+    drone.position = anchor
+    drone.path_history = [anchor]
+    drone.visited_cells = {anchor}
+    drone.local_known_visited = {anchor}
+    engine.target.position = target
+    engine.target.path_history = [target]
+    engine.environment.detection_modifier[target[1], target[0]] = 1.0
+    engine.manual_targets[drone.id] = anchor
+
+    first = engine.step()
+
+    assert not first["done"]
+    assert not engine.target.detected
+    assert any(event["event_type"] == "possible_contact_detected" for event in engine.logger.events)
+    assert first["candidate_contacts"]
+    assert first["candidate_contacts"][0]["status"] == "cue_detected"
+
+    second = engine.step()
+
+    assert any(event["event_type"] == "inspection_initiated" for event in engine.logger.events)
+    assert second["drones"][0]["assigned_contact_id"] is not None
+    assert second["run_phase"] in {"Inspecting possible contact", "Possible contact detected", "Target confirmed"}
+
+
+def test_false_positive_contact_is_rejected_and_search_resumes() -> None:
+    config = replace(
+        load_scenario_config(),
+        max_steps=10,
+        num_drones=1,
+        false_positive_rate=1.0,
+        false_negative_rate=1.0,
+        visual_false_negative_rate=1.0,
+        target_move_probability=0.0,
+    )
+    engine = SimulationEngine(config)
+    drone = engine.drones[0]
+    anchor = engine._resolve_open_cell((3, 3))
+    drone.position = anchor
+    drone.path_history = [anchor]
+    drone.visited_cells = {anchor}
+    drone.local_known_visited = {anchor}
+    engine.manual_targets[drone.id] = anchor
+
+    for _ in range(6):
+        engine.step()
+        if any(event["event_type"] == "false_positive_rejected" for event in engine.logger.events):
+            break
+
+    event_types = {event["event_type"] for event in engine.logger.events}
+
+    assert "possible_contact_detected" in event_types
+    assert "inspection_initiated" in event_types
+    assert "false_positive_rejected" in event_types
+    assert "search_resumed_after_reject" in event_types
+    assert not engine.target.detected
 
 
 def test_reserve_preset_changes_point_of_no_return_margin() -> None:

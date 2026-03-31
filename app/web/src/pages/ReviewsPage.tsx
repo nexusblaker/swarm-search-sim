@@ -3,7 +3,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import { useReports, useReviews, useRuns } from "@/api/hooks";
-import type { BatteryLifecycleSummary, ReviewSummaryRecord, ReviewTimelineRecord } from "@/api/types";
+import type {
+  BatteryLifecycleSummary,
+  ReviewSummaryRecord,
+  ReviewTimelineRecord,
+  SensingLifecycleSummary,
+} from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
 import { DataTable } from "@/components/ui/DataTable";
@@ -49,6 +54,7 @@ export function ReviewsPage() {
 
   const summary = (selected?.summary_json ?? {}) as ReviewSummaryRecord;
   const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
+  const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
   const timeline = (selected?.timeline_json ?? {}) as ReviewTimelineRecord;
   const actualOutcome = summary.actual_outcome ?? {};
   const actualMetrics = (actualOutcome.metrics as Record<string, unknown> | undefined) ?? {};
@@ -136,8 +142,8 @@ export function ReviewsPage() {
               tone="warning"
             />
             <RiskIndicator
-              label="Battery sustainability"
-              value={String(batteryLifecycle.battery_margin_summary?.sustainability ?? "n/a")}
+              label="Sensing workflow"
+              value={String(sensingLifecycle.operator_summary ?? "n/a")}
             />
           </div>
 
@@ -172,6 +178,21 @@ export function ReviewsPage() {
                     Battery margin: min {String(batteryLifecycle.battery_margin_summary?.minimum_margin ?? "n/a")} /
                     avg {String(batteryLifecycle.battery_margin_summary?.average_margin ?? "n/a")}
                   </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Sensing workflow summary</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {sensingLifecycle.operator_summary ?? "No sensing workflow summary available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {sensingLifecycle.inspection_burden_summary ?? "No inspection burden note available."}
+                  </p>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <ReviewMetric label="Possible contacts" value={sensingLifecycle.candidate_detection_count ?? 0} />
+                    <ReviewMetric label="Inspections started" value={sensingLifecycle.inspection_initiated_count ?? 0} />
+                    <ReviewMetric label="Inspection passes" value={sensingLifecycle.inspection_pass_count ?? 0} />
+                    <ReviewMetric label="Rejected false alarms" value={sensingLifecycle.false_positive_count ?? 0} />
+                  </div>
                 </div>
                 <div className="panel-subtle p-4">
                   <p className="section-kicker">Alternate plan summary</p>
@@ -225,7 +246,7 @@ export function ReviewsPage() {
           <Panel
             eyebrow="Timeline"
             title="Review timeline"
-            description="The review timeline carries the key events that shaped the mission outcome and battery rotation story."
+            description="The review timeline carries the key events that shaped the mission outcome, battery rotation, and cue-to-confirm sensing story."
           >
             {timeline.key_events?.length ? (
               <EventTimeline events={timeline.key_events.slice(0, 16)} />

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import { useRuns } from "@/api/hooks";
-import type { LifecycleSummaryRecord, Snapshot } from "@/api/types";
+import type { CandidateContact, LifecycleSummaryRecord, Snapshot } from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { MissionSnapshotMap } from "@/components/mission/MissionSnapshotMap";
 import { DetailPanel } from "@/components/ui/DetailPanel";
@@ -78,6 +78,8 @@ export function ReplayPage() {
   const lifecycleEvents = allEvents.filter(isLifecycleEvent);
   const selectedRun = completedRuns.find((run) => run.id === runId);
   const lifecycleSummary = (frame?.lifecycle_summary ?? selectedRun?.summary_json.lifecycle_summary ?? {}) as LifecycleSummaryRecord;
+  const sensingSummary = (frame?.sensing_summary ?? selectedRun?.summary_json.sensing_summary ?? {}) as Record<string, unknown>;
+  const candidateContacts = (frame?.candidate_contacts ?? []) as CandidateContact[];
   const activeSearchCount = Array.isArray(frame?.active_search_drones)
     ? frame.active_search_drones.length
     : Number(
@@ -96,6 +98,11 @@ export function ReplayPage() {
       0,
   );
   const runPhase = String(frame?.run_phase ?? lifecycleSummary.run_phase ?? selectedRun?.summary_json.run_phase ?? "Mission replay");
+  const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
+  const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
+  const sensingNarrative = String(
+    sensingSummary.operator_summary ?? "No active contacts are awaiting confirmation at this step.",
+  );
 
   if (isLoading) return <LoadingState label="Loading replay browser..." />;
   if (error) return <ErrorState message={(error as Error).message} />;
@@ -158,7 +165,16 @@ export function ReplayPage() {
             <MetricCard label="Frame" value={`${clampedIndex + 1}/${frames.length}`} />
             <MetricCard label="Run Phase" value={runPhase} emphasis="accent" />
             <MetricCard label="Active Search" value={activeSearchCount} />
-            <MetricCard label="Rotation" value={returningCount + rechargingCount} />
+            <MetricCard
+              label="Contact Workflow"
+              value={
+                contactsUnderInspection > 0
+                  ? `${contactsUnderInspection} inspecting`
+                  : candidateContactCount > 0
+                    ? `${candidateContactCount} possible`
+                    : "Clear"
+              }
+            />
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1.22fr_0.92fr]">
@@ -224,6 +240,7 @@ export function ReplayPage() {
                   { label: "Strategy", value: frame.strategy },
                   { label: "Team coordination", value: frame.coordination_mode },
                   { label: "Active search assets", value: activeSearchCount },
+                  { label: "Possible contacts", value: candidateContactCount },
                   { label: "Coverage gap", value: lifecycleSummary.coverage_gap_active ? "Managing gap" : "Covered" },
                 ]}
               />
@@ -269,6 +286,9 @@ export function ReplayPage() {
                       <span>Battery: {formatBatteryPercent(drone.battery_pct ?? drone.battery)}</span>
                       <span>{serviceEtaLabel(drone)}</span>
                     </div>
+                    {drone.assigned_contact_id ? (
+                      <p className="mt-3 text-sm leading-6 text-muted">Assigned contact: {drone.assigned_contact_id}</p>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -280,6 +300,20 @@ export function ReplayPage() {
               description="This view explains what the replay frame implies operationally without dropping straight into raw telemetry."
             >
               <div className="space-y-4">
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Contact workflow</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">{sensingNarrative}</p>
+                  {candidateContacts.length > 0 ? (
+                    <div className="mt-4 space-y-2">
+                      {candidateContacts.slice(0, 3).map((contact) => (
+                        <div key={contact.id} className="rounded-[16px] border border-border/70 bg-surfaceAlt/55 px-4 py-3">
+                          <p className="text-sm font-medium text-white">{contact.status_label ?? "Possible Contact"}</p>
+                          <p className="mt-1 text-sm text-muted">{contact.note ?? "No contact note recorded."}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
                 <div className="panel-subtle p-4">
                   <p className="section-kicker">Mission continuity</p>
                   <p className="mt-3 text-sm leading-6 text-white/90">

@@ -40,12 +40,30 @@ export interface BatteryLifecycleSummary {
   highlights?: LifecycleHighlight[];
 }
 
+export interface SensingLifecycleSummary {
+  candidate_detection_count?: number;
+  inspection_initiated_count?: number;
+  inspection_pass_count?: number;
+  confirmed_detection_count?: number;
+  false_positive_count?: number;
+  active_candidate_contacts?: number;
+  contacts_under_inspection?: number;
+  confirmation_pending?: number;
+  operator_summary?: string;
+  inspection_burden_summary?: string;
+  mission_impact_summary?: string;
+  highlights?: LifecycleHighlight[];
+}
+
 export interface DroneStatusSummary {
   id: number;
   operator_status?: string;
+  sensing_status?: string;
+  assigned_contact_id?: string | null;
   reserve_status_label?: string;
   battery_pct?: number;
   return_service_eta_steps?: number | null;
+  contributing_to_search?: boolean;
 }
 
 export interface LifecycleSummaryRecord {
@@ -68,8 +86,10 @@ export interface RunSummaryRecord extends SummaryRecord {
   run_phase?: string;
   metrics?: Record<string, unknown>;
   lifecycle_summary?: LifecycleSummaryRecord;
+  sensing_summary?: Record<string, unknown>;
   drone_statuses?: DroneStatusSummary[];
   battery_lifecycle?: BatteryLifecycleSummary;
+  sensing_lifecycle?: SensingLifecycleSummary;
 }
 
 export interface ReviewTimelineKeyEvent extends Record<string, unknown> {
@@ -91,6 +111,7 @@ export interface ReviewSummaryRecord extends SummaryRecord {
   deviation_from_recommendation?: Record<string, unknown>;
   asset_utilization?: Record<string, unknown>;
   battery_lifecycle?: BatteryLifecycleSummary;
+  sensing_lifecycle?: SensingLifecycleSummary;
   battery_comms_risk_summary?: Record<string, unknown>;
   alternate_plan_summary?: Record<string, unknown>;
   links?: Record<string, unknown>;
@@ -104,6 +125,24 @@ export interface ReportSummaryRecord extends SummaryRecord {
   status?: string;
   run_phase?: string;
   battery_lifecycle?: BatteryLifecycleSummary;
+  sensing_lifecycle?: SensingLifecycleSummary;
+}
+
+export interface CandidateContact {
+  id: string;
+  position: [number, number];
+  status?: string;
+  status_label?: string;
+  confidence?: number;
+  candidate_score?: number;
+  cue_step?: number;
+  detecting_drone_id?: number | null;
+  assigned_drone_id?: number | null;
+  inspection_attempts?: number;
+  resolved?: boolean;
+  outcome?: string | null;
+  resolution_step?: number | null;
+  note?: string;
 }
 
 export type MissionIntent =
@@ -396,6 +435,10 @@ export interface SnapshotDrone {
   stale_steps: number;
   lifecycle_state?: string;
   operator_status?: string;
+  sensing_state?: string;
+  sensing_status?: string;
+  assigned_contact_id?: string | null;
+  active_contact_position?: [number, number] | null;
   reserve_status?: string;
   reserve_status_label?: string;
   reserve_reason?: string;
@@ -409,6 +452,9 @@ export interface SnapshotDrone {
   sorties_completed?: number;
   recharge_cycles?: number;
   redeployments?: number;
+  investigations_started?: number;
+  contacts_confirmed?: number;
+  contacts_rejected?: number;
   contributing_to_search?: boolean;
 }
 
@@ -434,6 +480,8 @@ export interface Snapshot {
   global_objectives: Record<string, [number, number]>;
   active_search_drones?: number[];
   lifecycle_summary?: LifecycleSummaryRecord;
+  sensing_summary?: Record<string, unknown>;
+  candidate_contacts?: CandidateContact[];
   detection_event?: Record<string, unknown> | null;
   drones: SnapshotDrone[];
   metrics: Record<string, unknown>;

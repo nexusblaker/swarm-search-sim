@@ -13,7 +13,12 @@ vi.mock("@/api/hooks", () => ({
           owner_id: "review-1",
           report_type: "review_report",
           created_at: 1_700_000_000,
-          summary_json: { status: "ready" },
+          summary_json: {
+            status: "ready",
+            sensing_lifecycle: {
+              operator_summary: "Possible contacts were detected and tracked for closer inspection.",
+            },
+          },
           file_path: "C:/tmp/report.html",
           run_id: "run-1",
         },
@@ -32,5 +37,6 @@ describe("ReportsPage", () => {
     expect(screen.getAllByText("report-1").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/review:review-1/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Open HTML report")).toBeInTheDocument();
+    expect(screen.getByText("Sensing workflow")).toBeInTheDocument();
   });
 });

@@ -79,6 +79,30 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
       ctx.fill();
     });
 
+    (snapshot.candidate_contacts ?? []).forEach((contact) => {
+      const [x, y] = contact.position;
+      ctx.strokeStyle =
+        contact.status === "contact_confirmed"
+          ? "#22c55e"
+          : contact.status === "false_alarm_rejected"
+            ? "#94a3b8"
+            : contact.status === "inspecting_contact" || contact.status === "confirmation_pending"
+              ? "#f97316"
+              : "#facc15";
+      ctx.lineWidth = Math.max(2, cellSize / 8);
+      ctx.beginPath();
+      ctx.arc(
+        x * cellSize + cellSize / 2,
+        y * cellSize + cellSize / 2,
+        Math.max(5, cellSize / 2.5),
+        0,
+        Math.PI * 2,
+      );
+      if (typeof ctx.stroke === "function") {
+        ctx.stroke();
+      }
+    });
+
     const [targetX, targetY] = snapshot.target_position;
     ctx.fillStyle = snapshot.target_detected ? "#f97316" : "#facc15";
     ctx.beginPath();
@@ -106,6 +130,11 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
         {snapshot.drones.map((drone) => (
           <span key={drone.id} className="pill whitespace-nowrap">
             Drone {drone.id} | {drone.operator_status ?? lifecycleStateLabel(drone.lifecycle_state)}
+          </span>
+        ))}
+        {(snapshot.candidate_contacts ?? []).slice(0, 4).map((contact) => (
+          <span key={contact.id} className="pill whitespace-nowrap">
+            {contact.status_label ?? "Possible Contact"} | {Math.round(Number(contact.confidence ?? 0) * 100)}%
           </span>
         ))}
       </div>

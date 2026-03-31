@@ -10,6 +10,14 @@ import numpy as np
 
 from src.agents.drone import Drone
 from src.environment.grid import GridEnvironment
+from src.simulation.sensing import (
+    ContactSignal,
+    INSPECTION_CONFIRMED,
+    INSPECTION_PENDING,
+    INSPECTION_REJECTED,
+    InspectionOutcome,
+    TrackedContact,
+)
 
 
 Position = tuple[int, int]
@@ -27,6 +35,7 @@ class ScanResult:
     scanned_cells: set[Position]
     candidate_scores: dict[Position, float]
     channel_scores: dict[str, float]
+    contacts: list[ContactSignal]
 
 
 class ThermalSensorModel:
@@ -75,6 +84,9 @@ class ThermalSensorModel:
         probability *= 1.0 - self.false_negative_rate
         return float(np.clip(probability, 0.0, 1.0))
 
+    def _weather_factor(self, weather: str) -> float:
+        return float(self.weather_modifiers.get(weather, 0.85))
+
     def scan(
         self,
         drone: Drone,
@@ -86,6 +98,8 @@ class ThermalSensorModel:
         """Scan the environment around a drone for the target."""
 
         terrain_modifier = environment.get_detection_modifier(target_position)
+        weather_factor = self._weather_factor(weather)
+        distance = dist(drone.position, target_position)
         probability = self.detection_probability(
             drone_position=drone.position,
             target_position=target_position,
@@ -111,21 +125,59 @@ class ThermalSensorModel:
         channel_scores = {"thermal": probability, "visual": visual_probability}
         true_detection = thermal_hit or visual_hit
         false_positive = False
+        contacts: list[ContactSignal] = []
 
         false_positive_rate = self.false_positive_rate / max(
-            self.weather_modifiers.get(weather, 0.85),
+            weather_factor,
             0.25,
         )
         if true_detection and target_visible:
-            candidate_score = 0.65 * (probability if thermal_hit else 0.0)
-            candidate_score += 0.35 * (visual_probability if visual_hit else 0.0)
+            blended_confidence = 0.65 * (probability if thermal_hit else 0.0)
+            blended_confidence += 0.35 * (visual_probability if visual_hit else 0.0)
+            candidate_score = max(0.12, blended_confidence)
             candidate_scores[target_position] = candidate_score
+            note = (
+                "Possible thermal contact detected at long range."
+                if blended_confidence < 0.58 or distance >= drone.sensor_range * 0.62
+                else "Strong contact detected and ready for close inspection."
+            )
+            contacts.append(
+                ContactSignal(
+                    position=target_position,
+                    confidence=float(np.clip(blended_confidence, 0.0, 1.0)),
+                    candidate_score=float(np.clip(candidate_score, 0.0, 1.0)),
+                    requires_inspection=True,
+                    is_true_target=True,
+                    false_positive=False,
+                    distance=float(distance),
+                    terrain_modifier=terrain_modifier,
+                    weather_factor=weather_factor,
+                    source_channels=channel_scores,
+                    note=note,
+                )
+            )
         elif scanned_cells and rng.random() < max(false_positive_rate, self.visual_false_positive_rate):
             false_positive = True
             ordered_cells = sorted(scanned_cells)
             candidate_position = ordered_cells[int(rng.integers(0, len(ordered_cells)))]
-            candidate_scores[candidate_position] = max(false_positive_rate, self.visual_false_positive_rate)
+            false_confidence = max(false_positive_rate, self.visual_false_positive_rate)
+            candidate_scores[candidate_position] = false_confidence
             true_detection = True
+            contacts.append(
+                ContactSignal(
+                    position=candidate_position,
+                    confidence=float(np.clip(false_confidence, 0.0, 1.0)),
+                    candidate_score=float(np.clip(false_confidence, 0.0, 1.0)),
+                    requires_inspection=True,
+                    is_true_target=False,
+                    false_positive=True,
+                    distance=float(dist(drone.position, candidate_position)),
+                    terrain_modifier=environment.get_detection_modifier(candidate_position),
+                    weather_factor=weather_factor,
+                    source_channels=channel_scores,
+                    note="Low-confidence contact requires inspection.",
+                )
+            )
 
         confidence = probability if not false_positive else false_positive_rate
         return ScanResult(
@@ -137,6 +189,60 @@ class ThermalSensorModel:
             scanned_cells=scanned_cells,
             candidate_scores=candidate_scores,
             channel_scores=channel_scores,
+            contacts=contacts,
+        )
+
+    def inspect_contact(
+        self,
+        drone: Drone,
+        contact: TrackedContact,
+        environment: GridEnvironment,
+        weather: str,
+        rng: np.random.Generator,
+    ) -> InspectionOutcome:
+        """Attempt to confirm or reject a tracked contact from a closer vantage."""
+
+        distance = dist(drone.position, contact.position)
+        terrain_modifier = environment.get_detection_modifier(contact.position)
+        weather_factor = self._weather_factor(weather)
+        line_of_sight = environment.has_line_of_sight(drone.position, contact.position)
+        inspect_range = max(1.5, drone.sensor_range * 0.45)
+        proximity = max(0.0, 1.0 - distance / max(inspect_range, 1e-6))
+        visibility_score = terrain_modifier * weather_factor * (1.0 if line_of_sight else 0.55)
+
+        if contact.is_true_target:
+            confirm_probability = 0.48 + 0.34 * visibility_score + 0.22 * proximity
+            confirm_probability += 0.1 * min(contact.inspection_attempts, 2)
+            confirm_probability = float(np.clip(confirm_probability, 0.2, 0.99))
+            if distance <= inspect_range and (rng.random() < confirm_probability or contact.inspection_attempts >= 1):
+                return InspectionOutcome(
+                    outcome=INSPECTION_CONFIRMED,
+                    confidence=confirm_probability,
+                    distance=float(distance),
+                    note="Target confirmed after close inspection.",
+                )
+            return InspectionOutcome(
+                outcome=INSPECTION_PENDING,
+                confidence=confirm_probability,
+                distance=float(distance),
+                note="Inspection pass completed but more evidence is needed.",
+            )
+
+        reject_probability = 0.52 + 0.25 * proximity + 0.18 * (1.0 - min(terrain_modifier, 1.0))
+        reject_probability += 0.1 * min(contact.inspection_attempts, 2)
+        reject_probability = float(np.clip(reject_probability, 0.35, 0.99))
+        if distance <= inspect_range and (rng.random() < reject_probability or contact.inspection_attempts >= 1):
+            return InspectionOutcome(
+                outcome=INSPECTION_REJECTED,
+                confidence=reject_probability,
+                distance=float(distance),
+                note="Contact rejected after close inspection.",
+            )
+        return InspectionOutcome(
+            outcome=INSPECTION_PENDING,
+            confidence=reject_probability,
+            distance=float(distance),
+            note="Inspection pass completed but the contact remains uncertain.",
         )
 
     @staticmethod

@@ -43,6 +43,26 @@ from src.simulation.lifecycle import (
     resolve_reserve_profile,
 )
 from src.simulation.planning import astar_path, path_cost
+from src.simulation.sensing import (
+    CONTACT_CONFIRMED,
+    CONTACT_CONFIRMATION_PENDING,
+    CONTACT_CUE,
+    CONTACT_INSPECTING,
+    CONTACT_REJECTED,
+    INSPECTION_CONFIRMED,
+    INSPECTION_PENDING,
+    INSPECTION_REJECTED,
+    SENSING_CUE_DETECTED,
+    SENSING_CONFIRMATION_PENDING,
+    SENSING_CONFIRMED,
+    SENSING_INSPECTING,
+    SENSING_REJECTED,
+    SENSING_RESUMED,
+    SENSING_SEARCHING,
+    TrackedContact,
+    contact_label,
+    sensing_label,
+)
 from src.utils.event_logger import EventLogger
 
 
@@ -187,6 +207,13 @@ class SimulationEngine:
         self.confirmed_detection_step: int | None = None
         self.false_alarm_count = 0
         self.reroute_count = 0
+        self.candidate_detection_events = 0
+        self.inspection_initiated_events = 0
+        self.inspection_completed_events = 0
+        self.confirmed_contact_events = 0
+        self.rejected_contact_events = 0
+        self.contact_index = 0
+        self.tracked_contacts: dict[str, TrackedContact] = {}
         self.global_objectives: dict[int, Position] = {}
         self.last_objectives: dict[int, Position] = {}
         self.paused = False
@@ -274,6 +301,13 @@ class SimulationEngine:
         self.confirmed_detection_step = None
         self.false_alarm_count = 0
         self.reroute_count = 0
+        self.candidate_detection_events = 0
+        self.inspection_initiated_events = 0
+        self.inspection_completed_events = 0
+        self.confirmed_contact_events = 0
+        self.rejected_contact_events = 0
+        self.contact_index = 0
+        self.tracked_contacts = {}
         self.global_objectives = {}
         self.last_objectives = {}
         self.paused = False
@@ -334,6 +368,7 @@ class SimulationEngine:
         proposed_goals = self._apply_operator_guidance(proposed_goals)
         proposed_goals = self._seed_redeploy_goals(proposed_goals)
         self.global_objectives = self._derive_global_objectives(proposed_goals)
+        self.global_objectives = self._seed_inspection_goals(self.global_objectives)
         resolved_goals = self._apply_battery_policy(self.global_objectives)
         self._plan_and_execute_routes(resolved_goals)
 
@@ -395,40 +430,11 @@ class SimulationEngine:
                         score=score,
                         channels=scan_result.channel_scores,
                     )
-                if scan_result.false_positive:
-                    self.false_alarm_count += 1
 
-            if scan_result.detected:
-                drone.record_detection(
-                    step=self.current_step,
-                    target_position=self.target.position,
-                    confidence=scan_result.confidence,
-                    is_true_positive=scan_result.true_positive,
-                )
-                if (
-                    scan_result.true_positive
-                    and self.candidate_scores[self.target.position]
-                    >= self.config.candidate_confirmation_threshold
-                    and self.last_detection_event is None
-                ):
-                    self.target.detected = True
-                    self.metrics.time_to_detection = self.current_step
-                    self.metrics.mission_success = True
-                    self.confirmed_detection_step = self.current_step
-                    self.last_detection_event = {
-                        "step": self.current_step,
-                        "drone_id": drone.id,
-                        "position": self.target.position,
-                        "confidence": scan_result.confidence,
-                    }
-                    self.logger.record(
-                        "confirmed_detection",
-                        self.current_step,
-                        drone_id=drone.id,
-                        position=self.target.position,
-                        confidence=scan_result.confidence,
-                    )
-                    self.done = True
+            for contact_signal in scan_result.contacts:
+                self._register_contact(drone, contact_signal)
+
+        self._resolve_contact_inspections()
 
         if step_scanned_events > 0:
             self.step_overlap_history.append(
@@ -537,6 +543,8 @@ class SimulationEngine:
             "returning_drones": [drone.id for drone in self.drones if drone.returning_to_base],
             "active_search_drones": [drone.id for drone in self.drones if drone.contributes_to_search],
             "lifecycle_summary": self._lifecycle_summary(),
+            "sensing_summary": self._sensing_summary(),
+            "candidate_contacts": self._candidate_contacts_snapshot(),
             "detection_event": dict(self.last_detection_event) if self.last_detection_event else None,
             "drones": [
                 {
@@ -553,7 +561,11 @@ class SimulationEngine:
                     "comms_online": drone.comms_online,
                     "stale_steps": drone.stale_steps,
                     "lifecycle_state": drone.lifecycle_state,
-                    "operator_status": drone.operator_status,
+                    "operator_status": self._operator_status(drone),
+                    "sensing_state": drone.sensing_state,
+                    "sensing_status": drone.sensing_status,
+                    "assigned_contact_id": drone.assigned_contact_id,
+                    "active_contact_position": drone.active_contact_position,
                     "reserve_status": drone.reserve_status,
                     "reserve_status_label": drone.reserve_status_label,
                     "reserve_reason": drone.reserve_reason,
@@ -567,6 +579,9 @@ class SimulationEngine:
                     "sorties_completed": drone.sorties_completed,
                     "recharge_cycles": drone.recharge_cycles,
                     "redeployments": drone.redeployments,
+                    "investigations_started": drone.investigations_started,
+                    "contacts_confirmed": drone.contacts_confirmed,
+                    "contacts_rejected": drone.contacts_rejected,
                     "contributing_to_search": drone.contributes_to_search,
                     "returning_to_base": drone.returning_to_base,
                 }
@@ -708,10 +723,12 @@ class SimulationEngine:
         for drone in self.drones:
             proposed_goal = proposed_goals.get(drone.id, drone.position)
             if drone.lifecycle_state == LIFECYCLE_RECHARGING:
+                self._release_contact_assignment(drone)
                 drone.intended_target = drone.base_position
                 resolved[drone.id] = drone.base_position
                 continue
             if drone.lifecycle_state == LIFECYCLE_READY:
+                self._release_contact_assignment(drone)
                 drone.intended_target = drone.base_position
                 if drone.ready_since_step is not None and self.current_step > drone.ready_since_step and not self.done:
                     drone.redeploy_target = proposed_goal
@@ -733,6 +750,7 @@ class SimulationEngine:
                     resolved[drone.id] = drone.base_position
                     continue
             if drone.lifecycle_state == LIFECYCLE_UNAVAILABLE:
+                self._release_contact_assignment(drone)
                 drone.intended_target = drone.position
                 resolved[drone.id] = drone.position
                 continue
@@ -749,11 +767,14 @@ class SimulationEngine:
 
             if should_return:
                 if drone.lifecycle_state != LIFECYCLE_RETURNING:
+                    self._release_contact_assignment(drone)
                     self._order_return_to_base(drone, decision, proposed_goal)
                 resolved_goal = drone.base_position
             else:
                 if drone.lifecycle_state not in {LIFECYCLE_DEPLOYING, LIFECYCLE_REDEPLOYING} and drone.position != drone.base_position:
                     self._set_drone_state(drone, LIFECYCLE_SEARCHING)
+                if not drone.assigned_contact_id and drone.sensing_state == SENSING_RESUMED:
+                    self._set_drone_sensing_state(drone, SENSING_SEARCHING, clear_assignment=True)
                 resolved_goal = proposed_goal
             drone.intended_target = resolved_goal
             resolved[drone.id] = resolved_goal
@@ -1062,6 +1083,7 @@ class SimulationEngine:
             drone.return_service_eta_steps = 0
             drone.ready_since_step = self.current_step
             self.recharge_complete_events += 1
+            self._set_drone_sensing_state(drone, SENSING_SEARCHING, clear_assignment=True)
             self._set_drone_state(drone, LIFECYCLE_READY)
             self.logger.record(
                 "battery_service_completed",
@@ -1083,6 +1105,7 @@ class SimulationEngine:
         drone.turnaround_remaining_steps = self._turnaround_steps()
         drone.return_eta_steps = 0
         drone.return_service_eta_steps = drone.turnaround_remaining_steps
+        self._set_drone_sensing_state(drone, SENSING_SEARCHING, clear_assignment=True)
         self._set_drone_state(drone, LIFECYCLE_RECHARGING)
         self.logger.record("return_to_base", self.current_step, drone_id=drone.id)
         self.logger.record(
@@ -1107,6 +1130,349 @@ class SimulationEngine:
         drone.lifecycle_state = lifecycle_state
         drone.operator_status = operator_status or lifecycle_label(lifecycle_state)
         drone.last_lifecycle_change_step = self.current_step
+
+    def _set_drone_sensing_state(
+        self,
+        drone: Drone,
+        sensing_state: str,
+        contact: TrackedContact | None = None,
+        *,
+        clear_assignment: bool = False,
+    ) -> None:
+        drone.sensing_state = sensing_state
+        drone.sensing_status = sensing_label(sensing_state)
+        if contact is not None:
+            drone.assigned_contact_id = contact.id
+            drone.active_contact_position = contact.position
+        elif clear_assignment:
+            drone.assigned_contact_id = None
+            drone.active_contact_position = None
+
+    def _operator_status(self, drone: Drone) -> str:
+        if drone.lifecycle_state in {
+            LIFECYCLE_RETURNING,
+            LIFECYCLE_RECHARGING,
+            LIFECYCLE_READY,
+            LIFECYCLE_UNAVAILABLE,
+        }:
+            return drone.operator_status
+        if drone.sensing_state != SENSING_SEARCHING:
+            return drone.sensing_status
+        return drone.operator_status
+
+    def _find_tracked_contact(self, position: Position, is_true_target: bool) -> TrackedContact | None:
+        unresolved = [contact for contact in self.tracked_contacts.values() if not contact.resolved]
+        if is_true_target:
+            for contact in unresolved:
+                if contact.is_true_target:
+                    return contact
+        for contact in unresolved:
+            if self._distance(contact.position, position) <= 1.0:
+                return contact
+        return None
+
+    def _register_contact(self, drone: Drone, signal: Any) -> TrackedContact:
+        contact = self._find_tracked_contact(signal.position, signal.is_true_target)
+        created = False
+        if contact is None:
+            self.contact_index += 1
+            contact = TrackedContact(
+                id=f"contact-{self.contact_index}",
+                position=signal.position,
+                status=CONTACT_CUE,
+                confidence=signal.confidence,
+                candidate_score=signal.candidate_score,
+                cue_step=self.current_step,
+                detecting_drone_id=drone.id,
+                source_channels=dict(signal.source_channels),
+                is_true_target=signal.is_true_target,
+                false_positive=signal.false_positive,
+                distance=signal.distance,
+                terrain_modifier=signal.terrain_modifier,
+                weather_factor=signal.weather_factor,
+                note=signal.note,
+                last_update_step=self.current_step,
+                confidence_history=[signal.confidence],
+            )
+            self.tracked_contacts[contact.id] = contact
+            self.candidate_detection_events += 1
+            if signal.false_positive:
+                self.false_alarm_count += 1
+            self.logger.record(
+                "possible_contact_detected",
+                self.current_step,
+                drone_id=drone.id,
+                contact_id=contact.id,
+                position=signal.position,
+                confidence=round(signal.confidence, 3),
+                candidate_score=round(signal.candidate_score, 3),
+                requires_inspection=signal.requires_inspection,
+                note=signal.note,
+            )
+            created = True
+        else:
+            contact.position = signal.position
+            contact.confidence = max(contact.confidence, signal.confidence)
+            contact.candidate_score += signal.candidate_score
+            contact.last_update_step = self.current_step
+            contact.note = signal.note
+            contact.distance = signal.distance
+            contact.terrain_modifier = signal.terrain_modifier
+            contact.weather_factor = signal.weather_factor
+            contact.source_channels = dict(signal.source_channels)
+            contact.confidence_history.append(signal.confidence)
+
+        drone.record_detection(
+            step=self.current_step,
+            target_position=signal.position,
+            confidence=signal.confidence,
+            is_true_positive=signal.is_true_target,
+            stage="cue",
+            outcome="candidate",
+            contact_id=contact.id,
+        )
+        if created and drone.sensing_state == SENSING_SEARCHING and not drone.assigned_contact_id:
+            self._set_drone_sensing_state(drone, SENSING_CUE_DETECTED, contact)
+        return contact
+
+    def _can_assign_inspection(self, drone: Drone) -> bool:
+        return (
+            drone.is_operational
+            and drone.lifecycle_state not in {
+                LIFECYCLE_RETURNING,
+                LIFECYCLE_RECHARGING,
+                LIFECYCLE_READY,
+                LIFECYCLE_UNAVAILABLE,
+            }
+        )
+
+    def _pick_inspector(self, contact: TrackedContact) -> Drone | None:
+        assert self.environment is not None
+
+        if contact.assigned_drone_id is not None:
+            assigned = self._get_drone(contact.assigned_drone_id)
+            if self._can_assign_inspection(assigned):
+                return assigned
+
+        candidates: list[tuple[float, Drone]] = []
+        for drone in self.drones:
+            if not self._can_assign_inspection(drone):
+                continue
+            if drone.assigned_contact_id and drone.assigned_contact_id != contact.id:
+                continue
+            route = astar_path(self.environment, drone.position, contact.position)
+            route_cost = path_cost(self.environment, route)
+            detecting_bonus = -1.6 if drone.id == contact.detecting_drone_id else 0.0
+            candidates.append((route_cost + detecting_bonus, drone))
+
+        if not candidates:
+            return None
+        candidates.sort(key=lambda item: (item[0], item[1].id))
+        return candidates[0][1]
+
+    def _assign_contact_to_drone(self, contact: TrackedContact, drone: Drone) -> None:
+        if contact.assigned_drone_id == drone.id:
+            state = (
+                SENSING_CONFIRMATION_PENDING
+                if contact.status == CONTACT_CONFIRMATION_PENDING
+                else SENSING_INSPECTING
+            )
+            self._set_drone_sensing_state(drone, state, contact)
+            return
+
+        if contact.assigned_drone_id is not None and contact.assigned_drone_id != drone.id:
+            self._release_contact_assignment(self._get_drone(contact.assigned_drone_id))
+
+        contact.assigned_drone_id = drone.id
+        contact.status = CONTACT_INSPECTING
+        contact.inspect_started_step = contact.inspect_started_step or self.current_step
+        contact.last_update_step = self.current_step
+        drone.investigations_started += 1
+        self.inspection_initiated_events += 1
+        self._set_drone_sensing_state(drone, SENSING_INSPECTING, contact)
+        self.logger.record(
+            "inspection_initiated",
+            self.current_step,
+            drone_id=drone.id,
+            contact_id=contact.id,
+            position=contact.position,
+            confidence=round(contact.confidence, 3),
+            detecting_drone_id=contact.detecting_drone_id,
+        )
+
+    def _seed_inspection_goals(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
+        seeded = dict(proposed_goals)
+        unresolved_contacts = sorted(
+            [contact for contact in self.tracked_contacts.values() if not contact.resolved],
+            key=lambda contact: (
+                contact.status != CONTACT_INSPECTING,
+                contact.cue_step,
+                -contact.confidence,
+            ),
+        )
+        active_assignments: set[str] = set()
+
+        for contact in unresolved_contacts:
+            inspector = self._pick_inspector(contact)
+            if inspector is None:
+                continue
+            self._assign_contact_to_drone(contact, inspector)
+            seeded[inspector.id] = contact.position
+            active_assignments.add(contact.id)
+
+        for drone in self.drones:
+            if drone.assigned_contact_id and drone.assigned_contact_id not in active_assignments:
+                self._release_contact_assignment(drone)
+            if (
+                not drone.assigned_contact_id
+                and drone.sensing_state in {
+                    SENSING_CUE_DETECTED,
+                    SENSING_CONFIRMATION_PENDING,
+                    SENSING_REJECTED,
+                    SENSING_RESUMED,
+                }
+            ):
+                self._set_drone_sensing_state(drone, SENSING_SEARCHING, clear_assignment=True)
+        return seeded
+
+    def _release_contact_assignment(self, drone: Drone) -> None:
+        if drone.assigned_contact_id is not None:
+            contact = self.tracked_contacts.get(drone.assigned_contact_id)
+            if contact is not None and not contact.resolved and contact.assigned_drone_id == drone.id:
+                contact.assigned_drone_id = None
+                if contact.status not in {CONTACT_CONFIRMED, CONTACT_REJECTED}:
+                    contact.status = CONTACT_CUE
+                    contact.last_update_step = self.current_step
+        self._set_drone_sensing_state(drone, SENSING_SEARCHING, clear_assignment=True)
+
+    def _resolve_contact_inspections(self) -> None:
+        assert self.environment is not None
+        assert self.sensor_model is not None
+
+        for contact in sorted(self.tracked_contacts.values(), key=lambda item: item.cue_step):
+            if contact.resolved or contact.assigned_drone_id is None:
+                continue
+            drone = self._get_drone(contact.assigned_drone_id)
+            if not self._can_assign_inspection(drone):
+                self._release_contact_assignment(drone)
+                continue
+
+            distance = self._distance(drone.position, contact.position)
+            inspect_trigger_range = max(2.0, drone.sensor_range * 0.55)
+            if distance > inspect_trigger_range:
+                continue
+
+            contact.inspection_attempts += 1
+            outcome = self.sensor_model.inspect_contact(
+                drone=drone,
+                contact=contact,
+                environment=self.environment,
+                weather=self.config.weather,
+                rng=self.rng,
+            )
+            self.inspection_completed_events += 1
+            contact.inspect_completed_step = self.current_step
+            contact.last_update_step = self.current_step
+            contact.confidence = max(contact.confidence, outcome.confidence)
+            contact.confidence_history.append(outcome.confidence)
+            drone.record_detection(
+                step=self.current_step,
+                target_position=contact.position,
+                confidence=outcome.confidence,
+                is_true_positive=contact.is_true_target,
+                stage="inspect",
+                outcome=outcome.outcome,
+                contact_id=contact.id,
+            )
+            self.logger.record(
+                "inspection_pass_complete",
+                self.current_step,
+                drone_id=drone.id,
+                contact_id=contact.id,
+                position=contact.position,
+                confidence=round(outcome.confidence, 3),
+                outcome=outcome.outcome,
+                note=outcome.note,
+            )
+
+            if outcome.outcome == INSPECTION_CONFIRMED:
+                self._confirm_contact(contact, drone, outcome)
+            elif outcome.outcome == INSPECTION_REJECTED:
+                self._reject_contact(contact, drone, outcome)
+            else:
+                contact.status = CONTACT_CONFIRMATION_PENDING
+                contact.outcome = INSPECTION_PENDING
+                contact.note = outcome.note
+                self._set_drone_sensing_state(drone, SENSING_CONFIRMATION_PENDING, contact)
+
+    def _confirm_contact(self, contact: TrackedContact, drone: Drone, outcome: Any) -> None:
+        assert self.target is not None
+
+        contact.status = CONTACT_CONFIRMED
+        contact.resolved = True
+        contact.outcome = INSPECTION_CONFIRMED
+        contact.resolution_step = self.current_step
+        contact.note = outcome.note
+        drone.contacts_confirmed += 1
+        self.confirmed_contact_events += 1
+        self.target.detected = True
+        self.metrics.time_to_detection = self.current_step
+        self.metrics.mission_success = True
+        self.confirmed_detection_step = self.current_step
+        self.last_detection_event = {
+            "step": self.current_step,
+            "drone_id": drone.id,
+            "position": contact.position,
+            "confidence": outcome.confidence,
+            "contact_id": contact.id,
+            "summary": "Target confirmed after close inspection.",
+        }
+        self.logger.record(
+            "contact_confirmed",
+            self.current_step,
+            drone_id=drone.id,
+            contact_id=contact.id,
+            position=contact.position,
+            confidence=round(outcome.confidence, 3),
+            note=outcome.note,
+        )
+        self.logger.record(
+            "confirmed_detection",
+            self.current_step,
+            drone_id=drone.id,
+            contact_id=contact.id,
+            position=contact.position,
+            confidence=round(outcome.confidence, 3),
+        )
+        self._set_drone_sensing_state(drone, SENSING_CONFIRMED, contact)
+        self.done = True
+
+    def _reject_contact(self, contact: TrackedContact, drone: Drone, outcome: Any) -> None:
+        contact.status = CONTACT_REJECTED
+        contact.resolved = True
+        contact.outcome = INSPECTION_REJECTED
+        contact.resolution_step = self.current_step
+        contact.note = outcome.note
+        drone.contacts_rejected += 1
+        self.rejected_contact_events += 1
+        self.logger.record(
+            "false_positive_rejected",
+            self.current_step,
+            drone_id=drone.id,
+            contact_id=contact.id,
+            position=contact.position,
+            confidence=round(outcome.confidence, 3),
+            note=outcome.note,
+        )
+        self.logger.record(
+            "search_resumed_after_reject",
+            self.current_step,
+            drone_id=drone.id,
+            contact_id=contact.id,
+            position=contact.position,
+        )
+        contact.assigned_drone_id = None
+        self._set_drone_sensing_state(drone, SENSING_RESUMED, clear_assignment=True)
 
     def _update_coverage_gap_status(self) -> None:
         active_search = sum(1 for drone in self.drones if drone.contributes_to_search)
@@ -1142,6 +1508,14 @@ class SimulationEngine:
             return "Target confirmed"
         if self.done:
             return "Mission complete"
+        if any(contact.status == CONTACT_INSPECTING for contact in self.tracked_contacts.values() if not contact.resolved):
+            return "Inspecting possible contact"
+        if any(
+            contact.status in {CONTACT_CUE, CONTACT_CONFIRMATION_PENDING}
+            for contact in self.tracked_contacts.values()
+            if not contact.resolved
+        ):
+            return "Possible contact detected"
         if any(drone.lifecycle_state == LIFECYCLE_RECHARGING for drone in self.drones):
             return "Battery rotation underway"
         if any(drone.lifecycle_state == LIFECYCLE_RETURNING for drone in self.drones):
@@ -1163,6 +1537,56 @@ class SimulationEngine:
             "coverage_gap_active": self.coverage_gap_active,
             "coverage_gap_steps": self.coverage_gap_steps,
         }
+
+    def _sensing_summary(self) -> dict[str, Any]:
+        unresolved = [contact for contact in self.tracked_contacts.values() if not contact.resolved]
+        status_counts = Counter(contact.status for contact in unresolved)
+        return {
+            "candidate_detection_count": self.candidate_detection_events,
+            "inspections_initiated": self.inspection_initiated_events,
+            "inspections_completed": self.inspection_completed_events,
+            "confirmed_contact_count": self.confirmed_contact_events,
+            "rejected_contact_count": self.rejected_contact_events,
+            "active_candidate_contacts": status_counts.get(CONTACT_CUE, 0),
+            "contacts_under_inspection": status_counts.get(CONTACT_INSPECTING, 0),
+            "confirmation_pending": status_counts.get(CONTACT_CONFIRMATION_PENDING, 0),
+            "operator_summary": (
+                "A possible contact is being inspected."
+                if status_counts.get(CONTACT_INSPECTING, 0) > 0
+                else "A possible contact is awaiting inspection."
+                if status_counts.get(CONTACT_CUE, 0) > 0 or status_counts.get(CONTACT_CONFIRMATION_PENDING, 0) > 0
+                else "No active contacts are awaiting confirmation."
+            ),
+        }
+
+    def _candidate_contacts_snapshot(self) -> list[dict[str, Any]]:
+        contacts = sorted(
+            self.tracked_contacts.values(),
+            key=lambda contact: (
+                contact.resolved,
+                -(contact.resolution_step or 0),
+                -contact.cue_step,
+            ),
+        )
+        return [
+            {
+                "id": contact.id,
+                "position": contact.position,
+                "status": contact.status,
+                "status_label": contact_label(contact.status),
+                "confidence": round(contact.confidence, 3),
+                "candidate_score": round(contact.candidate_score, 3),
+                "cue_step": contact.cue_step,
+                "detecting_drone_id": contact.detecting_drone_id,
+                "assigned_drone_id": contact.assigned_drone_id,
+                "inspection_attempts": contact.inspection_attempts,
+                "resolved": contact.resolved,
+                "outcome": contact.outcome,
+                "resolution_step": contact.resolution_step,
+                "note": contact.note,
+            }
+            for contact in contacts[:12]
+        ]
 
     def _apply_operator_guidance(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
         adjusted = dict(proposed_goals)
@@ -1422,6 +1846,11 @@ class SimulationEngine:
         self.metrics.belief_peak_accuracy = self.probability_map.value_at(self.target.position)
         self.metrics.time_to_first_candidate_detection = self.first_candidate_step
         self.metrics.time_to_confirmed_detection = self.confirmed_detection_step
+        self.metrics.candidate_detection_count = self.candidate_detection_events
+        self.metrics.inspections_initiated = self.inspection_initiated_events
+        self.metrics.inspections_completed = self.inspection_completed_events
+        self.metrics.confirmed_contact_count = self.confirmed_contact_events
+        self.metrics.rejected_contact_count = self.rejected_contact_events
         self.metrics.false_alarm_count = self.false_alarm_count
         self.metrics.reroute_count = self.reroute_count
         self.metrics.coordination_efficiency = max(

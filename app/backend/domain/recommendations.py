@@ -93,6 +93,8 @@ class RecommendationService:
             "asset_package": asset_package,
             "technical_details": {
                 "operator_fit_summary": top.get("operator_fit_summary"),
+                "sensing_conditions_summary": top.get("sensing_conditions_summary"),
+                "inspection_burden": top.get("inspection_burden"),
                 "mission_intent": mission_intent,
                 "confidence_summary": comparison["confidence_summary"],
                 "sensitivity_summary": comparison.get("sensitivity_summary", {}),
@@ -142,9 +144,14 @@ class RecommendationService:
                 f" It edges out the main alternative by offering better "
                 f"{'battery margin' if float(top.get('expected_battery_risk', 0.0)) <= float(alternative.get('expected_battery_risk', 1.0)) else 'coverage speed'}."
             )
+        sensing_note = ""
+        if str(top.get("inspection_burden", "")) == "elevated":
+            sensing_note = " Expect more inspect passes before confirmation."
+        elif mission_intent == "high_confidence_confirmation":
+            sensing_note = " It favors deliberate cue-to-confirm inspection over the fastest possible sweep."
         return (
             f"Recommended: use {strategy_label} with {fleet_text}{staging_text}. "
-            f"This gives the best balance for {intent_label}.{tradeoff}"
+            f"This gives the best balance for {intent_label}.{tradeoff}{sensing_note}"
         )
 
     def _build_alternative_summary(self, alternative: dict[str, Any]) -> str:
@@ -161,6 +168,8 @@ class RecommendationService:
                 tradeoffs.append("slightly slower than the top alternative, but with a steadier risk picture")
             if float(top.get("expected_battery_risk", 1.0)) < float(alternative.get("expected_battery_risk", 1.0)):
                 tradeoffs.append("holds more battery margin than the top alternative")
+        if top.get("sensing_conditions_summary"):
+            tradeoffs.append(str(top["sensing_conditions_summary"]))
         return tradeoffs[:3] or ["balances speed, confidence, and reserve without leaning too hard on one factor"]
 
     def _build_risks(self, top: dict[str, Any], mission_intent: str) -> list[str]:
@@ -169,6 +178,8 @@ class RecommendationService:
             risks.append("no major operational risk was flagged in the short evaluation bundle")
         if mission_intent == "fast_containment" and float(top.get("expected_battery_risk", 0.0)) >= 0.3:
             risks.append("faster containment tempo leaves less reserve for re-tasking")
+        if str(top.get("inspection_burden", "")) == "elevated":
+            risks.append("reduced visibility may create more low-confidence contacts that need inspection")
         return risks[:3]
 
     @staticmethod

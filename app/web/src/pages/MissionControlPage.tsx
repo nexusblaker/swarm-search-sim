@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/api/client";
 import { useComparisons, useLibraryTemplates, usePlans, useRuns, useScenarios } from "@/api/hooks";
 import type {
+  CandidateContact,
   LifecycleSummaryRecord,
   RunRecord,
   RunSummaryRecord,
@@ -132,7 +133,9 @@ export function MissionControlPage() {
   const selectedComparison = comparisons.find((item) => item.id === launchValue);
   const runSummary = (selected?.summary_json ?? {}) as RunSummaryRecord;
   const lifecycleSummary = (liveSnapshot?.lifecycle_summary ?? runSummary.lifecycle_summary ?? {}) as LifecycleSummaryRecord;
+  const sensingSummary = (liveSnapshot?.sensing_summary ?? runSummary.sensing_summary ?? {}) as Record<string, unknown>;
   const liveDrones = liveSnapshot?.drones ?? [];
+  const candidateContacts = (liveSnapshot?.candidate_contacts ?? []) as CandidateContact[];
   const activeSearchCount = Array.isArray(liveSnapshot?.active_search_drones)
     ? liveSnapshot?.active_search_drones.length
     : Number(
@@ -153,6 +156,12 @@ export function MissionControlPage() {
   );
   const runPhase = String(liveSnapshot?.run_phase ?? lifecycleSummary.run_phase ?? runSummary.run_phase ?? "Active search");
   const reservePreset = String(lifecycleSummary.reserve_preset ?? runSummary.reserve_preset ?? "balanced");
+  const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
+  const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
+  const confirmedContactCount = Number(sensingSummary.confirmed_contact_count ?? 0);
+  const sensingNarrative = String(
+    sensingSummary.operator_summary ?? "No active contacts are awaiting confirmation.",
+  );
 
   return (
     <div className="page-stack">
@@ -180,7 +189,20 @@ export function MissionControlPage() {
         <MetricCard label="Active Runs" value={runs.filter((run) => activeStatuses.has(run.status)).length} />
         <MetricCard label="Mission Phase" value={selected ? runPhase : "Waiting"} emphasis="accent" />
         <MetricCard label="Active Search Assets" value={selected ? activeSearchCount : 0} />
-        <MetricCard label="Rotation in Progress" value={selected ? returningCount + rechargingCount : 0} />
+        <MetricCard
+          label="Contact Workflow"
+          value={
+            selected
+              ? contactsUnderInspection > 0
+                ? `${contactsUnderInspection} inspecting`
+                : candidateContactCount > 0
+                  ? `${candidateContactCount} possible`
+                  : confirmedContactCount > 0
+                    ? "Confirmed"
+                    : "Clear"
+              : "Waiting"
+          }
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
@@ -368,6 +390,26 @@ export function MissionControlPage() {
                 </div>
 
                 <div className="panel-subtle p-5">
+                  <p className="section-kicker">Contact workflow</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <RotationStat label="Possible contacts" value={candidateContactCount} />
+                    <RotationStat label="Inspecting now" value={contactsUnderInspection} />
+                    <RotationStat label="Confirmed" value={confirmedContactCount} />
+                  </div>
+                  <p className="mt-4 text-sm leading-6 text-muted">{sensingNarrative}</p>
+                  {candidateContacts.length > 0 ? (
+                    <div className="mt-4 space-y-2">
+                      {candidateContacts.slice(0, 3).map((contact) => (
+                        <div key={contact.id} className="rounded-[16px] border border-border/70 bg-surfaceAlt/55 px-4 py-3">
+                          <p className="text-sm font-medium text-white">{contact.status_label ?? "Possible Contact"}</p>
+                          <p className="mt-1 text-sm text-muted">{contact.note ?? "Contact awaiting inspection details."}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="panel-subtle p-5">
                   <p className="section-kicker">Fleet roster</p>
                   <div className="mt-4 space-y-3">
                     {liveDrones.length === 0 ? (
@@ -550,11 +592,11 @@ export function MissionControlPage() {
               title="What changed recently"
               description="The event stream explains why a drone left search, when service started, and when coverage was restored."
             >
-              {recentEvents.length === 0 ? (
-                <EmptyState
-                  title="No events yet"
-                  body="Events will appear here once the run starts stepping or receives interventions."
-                />
+                    {recentEvents.length === 0 ? (
+                      <EmptyState
+                        title="No events yet"
+                        body="Events will appear here once the run starts stepping or receives interventions."
+                      />
               ) : (
                 <EventTimeline events={recentEvents.slice(-12).reverse()} />
               )}
@@ -573,6 +615,7 @@ export function MissionControlPage() {
 
 function DroneRosterCard({ drone }: { drone: SnapshotDrone }) {
   const batteryPct = typeof drone.battery_pct === "number" ? drone.battery_pct : drone.battery;
+  const coverageStatus = drone.contributing_to_search ? "Contributing to coverage" : "Temporarily off broad search";
 
   return (
     <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/50 p-4">
@@ -597,6 +640,10 @@ function DroneRosterCard({ drone }: { drone: SnapshotDrone }) {
         <span>Return ETA: {formatStepEta(drone.return_eta_steps, "At base")}</span>
         <span>Sorties: {drone.sorties_completed ?? 0}</span>
       </div>
+      <p className="mt-3 text-sm leading-6 text-white/90">{coverageStatus}</p>
+      {drone.assigned_contact_id ? (
+        <p className="mt-2 text-sm leading-6 text-muted">Assigned contact: {drone.assigned_contact_id}</p>
+      ) : null}
       {drone.reserve_reason ? <p className="mt-3 text-sm leading-6 text-muted">{drone.reserve_reason}</p> : null}
     </div>
   );

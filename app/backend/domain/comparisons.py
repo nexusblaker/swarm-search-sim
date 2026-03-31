@@ -262,6 +262,8 @@ class ComparisonEvaluator:
             failure_modes.append("fleet endurance is tight for this search")
         if heuristics["coverage_watch"]:
             failure_modes.append("coverage speed may lag the requested search tempo")
+        if heuristics["inspection_watch"]:
+            failure_modes.append("reduced visibility may create more inspection passes")
 
         return {
             **candidate,
@@ -285,6 +287,8 @@ class ComparisonEvaluator:
             ),
             "operator_fit_summary": heuristics["fit_summary"],
             "key_tradeoffs": heuristics["key_tradeoffs"],
+            "sensing_conditions_summary": heuristics["sensing_summary"],
+            "inspection_burden": heuristics["inspection_burden"],
             "team_coordination_label": ComparisonEvaluator._coordination_label(candidate["coordination_mode"]),
             "score": round(score, 2),
             "metrics_sample": [metrics_to_summary(metric) for metric in metrics[:3]],
@@ -350,18 +354,39 @@ class ComparisonEvaluator:
             score_adjustment += 3.0
         if scenario_family == "dense_forest" and strategy == "information_gain":
             score_adjustment += 1.5
+            tradeoffs.append("dense cover favors a slower inspect-and-confirm tempo")
+        if scenario_family in {"dense_forest", "high_wind", "mixed_terrain"} and mission_intent == "fast_containment":
+            tradeoffs.append("faster coverage may still require extra inspect passes before confirmation")
 
         fit_traits = [
             "strong coverage reach" if coverage >= 1.15 else "moderate coverage reach",
             "good confirmation sensors" if detection >= 1.08 else "standard confirmation sensors",
             "healthy endurance" if endurance >= 1.05 else "tighter endurance",
         ]
+        inspection_watch = scenario_family in {"dense_forest", "high_wind"} or detection < 1.0
+        if mission_intent == "high_confidence_confirmation":
+            inspection_burden = "moderate"
+        elif inspection_watch:
+            inspection_burden = "elevated"
+        else:
+            inspection_burden = "light"
+
+        sensing_summary = (
+            "Dense cover will likely delay confirmation and create more close inspection passes."
+            if scenario_family == "dense_forest"
+            else "Reduced visibility may increase the false-positive and inspection burden."
+            if scenario_family == "high_wind"
+            else "Conditions support a relatively clean cue-to-confirm workflow."
+        )
         return {
             "score_adjustment": round(score_adjustment, 2),
             "fit_summary": ", ".join(fit_traits),
             "key_tradeoffs": tradeoffs[:3],
             "battery_watch": endurance < 0.95 and threshold < 28.0,
             "coverage_watch": mission_intent == "broad_area_coverage" and coverage < 1.05,
+            "inspection_watch": inspection_watch,
+            "inspection_burden": inspection_burden,
+            "sensing_summary": sensing_summary,
         }
 
     @staticmethod

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 import { api } from "@/api/client";
 import { useReports } from "@/api/hooks";
-import type { BatteryLifecycleSummary, ReportSummaryRecord } from "@/api/types";
+import type { BatteryLifecycleSummary, ReportSummaryRecord, SensingLifecycleSummary } from "@/api/types";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
 import { DataTable } from "@/components/ui/DataTable";
 import { DetailPanel } from "@/components/ui/DetailPanel";
@@ -38,6 +38,7 @@ export function ReportsPage() {
 
   const summary = (selected.summary_json ?? {}) as ReportSummaryRecord;
   const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
+  const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
 
   return (
     <div className="page-stack">
@@ -100,7 +101,7 @@ export function ReportsPage() {
           <Panel
             eyebrow="Lifecycle summary"
             title="Report highlights"
-            description="This summary surfaces the main battery lifecycle and continuity points before you open the full HTML export."
+            description="This summary surfaces the main battery lifecycle, sensing workflow, and continuity points before you open the full HTML export."
           >
             <ArtifactLink href={`${api.baseUrl}/reports/${selected.id}/content`} label="Open HTML report" />
             <div className="mt-5 space-y-4">
@@ -121,6 +122,21 @@ export function ReportsPage() {
                 <p className="mt-3 text-sm leading-6 text-white/90">
                   {batteryLifecycle.mission_continuity_impact ?? "No continuity note available for this report."}
                 </p>
+              </div>
+              <div className="panel-subtle p-4">
+                <p className="section-kicker">Sensing workflow</p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {sensingLifecycle.operator_summary ?? "No sensing workflow summary available for this report."}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {sensingLifecycle.inspection_burden_summary ?? "No inspection burden note available."}
+                </p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <ReportMetric label="Possible contacts" value={sensingLifecycle.candidate_detection_count ?? "n/a"} />
+                  <ReportMetric label="Inspection passes" value={sensingLifecycle.inspection_pass_count ?? "n/a"} />
+                  <ReportMetric label="Confirmed contacts" value={sensingLifecycle.confirmed_detection_count ?? "n/a"} />
+                  <ReportMetric label="Rejected false alarms" value={sensingLifecycle.false_positive_count ?? "n/a"} />
+                </div>
               </div>
             </div>
           </Panel>

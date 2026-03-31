@@ -309,6 +309,25 @@ The current Slice 2 model stays intentionally lightweight:
 
 The product layer uses Slice 1 asset package data to influence endurance, return margin, turnaround time, and redeploy sustainability.
 
+### Cue -> Inspect -> Confirm Sensing
+
+Slice 3 extends the sensing model so detections no longer jump straight from a weak hit to full mission success. The simulator now models:
+
+- low-confidence cue generation during broad search
+- environment-dependent confidence based on distance, terrain visibility, and weather modifiers
+- explicit inspection behavior that sends a drone closer to investigate a possible contact
+- confirm or reject outcomes after close inspection
+- mission success driven by confirmed contact, not a weak cue alone
+
+The current Slice 3 model stays intentionally explainable:
+
+- no black-box tracker
+- no heavy ML
+- no direct hardware integration
+- no large coordination rewrite
+
+This keeps the cue-to-confirm workflow operationally believable while preserving the existing simulator architecture.
+
 ### Mission Control
 
 Mission Control is the live operator view. It supports:
@@ -318,7 +337,9 @@ Mission Control is the live operator view. It supports:
 - viewing the latest mission snapshot
 - inspecting the live fleet roster with battery and lifecycle state
 - viewing battery rotation counts and mission phase
+- viewing possible contacts, inspections in progress, and confirmed contacts
 - viewing a recent event feed with readable lifecycle summaries
+- viewing cue, inspect, confirm, and reject events in plain language
 - seeing return-to-service timing and reserve status for each drone
 - applying interventions
 - clearer separation between mission state and operator actions
@@ -342,7 +363,9 @@ Replay supports:
 - scrubbing timeline frames
 - viewing replay state and events together
 - timeline points for return-to-base, service complete, and redeploy events
+- timeline points for possible contact, inspection, confirmation, and rejection events
 - step summaries with clearer battery rotation context
+- step summaries with clearer sensing progression context
 - readable fleet state at each replay step
 
 ### Experiments
@@ -363,10 +386,13 @@ Reports and review workflows support:
 - outcome and deviation summaries
 - alternate-plan summary where available
 - battery lifecycle summaries
+- sensing workflow summaries
 - asset rotation counts
+- possible contact, inspection, confirmation, and false-alarm counts
 - mission continuity impact notes
 - battery margin and reserve policy summaries
 - lifecycle event highlights for return, service, redeploy, and rejoin moments
+- sensing highlights for cue, inspect, confirm, reject, and search-resume moments
 - links back to replay and run artifacts
 - clearer artifact linkage and cleaner export browsing
 
@@ -408,6 +434,8 @@ Run artifacts now include lifecycle-rich replay and event outputs that preserve:
 - drone lifecycle state in replay frames
 - reserve status and battery margin fields in live and saved snapshots
 - return-to-base, service, redeploy, and rejoin events in the event log
+- sensing-stage state in replay frames and live snapshots
+- candidate contact summaries and cue-to-confirm event history
 
 ## API Coverage
 
@@ -450,6 +478,28 @@ Important Slice 2 payload additions include:
   - asset utilization summary
   - battery margin summary
 
+Important Slice 3 payload additions include:
+
+- run snapshots:
+  - `sensing_summary`
+  - `candidate_contacts`
+  - per-drone `sensing_state`
+  - per-drone `sensing_status`
+  - per-drone `assigned_contact_id`
+- run, review, and report summaries:
+  - `sensing_lifecycle`
+  - candidate detection counts
+  - inspection counts
+  - confirmed vs rejected contact summaries
+  - sensing highlight timelines
+- event stream:
+  - `possible_contact_detected`
+  - `inspection_initiated`
+  - `inspection_pass_complete`
+  - `contact_confirmed`
+  - `false_positive_rejected`
+  - `search_resumed_after_reject`
+
 ## Docker
 
 Local container flow:
@@ -472,6 +522,15 @@ pytest
 ```
 
 Full local validation used for Slice 2:
+
+```bash
+pytest -q
+cd app/web
+npm run test
+npm run build
+```
+
+Full local validation used for Slice 3:
 
 ```bash
 pytest -q

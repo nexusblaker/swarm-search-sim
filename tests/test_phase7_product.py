@@ -280,3 +280,38 @@ def test_run_review_and_report_expose_battery_lifecycle_fields(tmp_path: Path) -
     assert review.status_code == 200
     assert review.json()["summary_json"]["battery_lifecycle"]["asset_utilization_summary"]
     assert review.json()["timeline_json"]["key_events"][0]["summary"]
+
+
+def test_run_review_and_report_expose_sensing_lifecycle_fields(tmp_path: Path) -> None:
+    client = _make_client(tmp_path)
+    scenario_payload = _scenario_payload("Sensing Lifecycle Product", max_steps=10)
+    scenario_block = scenario_payload["scenario"]
+    scenario_block["num_drones"] = 1
+    scenario_block["step_duration_minutes"] = 1
+    scenario_block.setdefault("sensor", {}).update(
+        {
+            "false_negative_rate": 1.0,
+            "visual_false_negative_rate": 1.0,
+            "false_positive_rate": 1.0,
+        }
+    )
+    scenario_block["target_move_probability"] = 0.0
+
+    scenario = client.post("/scenarios", json=scenario_payload).json()
+    run = client.post("/runs", json={"scenario_id": scenario["id"], "seed": 7})
+    assert run.status_code == 200
+
+    completed = _wait_for_status(client, f"/runs/{run.json()['id']}", {"completed", "failed"})
+    events = client.get(f"/runs/{run.json()['id']}/events")
+    report = client.post(f"/reports/{run.json()['id']}", json={})
+    review = client.post(f"/reviews/from-run/{run.json()['id']}")
+
+    assert completed["summary_json"]["sensing_summary"]["candidate_detection_count"] >= 1
+    assert "sensing_state" in completed["latest_snapshot_json"]["drones"][0]
+    assert events.status_code == 200
+    event_types = {event["event_type"] for event in events.json()["events"]}
+    assert "possible_contact_detected" in event_types
+    assert report.status_code == 200
+    assert report.json()["summary_json"]["sensing_lifecycle"]["candidate_detection_count"] >= 1
+    assert review.status_code == 200
+    assert review.json()["summary_json"]["sensing_lifecycle"]["operator_summary"]
