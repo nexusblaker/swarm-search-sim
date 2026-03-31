@@ -98,6 +98,46 @@ class LibraryTemplateListResponse(BaseModel):
     items: list[LibraryTemplateRecord]
 
 
+class DroneTypeProfile(BaseModel):
+    display_name: str
+    model_name: str | None = None
+    count: int = 1
+    max_endurance_minutes: float = 120.0
+    estimated_max_range_km: float = 12.0
+    cruise_speed_kph: float = 38.0
+    sensor_capability_level: str = "standard"
+    thermal_capability_level: str = "assisted"
+    detection_capability_proxy: float = 1.0
+    turnaround_time_minutes: float = 18.0
+    notes: str = ""
+
+
+class FleetComposition(BaseModel):
+    mix_type: str = "uniform"
+    total_drones: int = 0
+    drone_type_count: int = 0
+    aggregate_endurance_minutes: float = 0.0
+    aggregate_range_km: float = 0.0
+    aggregate_speed_kph: float = 0.0
+    sensor_score: float = 0.0
+    thermal_score: float = 0.0
+    detection_score: float = 0.0
+    endurance_score: float = 0.0
+    coverage_score: float = 0.0
+    coordination_complexity: str = "low"
+    average_turnaround_minutes: float = 0.0
+
+
+class AssetPackage(BaseModel):
+    package_name: str = ""
+    uniform_fleet: bool = True
+    staging_location: str = ""
+    notes: str = ""
+    drone_types: list[DroneTypeProfile] = Field(default_factory=list)
+    fleet_composition: FleetComposition = Field(default_factory=FleetComposition)
+    operator_summary: str = ""
+
+
 class MissionPlanCreateRequest(BaseModel):
     name: str
     scenario_id: str | None = None
@@ -108,13 +148,15 @@ class MissionPlanCreateRequest(BaseModel):
     num_drones: int | None = None
     weather: str | None = None
     target_behavior: str | None = None
-    asset_package: dict[str, Any] = Field(default_factory=dict)
+    asset_package: AssetPackage | None = None
     reserve_policy: dict[str, Any] = Field(default_factory=dict)
     communication_assumptions: dict[str, Any] = Field(default_factory=dict)
     map_selection: dict[str, Any] = Field(default_factory=dict)
     priority_zones: list[dict[str, Any]] = Field(default_factory=list)
     exclusion_zones: list[dict[str, Any]] = Field(default_factory=list)
     candidate_alternatives: list[dict[str, Any]] = Field(default_factory=list)
+    mission_intent: str | None = None
+    intake_summary: dict[str, Any] = Field(default_factory=dict)
     operator_notes: str = ""
     approval_state: str = "draft"
     recommendation_snapshot: dict[str, Any] | None = None
@@ -133,6 +175,9 @@ class MissionPlanRecord(BaseModel):
     plan_json: dict[str, Any]
     summary_json: dict[str, Any]
     recommendation_json: dict[str, Any]
+    asset_package: AssetPackage | None = None
+    mission_intent: str | None = None
+    intake_summary: dict[str, Any] = Field(default_factory=dict)
     operator_notes: str
     candidate_alternatives_json: list[dict[str, Any]]
     priority_zones_json: list[dict[str, Any]]
@@ -335,6 +380,8 @@ class RecommendRequest(BaseModel):
     scenario_id: str | None = None
     scenario: dict[str, Any] | None = None
     plan_id: str | None = None
+    asset_package: AssetPackage | None = None
+    mission_intent: str | None = None
     strategies: list[str] | None = None
     drone_counts: list[int] | None = None
     coordination_modes: list[str] | None = None
@@ -349,6 +396,13 @@ class RecommendResponse(BaseModel):
     risk_summary: dict[str, Any]
     uncertainty_summary: dict[str, Any] = Field(default_factory=dict)
     explanation: str
+    concise_summary: str = ""
+    top_alternative_summary: str | None = None
+    key_tradeoffs: list[str] = Field(default_factory=list)
+    key_risks: list[str] = Field(default_factory=list)
+    team_coordination_label: str | None = None
+    asset_package: AssetPackage | None = None
+    technical_details: dict[str, Any] = Field(default_factory=dict)
     recommendation_snapshot: dict[str, Any] = Field(default_factory=dict)
     candidate_plans: list[dict[str, Any]]
 

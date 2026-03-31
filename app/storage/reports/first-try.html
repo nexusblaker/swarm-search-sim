@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mission Plan first-try</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
+    h1, h2 { color: #102a43; }
+    .card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; }
+    th { background: #f0f4f8; }
+    code { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Mission Plan Summary</h1>
+  <div class="card">
+    <p><strong>Plan ID:</strong> first-try</p>
+    <p><strong>Name:</strong> first try</p>
+    <p><strong>Approval state:</strong> recommended</p>
+    <p><strong>Scenario:</strong> default</p>
+    <p><strong>Template:</strong> dense-canopy-poor-comms</p>
+    <p><strong>Linked runs:</strong> 0</p>
+  </div>
+
+  <div class="card">
+    <h2>Plan Summary</h2>
+    <table>
+      
+      <tr><td>strategy</td><td><code>information_gain</code></td></tr>
+      
+      <tr><td>scenario_family</td><td><code>mixed_terrain</code></td></tr>
+      
+      <tr><td>num_drones</td><td><code>4</code></td></tr>
+      
+      <tr><td>map_size</td><td><code>[18, 14]</code></td></tr>
+      
+      <tr><td>weather</td><td><code>clear</code></td></tr>
+      
+      <tr><td>target_behavior</td><td><code>terrain_biased</code></td></tr>
+      
+      <tr><td>coordination_mode</td><td><code>decentralized</code></td></tr>
+      
+      <tr><td>return_to_base_threshold</td><td><code>28.0</code></td></tr>
+      
+      <tr><td>asset_package</td><td><code>{'battery': 120.0, 'speed': 1, 'sensor_range': 5.0, 'fov': 130.0}</code></td></tr>
+      
+      <tr><td>reserve_policy</td><td><code>{'return_threshold': 28}</code></td></tr>
+      
+      <tr><td>communication_assumptions</td><td><code>{'coordination_mode': 'decentralized'}</code></td></tr>
+      
+      <tr><td>map_selection</td><td><code>{'use_external_layers': False, 'layer_paths': {'terrain': 'data/sample_layers/terrain.csv', 'obstacle': 'data/sample_layers/obstacles.csv', 'trail': 'data/sample_layers/trails.csv', 'elevation': 'data/sample_layers/elevation.csv', 'wind': 'data/sample_layers/wind.csv'}, 'scenario_family': 'mixed_terrain'}</code></td></tr>
+      
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Recommendation Snapshot</h2>
+    <code>{'recommended_strategy': 'information_gain', 'recommended_drone_count': 4, 'recommended_return_threshold': 28.0, 'risk_summary': {'overall_risk': 'elevated', 'battery_risk': 0.0, 'battery_margin_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'overlap_risk': 0.915, 'communications_fragility': 47.0, 'failure_modes': ['communications fragility', 'overlap inefficiency', 'low mission success'], 'confidence_basis': {'candidate_count': 4, 'evaluation_seeds': 1, 'method': 'short benchmark bundle', 'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}}}, 'uncertainty_summary': {'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}, 'battery_risk_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'overlap_band': {'mean': 0.9107500000000001, 'low': 0.904, 'high': 0.918}}, 'explanation': 'Recommend information_gain with 4 drones and return threshold 28.0 because it balances success rate, detection time, battery margin, overlap, and comms fragility.', 'recommendation_snapshot': {'top_recommendation': {'name': 'information_gain-4d-decentralized-28.0', 'strategy': 'information_gain', 'drone_count': 4, 'coordination_mode': 'decentralized', 'return_threshold': 28.0, 'expected_success_rate': 0.0, 'expected_detection_time': 45.0, 'expected_battery_risk': 0.0, 'expected_overlap': 0.915, 'battery_margin_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'detection_time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}, 'communications_fragility': 47.0, 'overlap_inefficiency': 0.915, 'robustness_under_changed_assumptions': 'fragile', 'failure_modes': ['communications fragility', 'overlap inefficiency', 'low mission success'], 'recommendation_rationale': 'lower confidence, slower detection, battery conservative, higher overlap, comms fragile', 'score': -124.8, 'metrics_sample': [{'time_to_detection': None, 'area_covered_pct': 96.63865546218487, 'probability_mass_covered': 0.9856281336860722, 'overlap_ratio': 0.9148463532025176, 'battery_used': 144.00000000000023, 'successful_returns_to_base': 0, 'forced_low_battery_returns': 0, 'comms_failures': 47, 'stale_information_events': 0, 'path_efficiency': 1.171719005264113, 'average_overlap_per_step': 0.2411236890180344, 'detection_under_comms_mode': 'decentralized', 'entropy_reduction_over_time': 1.2452401019907313, 'information_gain_per_step': 0.04554049064884446, 'belief_peak_accuracy': 3.372371425227062e-07, 'time_to_first_candidate_detection': 8, 'time_to_confirmed_detection': None, 'false_alarm_count': 1, 'reroute_count': 76, 'coordination_efficiency': 0.40896337802059, 'return_to_base_efficiency': 1.0, 'mission_success': False}]}, 'confidence_summary': {'candidate_count': 4, 'evaluation_seeds': 1, 'method': 'short benchmark bundle', 'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}}, 'uncertainty_summary': {'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}, 'battery_risk_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'overlap_band': {'mean': 0.9107500000000001, 'low': 0.904, 'high': 0.918}}, 'sensitivity_summary': {'strategy_count': 4, 'drone_count_options': [4], 'coordination_modes': ['decentralized'], 'return_thresholds': [28.0]}}, 'candidate_plans': [{'name': 'information_gain-4d-decentralized-28.0', 'strategy': 'information_gain', 'drone_count': 4, 'coordination_mode': 'decentralized', 'return_threshold': 28.0, 'expected_success_rate': 0.0, 'expected_detection_time': 45.0, 'expected_battery_risk': 0.0, 'expected_overlap': 0.915, 'battery_margin_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'detection_time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}, 'communications_fragility': 47.0, 'overlap_inefficiency': 0.915, 'robustness_under_changed_assumptions': 'fragile', 'failure_modes': ['communications fragility', 'overlap inefficiency', 'low mission success'], 'recommendation_rationale': 'lower confidence, slower detection, battery conservative, higher overlap, comms fragile', 'score': -124.8, 'metrics_sample': [{'time_to_detection': None, 'area_covered_pct': 96.63865546218487, 'probability_mass_covered': 0.9856281336860722, 'overlap_ratio': 0.9148463532025176, 'battery_used': 144.00000000000023, 'successful_returns_to_base': 0, 'forced_low_battery_returns': 0, 'comms_failures': 47, 'stale_information_events': 0, 'path_efficiency': 1.171719005264113, 'average_overlap_per_step': 0.2411236890180344, 'detection_under_comms_mode': 'decentralized', 'entropy_reduction_over_time': 1.2452401019907313, 'information_gain_per_step': 0.04554049064884446, 'belief_peak_accuracy': 3.372371425227062e-07, 'time_to_first_candidate_detection': 8, 'time_to_confirmed_detection': None, 'false_alarm_count': 1, 'reroute_count': 76, 'coordination_efficiency': 0.40896337802059, 'return_to_base_efficiency': 1.0, 'mission_success': False}]}, {'name': 'probability_greedy-4d-decentralized-28.0', 'strategy': 'probability_greedy', 'drone_count': 4, 'coordination_mode': 'decentralized', 'return_threshold': 28.0, 'expected_success_rate': 0.0, 'expected_detection_time': 45.0, 'expected_battery_risk': 0.0, 'expected_overlap': 0.906, 'battery_margin_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'detection_time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}, 'communications_fragility': 63.0, 'overlap_inefficiency': 0.906, 'robustness_under_changed_assumptions': 'fragile', 'failure_modes': ['communications fragility', 'overlap inefficiency', 'low mission success'], 'recommendation_rationale': 'lower confidence, slower detection, battery conservative, higher overlap, comms fragile', 'score': -148.61, 'metrics_sample': [{'time_to_detection': None, 'area_covered_pct': 99.15966386554622, 'probability_mass_covered': 0.9956560289031806, 'overlap_ratio': 0.9055244195356285, 'battery_used': 144.20000000000022, 'successful_returns_to_base': 0, 'forced_low_battery_returns': 0, 'comms_failures': 63, 'stale_information_events': 0, 'path_efficiency': 1.1822208645181003, 'average_overlap_per_step': 0.19033202347577108, 'detection_under_comms_mode': 'decentralized', 'entropy_reduction_over_time': 1.866542527074082, 'information_gain_per_step': 0.06420926739332332, 'belief_peak_accuracy': 7.1797003307354094e-06, 'time_to_first_candidate_detection': 8, 'time_to_confirmed_detection': None, 'false_alarm_count': 2, 'reroute_count': 80, 'coordination_efficiency': 0.438834428887648, 'return_to_base_efficiency': 1.0, 'mission_success': False}]}, {'name': 'sector_search-4d-decentralized-28.0', 'strategy': 'sector_search', 'drone_count': 4, 'coordination_mode': 'decentralized', 'return_threshold': 28.0, 'expected_success_rate': 0.0, 'expected_detection_time': 45.0, 'expected_battery_risk': 0.0, 'expected_overlap': 0.918, 'battery_margin_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'detection_time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}, 'communications_fragility': 85.0, 'overlap_inefficiency': 0.918, 'robustness_under_changed_assumptions': 'fragile', 'failure_modes': ['communications fragility', 'overlap inefficiency', 'low mission success'], 'recommendation_rationale': 'lower confidence, slower detection, battery conservative, higher overlap, comms fragile', 'score': -181.87, 'metrics_sample': [{'time_to_detection': None, 'area_covered_pct': 83.19327731092437, 'probability_mass_covered': 0.8766943875730911, 'overlap_ratio': 0.9182831200990508, 'battery_used': 155.10000000000016, 'successful_returns_to_base': 0, 'forced_low_battery_returns': 0, 'comms_failures': 84, 'stale_information_events': 1, 'path_efficiency': 0.8595835557928453, 'average_overlap_per_step': 0.13145629235227912, 'detection_under_comms_mode': 'decentralized', 'entropy_reduction_over_time': 1.3685156862023842, 'information_gain_per_step': 0.04792062905658024, 'belief_peak_accuracy': 0.010303700538555316, 'time_to_first_candidate_detection': 12, 'time_to_confirmed_detection': None, 'false_alarm_count': 2, 'reroute_count': 98, 'coordination_efficiency': 0.2727912130597183, 'return_to_base_efficiency': 1.0, 'mission_success': False}]}, {'name': 'auction_based-4d-decentralized-28.0', 'strategy': 'auction_based', 'drone_count': 4, 'coordination_mode': 'decentralized', 'return_threshold': 28.0, 'expected_success_rate': 0.0, 'expected_detection_time': 45.0, 'expected_battery_risk': 0.0, 'expected_overlap': 0.904, 'battery_margin_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'success_band': {'mean': 0.0, 'low': 0.0, 'high': 0.0}, 'detection_time_band': {'mean': 45.0, 'low': 45.0, 'high': 45.0}, 'communications_fragility': 93.0, 'overlap_inefficiency': 0.904, 'robustness_under_changed_assumptions': 'fragile', 'failure_modes': ['communications fragility', 'overlap inefficiency', 'low mission success'], 'recommendation_rationale': 'lower confidence, slower detection, battery conservative, higher overlap, comms fragile', 'score': -193.58, 'metrics_sample': [{'time_to_detection': None, 'area_covered_pct': 96.63865546218487, 'probability_mass_covered': 0.9888372888985955, 'overlap_ratio': 0.9040467250730079, 'battery_used': 126.20000000000024, 'successful_returns_to_base': 0, 'forced_low_battery_returns': 0, 'comms_failures': 88, 'stale_information_events': 5, 'path_efficiency': 1.1706765703213307, 'average_overlap_per_step': 0.2395114967853785, 'detection_under_comms_mode': 'decentralized', 'entropy_reduction_over_time': 1.6507287190776774, 'information_gain_per_step': 0.059439934284395986, 'belief_peak_accuracy': 1.4945640132451816e-06, 'time_to_first_candidate_detection': 10, 'time_to_confirmed_detection': None, 'false_alarm_count': 2, 'reroute_count': 67, 'coordination_efficiency': 0.4143631920853449, 'return_to_base_efficiency': 1.0, 'mission_success': False}]}]}</code>
+  </div>
+
+  <div class="card">
+    <h2>Operator Notes</h2>
+    <p>No operator notes captured.</p>
+  </div>
+</body>
+</html>

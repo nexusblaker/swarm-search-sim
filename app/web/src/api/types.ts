@@ -12,6 +12,52 @@ export type ResourceStatus =
 
 export type SummaryRecord = Record<string, unknown>;
 
+export type MissionIntent =
+  | "broad_area_coverage"
+  | "fast_containment"
+  | "high_confidence_confirmation"
+  | "battery_conservative";
+
+export interface DroneTypeProfile {
+  display_name: string;
+  model_name?: string | null;
+  count: number;
+  max_endurance_minutes: number;
+  estimated_max_range_km: number;
+  cruise_speed_kph: number;
+  sensor_capability_level: string;
+  thermal_capability_level: string;
+  detection_capability_proxy: number;
+  turnaround_time_minutes: number;
+  notes: string;
+}
+
+export interface FleetComposition {
+  mix_type: string;
+  total_drones: number;
+  drone_type_count: number;
+  aggregate_endurance_minutes: number;
+  aggregate_range_km: number;
+  aggregate_speed_kph: number;
+  sensor_score: number;
+  thermal_score: number;
+  detection_score: number;
+  endurance_score: number;
+  coverage_score: number;
+  coordination_complexity: string;
+  average_turnaround_minutes: number;
+}
+
+export interface AssetPackage {
+  package_name: string;
+  uniform_fleet: boolean;
+  staging_location: string;
+  notes: string;
+  drone_types: DroneTypeProfile[];
+  fleet_composition: FleetComposition;
+  operator_summary: string;
+}
+
 export interface HealthResponse {
   status: string;
   database_path: string;
@@ -93,6 +139,9 @@ export interface MissionPlanRecord {
   plan_json: Record<string, unknown>;
   summary_json: SummaryRecord;
   recommendation_json: Record<string, unknown>;
+  asset_package?: AssetPackage | null;
+  mission_intent?: MissionIntent | null;
+  intake_summary: Record<string, unknown>;
   operator_notes: string;
   candidate_alternatives_json: Record<string, unknown>[];
   priority_zones_json: Record<string, unknown>[];
@@ -229,6 +278,13 @@ export interface RecommendationResponse {
   risk_summary: Record<string, unknown>;
   uncertainty_summary: Record<string, unknown>;
   explanation: string;
+  concise_summary: string;
+  top_alternative_summary?: string | null;
+  key_tradeoffs: string[];
+  key_risks: string[];
+  team_coordination_label?: string | null;
+  asset_package?: AssetPackage | null;
+  technical_details: Record<string, unknown>;
   recommendation_snapshot: Record<string, unknown>;
   candidate_plans: Record<string, unknown>[];
 }

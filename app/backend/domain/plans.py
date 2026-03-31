@@ -10,6 +10,7 @@ from uuid import uuid4
 import yaml
 
 from app.backend.db.sqlite import MetadataStore
+from app.backend.domain.assets import apply_asset_package_to_payload
 from app.backend.domain.reports import ReportService
 from app.backend.domain.shared import scenario_summary, to_jsonable
 from app.backend.domain.scenarios import ScenarioService, TemplateService
@@ -161,7 +162,14 @@ class MissionPlanService:
         config = self.scenario_service.scenario_to_config(plan_payload)
         recommendation = request.get("recommendation_snapshot")
         if recommendation is None and self.recommend is not None:
-            recommendation = self.recommend({"scenario": plan_payload, "num_seeds": request.get("recommendation_num_seeds", 1)})
+            recommendation = self.recommend(
+                {
+                    "scenario": plan_payload,
+                    "asset_package": resolved["asset_package"],
+                    "mission_intent": resolved["mission_intent"],
+                    "num_seeds": request.get("recommendation_num_seeds", 1),
+                }
+            )
         plan_path = self.paths.plans_dir / f"{plan_id}.yaml"
         plan_path.write_text(yaml.safe_dump(plan_payload, sort_keys=False), encoding="utf-8")
         now = time.time()
@@ -183,6 +191,8 @@ class MissionPlanService:
                     "reserve_policy": resolved["reserve_policy"],
                     "communication_assumptions": resolved["communication_assumptions"],
                     "map_selection": resolved["map_selection"],
+                    "mission_intent": resolved["mission_intent"],
+                    "intake_summary": resolved["intake_summary"],
                 },
                 "recommendation_json": to_jsonable(recommendation or {}),
                 "operator_notes": resolved["operator_notes"],
@@ -228,6 +238,8 @@ class MissionPlanService:
             or existing.get("summary_json", {}).get("communication_assumptions", {})
         )
         map_selection = dict(request.get("map_selection") or existing.get("summary_json", {}).get("map_selection", {}))
+        intake_summary = dict(request.get("intake_summary") or existing.get("summary_json", {}).get("intake_summary", {}))
+        mission_intent = request.get("mission_intent") or existing.get("summary_json", {}).get("mission_intent")
 
         if request.get("strategy"):
             scenario_block["strategy"] = request["strategy"]
@@ -238,8 +250,6 @@ class MissionPlanService:
         if request.get("target_behavior"):
             scenario_block.setdefault("target_assumptions", {})["behavior"] = request["target_behavior"]
 
-        if asset_package:
-            scenario_block.setdefault("drone", {}).update(asset_package)
         if reserve_policy:
             scenario_block.setdefault("battery_policy", {}).update(reserve_policy)
         if communication_assumptions:
@@ -251,6 +261,12 @@ class MissionPlanService:
 
         if request.get("name"):
             scenario_block["name"] = request["name"]
+        if mission_intent:
+            scenario_block["mission_intent"] = mission_intent
+
+        if asset_package:
+            base_payload, asset_package = apply_asset_package_to_payload(base_payload, asset_package)
+            scenario_block = base_payload.setdefault("scenario", {})
 
         return {
             "name": request.get("name") or existing.get("name") or scenario_block.get("name", plan_id_from_payload(base_payload)),
@@ -265,6 +281,8 @@ class MissionPlanService:
             "asset_package": asset_package or scenario_block.get("drone", {}),
             "reserve_policy": reserve_policy or scenario_block.get("battery_policy", {}),
             "communication_assumptions": communication_assumptions or scenario_block.get("communication", {}),
+            "mission_intent": mission_intent,
+            "intake_summary": intake_summary,
             "map_selection": map_selection
             or {
                 "use_external_layers": scenario_block.get("use_external_layers", False),

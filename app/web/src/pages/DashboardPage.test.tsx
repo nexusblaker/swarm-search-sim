@@ -51,6 +51,33 @@ vi.mock("@/api/hooks", () => ({
     isLoading: false,
     error: null,
   }),
+  usePlans: () => ({
+    data: {
+      items: [
+        {
+          id: "plan-1",
+          name: "North Ridge Search",
+          approval_state: "draft",
+          summary_json: { scenario_family: "mixed_terrain", mission_intent: "broad_area_coverage" },
+        },
+      ],
+    },
+    isLoading: false,
+    error: null,
+  }),
+  useLibraryTemplates: () => ({
+    data: {
+      items: [
+        {
+          id: "template-1",
+          name: "Open Terrain Search",
+          description: "A calm starting point for large open terrain.",
+        },
+      ],
+    },
+    isLoading: false,
+    error: null,
+  }),
 }));
 
 describe("DashboardPage", () => {
@@ -61,9 +88,11 @@ describe("DashboardPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("Mission planning at a glance")).toBeInTheDocument();
-    expect(screen.getAllByText("Create mission plan").length).toBeGreaterThan(0);
-    expect(screen.getByText("What changed most recently")).toBeInTheDocument();
+    expect(screen.getByText("Mission desk for search planning, simulation, and review")).toBeInTheDocument();
+    expect(screen.getByText("Start a New Mission")).toBeInTheDocument();
+    expect(screen.getByText("Open an Existing Mission")).toBeInTheDocument();
+    expect(screen.getByText("Explore Sample Missions")).toBeInTheDocument();
+    expect(screen.getByText("Recent missions")).toBeInTheDocument();
     expect(screen.getByText("Run run-1")).toBeInTheDocument();
   });
 });

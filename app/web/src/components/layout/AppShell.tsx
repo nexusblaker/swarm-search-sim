@@ -7,12 +7,13 @@ const navigationGroups = [
   {
     label: "Planning",
     items: [
-      { to: "/", label: "Dashboard", icon: Home, summary: "Start here and orient around the workflow." },
+      { to: "/", label: "Mission Desk", icon: Home, summary: "Start here, open an existing mission, or begin a guided intake." },
+      { to: "/mission-intake", label: "New Mission", icon: ClipboardList, summary: "Guided mission intake from situation to recommendation." },
       { to: "/scenarios", label: "Scenarios", icon: Compass, summary: "Define search conditions and assumptions." },
-      { to: "/plans", label: "Mission Plans", icon: ClipboardList, summary: "Turn scenarios into reusable mission workspaces." },
-      { to: "/library", label: "Doctrine Library", icon: BookOpen, summary: "Browse polished starting points and presets." },
-      { to: "/comparisons", label: "Plan Comparison", icon: Radar, summary: "Rank candidate plans before launch." },
-      { to: "/recommendations", label: "Recommendations", icon: ShieldCheck, summary: "Review explainable planning guidance." },
+      { to: "/plans", label: "Saved Missions", icon: ClipboardList, summary: "Open and update saved mission plans." },
+      { to: "/library", label: "Sample Missions", icon: BookOpen, summary: "Browse polished starting points and presets." },
+      { to: "/comparisons", label: "Mission Options", icon: Radar, summary: "Rank alternative plan options before launch." },
+      { to: "/recommendations", label: "Plan Brief", icon: ShieldCheck, summary: "Review explainable recommendation briefs." },
     ],
   },
   {
@@ -47,9 +48,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-[296px] shrink-0 rounded-[32px] border border-border/80 bg-surface/92 p-5 shadow-panel backdrop-blur xl:block">
           <div className="mb-8 border-b border-border/70 pb-6">
             <p className="text-[11px] uppercase tracking-[0.32em] text-muted">Swarm Console</p>
-            <h1 className="mt-2 text-[24px] font-semibold text-white">Mission Planning</h1>
+            <h1 className="mt-2 text-[24px] font-semibold text-white">Mission Desk</h1>
             <p className="mt-3 text-sm leading-6 text-muted">
-              Planning, simulation, monitoring, replay, and review for search-and-rescue missions.
+              A calmer operator workspace for planning, simulation, monitoring, replay, and review.
             </p>
           </div>
           <nav className="space-y-6">
@@ -81,7 +82,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mt-8 rounded-[24px] border border-border/70 bg-surfaceAlt/55 p-4">
             <p className="section-kicker">Workflow</p>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Plan, compare, launch, monitor, replay, review, and report from one local mission console.
+              Start a mission, review the plan, launch a run, then monitor, replay, review, and report.
             </p>
           </div>
         </aside>

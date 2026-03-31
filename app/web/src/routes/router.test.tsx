@@ -12,6 +12,7 @@ describe("app routes", () => {
     expect(paths).toEqual(
       expect.arrayContaining([
         "/",
+        "mission-intake",
         "scenarios",
         "plans",
         "library",

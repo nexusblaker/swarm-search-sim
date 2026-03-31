@@ -9,15 +9,31 @@ from uuid import uuid4
 
 from app.backend.core.settings import BackendSettings
 from app.backend.db.sqlite import MetadataStore
+from app.backend.domain.assets import apply_asset_package_to_payload
 from app.backend.domain.plans import MissionPlanService
 from app.backend.domain.reports import ReportService
 from app.backend.domain.scenarios import ScenarioService
-from app.backend.domain.shared import confidence_band, metrics_to_summary, scenario_summary, to_jsonable
+from app.backend.domain.shared import confidence_band, metrics_to_summary, to_jsonable
 from src.simulation.engine import SimulationEngine
 
 
 class ComparisonEvaluator:
     """Evaluate candidate mission plans using short simulation bundles."""
+
+    INTENT_STRATEGIES: dict[str, list[str]] = {
+        "broad_area_coverage": ["sector_search", "auction_based", "probability_greedy"],
+        "fast_containment": ["auction_based", "information_gain", "sector_search"],
+        "high_confidence_confirmation": ["information_gain", "probability_greedy", "auction_based"],
+        "battery_conservative": ["sector_search", "probability_greedy", "information_gain"],
+    }
+
+    STRATEGY_LABELS = {
+        "sector_search": "broad sweep",
+        "auction_based": "fast tasking",
+        "information_gain": "targeted confirmation",
+        "probability_greedy": "focused probability search",
+        "random_sweep": "exploratory sweep",
+    }
 
     def __init__(self, scenario_service: ScenarioService, settings: BackendSettings) -> None:
         self.scenario_service = scenario_service
@@ -25,8 +41,17 @@ class ComparisonEvaluator:
 
     def compare(self, request: dict[str, Any]) -> dict[str, Any]:
         scenario_payload = self._resolve_payload(request)
+        scenario_payload, asset_package = apply_asset_package_to_payload(
+            scenario_payload,
+            request.get("asset_package") or scenario_payload.get("scenario", {}).get("asset_package"),
+        )
         base_config = self.scenario_service.scenario_to_config(scenario_payload)
-        candidate_requests = self._candidate_requests(request, base_config)
+        mission_intent = str(
+            request.get("mission_intent")
+            or scenario_payload.get("scenario", {}).get("mission_intent")
+            or "broad_area_coverage"
+        )
+        candidate_requests = self._candidate_requests(request, base_config, asset_package, mission_intent)
         num_seeds = int(request.get("num_seeds", self.settings.comparison_num_seeds))
 
         ranked_plans: list[dict[str, Any]] = []
@@ -44,7 +69,14 @@ class ComparisonEvaluator:
                 )
                 engine = SimulationEngine(config)
                 metrics.append(engine.run())
-            summary = self._summarize_candidate(candidate, metrics, base_config.max_steps)
+            summary = self._summarize_candidate(
+                candidate,
+                metrics,
+                base_config.max_steps,
+                asset_package,
+                mission_intent,
+                base_config.scenario_family,
+            )
             ranked_plans.append(summary)
 
         ranked_plans.sort(key=lambda item: item["score"], reverse=True)
@@ -52,12 +84,16 @@ class ComparisonEvaluator:
         return {
             "ranked_plans": ranked_plans,
             "top_recommendation": ranked_plans[0] if ranked_plans else {},
+            "asset_package": asset_package,
+            "mission_intent": mission_intent,
             "confidence_summary": {
                 "candidate_count": len(ranked_plans),
                 "evaluation_seeds": num_seeds,
                 "method": "short benchmark bundle",
                 "success_band": uncertainty["success_band"],
                 "time_band": uncertainty["time_band"],
+                "fleet_package": asset_package.get("operator_summary", ""),
+                "mission_intent": mission_intent,
             },
             "uncertainty_summary": uncertainty,
             "sensitivity_summary": {
@@ -77,8 +113,16 @@ class ComparisonEvaluator:
             return request["plan_json"]
         raise ValueError("Comparison requires scenario_id, scenario, or plan_json.")
 
-    @staticmethod
-    def _candidate_requests(request: dict[str, Any], base_config: Any) -> list[dict[str, Any]]:
+    def _candidate_requests(
+        self,
+        request: dict[str, Any],
+        base_config: Any,
+        asset_package: dict[str, Any],
+        mission_intent: str,
+    ) -> list[dict[str, Any]]:
+        fleet = asset_package.get("fleet_composition", {})
+        total_drones = int(fleet.get("total_drones") or base_config.num_drones)
+
         if request.get("candidate_plans"):
             candidates = []
             for index, candidate in enumerate(request["candidate_plans"], start=1):
@@ -95,10 +139,18 @@ class ComparisonEvaluator:
                 )
             return candidates
 
-        strategies = request.get("strategies") or [base_config.strategy]
-        drone_counts = request.get("drone_counts") or [base_config.num_drones]
-        coordination_modes = request.get("coordination_modes") or [base_config.coordination_mode]
-        return_thresholds = request.get("return_thresholds") or [base_config.return_to_base_threshold]
+        strategies = request.get("strategies") or self._default_strategies(base_config.strategy, mission_intent, fleet)
+        drone_counts = request.get("drone_counts") or self._default_drone_counts(total_drones, mission_intent)
+        coordination_modes = request.get("coordination_modes") or self._default_coordination_modes(
+            base_config.coordination_mode,
+            base_config.scenario_family,
+            fleet,
+        )
+        return_thresholds = request.get("return_thresholds") or self._default_return_thresholds(
+            base_config.return_to_base_threshold,
+            mission_intent,
+            fleet,
+        )
         candidates = []
         for strategy in strategies:
             for drone_count in drone_counts:
@@ -113,10 +165,60 @@ class ComparisonEvaluator:
                                 "return_threshold": float(threshold),
                             }
                         )
-        return candidates
+        return candidates[:12]
+
+    def _default_strategies(self, current_strategy: str, mission_intent: str, fleet: dict[str, Any]) -> list[str]:
+        preferred = list(self.INTENT_STRATEGIES.get(mission_intent, [current_strategy]))
+        if fleet.get("coverage_score", 1.0) >= 1.2 and "sector_search" not in preferred:
+            preferred.append("sector_search")
+        if fleet.get("detection_score", 1.0) >= 1.15 and "information_gain" not in preferred:
+            preferred.append("information_gain")
+        if current_strategy not in preferred:
+            preferred.append(current_strategy)
+        return preferred[:3]
 
     @staticmethod
-    def _summarize_candidate(candidate: dict[str, Any], metrics: list[Any], max_steps: int) -> dict[str, Any]:
+    def _default_drone_counts(total_drones: int, mission_intent: str) -> list[int]:
+        if total_drones <= 2:
+            return [total_drones]
+        minimum = max(2, total_drones - 1)
+        if mission_intent in {"broad_area_coverage", "fast_containment"}:
+            return sorted({minimum, total_drones})
+        return [total_drones]
+
+    @staticmethod
+    def _default_coordination_modes(
+        base_mode: str,
+        scenario_family: str,
+        fleet: dict[str, Any],
+    ) -> list[str]:
+        if scenario_family == "poor_comms":
+            return ["decentralized"]
+        if fleet.get("drone_type_count", 1) > 1 or fleet.get("total_drones", 0) >= 6:
+            return ["centralized", "decentralized"]
+        return [base_mode]
+
+    @staticmethod
+    def _default_return_thresholds(base_threshold: float, mission_intent: str, fleet: dict[str, Any]) -> list[float]:
+        endurance = float(fleet.get("aggregate_endurance_minutes") or 120.0)
+        baseline = max(22.0, min(36.0, base_threshold))
+        if mission_intent == "battery_conservative":
+            return [max(baseline, 30.0), max(baseline + 4.0, 34.0)]
+        if mission_intent == "fast_containment":
+            return [max(22.0, baseline - 4.0), baseline]
+        if endurance < 90.0:
+            return [max(26.0, baseline), max(30.0, baseline + 2.0)]
+        return [baseline]
+
+    @staticmethod
+    def _summarize_candidate(
+        candidate: dict[str, Any],
+        metrics: list[Any],
+        max_steps: int,
+        asset_package: dict[str, Any],
+        mission_intent: str,
+        scenario_family: str,
+    ) -> dict[str, Any]:
         success_values = [1.0 if metric.mission_success else 0.0 for metric in metrics]
         detection_times = [
             float(metric.time_to_confirmed_detection or metric.time_to_detection or max_steps)
@@ -133,12 +235,19 @@ class ComparisonEvaluator:
         expected_overlap = sum(overlaps) / len(metrics)
         expected_battery_risk = sum(battery_margin_risk) / len(metrics)
         comms_fragility = (sum(comms_failures) + sum(stale_info)) / max(len(metrics), 1)
+        heuristics = ComparisonEvaluator._score_with_asset_context(
+            candidate,
+            asset_package.get("fleet_composition", {}),
+            mission_intent,
+            scenario_family,
+        )
         score = (
             100.0 * success_rate
             - 0.8 * expected_detection_time
             - 20.0 * expected_overlap
             - 15.0 * expected_battery_risk
             - 1.5 * comms_fragility
+            + heuristics["score_adjustment"]
         )
         failure_modes = []
         if expected_battery_risk > 0.45:
@@ -149,6 +258,10 @@ class ComparisonEvaluator:
             failure_modes.append("overlap inefficiency")
         if success_rate < 0.5:
             failure_modes.append("low mission success")
+        if heuristics["battery_watch"]:
+            failure_modes.append("fleet endurance is tight for this search")
+        if heuristics["coverage_watch"]:
+            failure_modes.append("coverage speed may lag the requested search tempo")
 
         return {
             **candidate,
@@ -170,8 +283,85 @@ class ComparisonEvaluator:
                 expected_overlap,
                 comms_fragility,
             ),
+            "operator_fit_summary": heuristics["fit_summary"],
+            "key_tradeoffs": heuristics["key_tradeoffs"],
+            "team_coordination_label": ComparisonEvaluator._coordination_label(candidate["coordination_mode"]),
             "score": round(score, 2),
             "metrics_sample": [metrics_to_summary(metric) for metric in metrics[:3]],
+        }
+
+    @staticmethod
+    def _score_with_asset_context(
+        candidate: dict[str, Any],
+        fleet: dict[str, Any],
+        mission_intent: str,
+        scenario_family: str,
+    ) -> dict[str, Any]:
+        strategy = str(candidate["strategy"])
+        drone_count = int(candidate["drone_count"])
+        threshold = float(candidate["return_threshold"])
+        coordination_mode = str(candidate["coordination_mode"])
+        total_drones = int(fleet.get("total_drones") or drone_count)
+        endurance = float(fleet.get("endurance_score") or 1.0)
+        coverage = float(fleet.get("coverage_score") or 1.0)
+        detection = float(fleet.get("detection_score") or 1.0)
+        type_count = int(fleet.get("drone_type_count") or 1)
+
+        score_adjustment = 0.0
+        tradeoffs: list[str] = []
+
+        preferred = ComparisonEvaluator.INTENT_STRATEGIES.get(mission_intent, [])
+        if preferred:
+            if strategy == preferred[0]:
+                score_adjustment += 7.0
+            elif strategy in preferred[1:]:
+                score_adjustment += 3.5
+            else:
+                score_adjustment -= 2.0
+
+        if mission_intent == "broad_area_coverage":
+            score_adjustment += 4.0 if drone_count >= total_drones else 1.0
+            if threshold >= 32.0:
+                score_adjustment -= 2.0
+                tradeoffs.append("keeps more reserve, but slows area coverage")
+        elif mission_intent == "fast_containment":
+            score_adjustment += 3.0 if threshold <= 28.0 else -1.0
+            if threshold <= 26.0:
+                tradeoffs.append("pushes batteries harder to move faster")
+        elif mission_intent == "high_confidence_confirmation":
+            score_adjustment += 3.0 if detection >= 1.08 and strategy in {"information_gain", "probability_greedy"} else -1.0
+            if coordination_mode == "centralized":
+                score_adjustment += 1.0
+            tradeoffs.append("prioritizes confirmation quality over search breadth")
+        elif mission_intent == "battery_conservative":
+            score_adjustment += 4.0 if threshold >= 30.0 else -2.5
+            tradeoffs.append("protects reserve margins but may lengthen search time")
+
+        if coverage >= 1.15 and strategy in {"sector_search", "auction_based"}:
+            score_adjustment += 2.5
+        if detection >= 1.1 and strategy in {"information_gain", "probability_greedy"}:
+            score_adjustment += 2.5
+        if endurance < 0.95 and threshold < 28.0:
+            score_adjustment -= 3.0
+        if type_count > 1 and coordination_mode == "decentralized":
+            score_adjustment += 1.5
+            tradeoffs.append("mixed fleet reduces idle time when coordination is distributed")
+        if scenario_family == "poor_comms" and coordination_mode == "decentralized":
+            score_adjustment += 3.0
+        if scenario_family == "dense_forest" and strategy == "information_gain":
+            score_adjustment += 1.5
+
+        fit_traits = [
+            "strong coverage reach" if coverage >= 1.15 else "moderate coverage reach",
+            "good confirmation sensors" if detection >= 1.08 else "standard confirmation sensors",
+            "healthy endurance" if endurance >= 1.05 else "tighter endurance",
+        ]
+        return {
+            "score_adjustment": round(score_adjustment, 2),
+            "fit_summary": ", ".join(fit_traits),
+            "key_tradeoffs": tradeoffs[:3],
+            "battery_watch": endurance < 0.95 and threshold < 28.0,
+            "coverage_watch": mission_intent == "broad_area_coverage" and coverage < 1.05,
         }
 
     @staticmethod
@@ -203,6 +393,12 @@ class ComparisonEvaluator:
             "comms resilient" if comms_fragility <= 3.0 else "comms fragile",
         ]
         return ", ".join(traits)
+
+    @staticmethod
+    def _coordination_label(mode: str) -> str:
+        if mode == "decentralized":
+            return "distributed team coordination"
+        return "guided from a single mission desk"
 
 
 class PlanComparisonService:

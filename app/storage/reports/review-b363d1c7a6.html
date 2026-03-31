@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>After Action Review review-b363d1c7a6</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
+    h1, h2 { color: #102a43; }
+    .card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; }
+    th { background: #f0f4f8; }
+    code { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>After Action Review</h1>
+  <div class="card">
+    <p><strong>Review ID:</strong> review-b363d1c7a6</p>
+    <p><strong>Run ID:</strong> run-1a2c523082</p>
+    <p><strong>Plan ID:</strong> first-try</p>
+    <p><strong>Comparison ID:</strong> None</p>
+  </div>
+
+  <div class="card">
+    <h2>Outcome Summary</h2>
+    <code>{'status': 'completed', 'metrics': {'time_to_detection': None, 'area_covered_pct': 100.0, 'probability_mass_covered': 1.0, 'overlap_ratio': 0.9408842523596622, 'battery_used': 214.40000000000032, 'successful_returns_to_base': 0, 'forced_low_battery_returns': 0, 'comms_failures': 66, 'stale_information_events': 0, 'path_efficiency': 1.1642705632806973, 'average_overlap_per_step': 0.19079590922000256, 'detection_under_comms_mode': 'decentralized', 'entropy_reduction_over_time': 1.6539449078613062, 'information_gain_per_step': 0.04329777593487594, 'belief_peak_accuracy': 2.5075741714317213e-07, 'time_to_first_candidate_detection': 8, 'time_to_confirmed_detection': None, 'false_alarm_count': 4, 'reroute_count': 109, 'coordination_efficiency': 0.42955787382016897, 'return_to_base_efficiency': 1.0, 'mission_success': False}}</code>
+  </div>
+
+  <div class="card">
+    <h2>Deviation From Recommendation</h2>
+    <code>{'strategy_differs': True, 'drone_count_differs': True, 'coordination_differs': True, 'reserve_differs': True}</code>
+  </div>
+
+  <div class="card">
+    <h2>Alternate Plan Analysis</h2>
+    <code>{'available': False, 'summary': 'No saved comparison available for alternate-plan analysis.'}</code>
+  </div>
+
+  <div class="card">
+    <h2>Timeline</h2>
+    <table>
+      <thead><tr><th>Step</th><th>Event</th><th>Details</th></tr></thead>
+      <tbody>
+      
+        <tr><td>1</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 19, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 22, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>1</td><td>comms_failure</td><td><code>{'drone_id': 0, 'recipient_id': 2, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>1</td><td>comms_failure</td><td><code>{'drone_a': 0, 'drone_b': 3, 'mode': 'out_of_range'}</code></td></tr>
+      
+        <tr><td>1</td><td>comms_failure</td><td><code>{'drone_id': 1, 'recipient_id': 3, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td><code>{'drone_id': 0, 'previous_goal': [7, 5], 'new_goal': [12, 10]}</code></td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [9, 5], 'new_goal': [13, 9]}</code></td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [8, 5], 'new_goal': [12, 8]}</code></td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [12, 8], 'new_goal': [11, 9]}</code></td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 17, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 24, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 15, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>2</td><td>comms_failure</td><td><code>{'drone_a': 0, 'drone_b': 3, 'mode': 'out_of_range'}</code></td></tr>
+      
+        <tr><td>2</td><td>comms_failure</td><td><code>{'drone_id': 2, 'recipient_id': 1, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [12, 8], 'new_goal': [11, 10]}</code></td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [11, 9], 'new_goal': [12, 9]}</code></td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 18, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 28, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 32, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 19, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>4</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [13, 9], 'new_goal': [11, 11]}</code></td></tr>
+      
+        <tr><td>4</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [12, 9], 'new_goal': [12, 11]}</code></td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 25, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 27, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 29, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>4</td><td>comms_failure</td><td><code>{'drone_id': 1, 'recipient_id': 0, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>5</td><td>task_reassignment</td><td><code>{'drone_id': 0, 'previous_goal': [12, 10], 'new_goal': [11, 11]}</code></td></tr>
+      
+        <tr><td>5</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [11, 11], 'new_goal': [10, 11]}</code></td></tr>
+      
+        <tr><td>5</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [11, 10], 'new_goal': [11, 12]}</code></td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 22, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 27, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 31, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>5</td><td>comms_failure</td><td><code>{'drone_id': 2, 'recipient_id': 1, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td><code>{'drone_id': 0, 'previous_goal': [11, 11], 'new_goal': [7, 11]}</code></td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [10, 11], 'new_goal': [11, 12]}</code></td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [11, 12], 'new_goal': [9, 11]}</code></td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [12, 11], 'new_goal': [8, 12]}</code></td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 28, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 29, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 26, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>6</td><td>comms_failure</td><td><code>{'drone_id': 0, 'recipient_id': 2, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>6</td><td>comms_failure</td><td><code>{'drone_id': 3, 'recipient_id': 1, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>7</td><td>task_reassignment</td><td><code>{'drone_id': 0, 'previous_goal': [7, 11], 'new_goal': [7, 12]}</code></td></tr>
+      
+        <tr><td>7</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [11, 12], 'new_goal': [6, 12]}</code></td></tr>
+      
+        <tr><td>7</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 24, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>7</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 14, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>7</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 25, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>7</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 29, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>7</td><td>comms_failure</td><td><code>{'drone_id': 0, 'recipient_id': 2, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>8</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [9, 11], 'new_goal': [8, 12]}</code></td></tr>
+      
+        <tr><td>8</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [8, 12], 'new_goal': [8, 13]}</code></td></tr>
+      
+        <tr><td>8</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 22, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>8</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 15, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>8</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 19, 'candidate_scores': {'10,13': 0.17884508209970862}}</code></td></tr>
+      
+        <tr><td>8</td><td>detection_candidate</td><td><code>{'drone_id': 2, 'position': [10, 13], 'score': 0.17884508209970862, 'channels': {'thermal': 0.27514628015339787, 'visual': 0.0}}</code></td></tr>
+      
+        <tr><td>8</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 24, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>9</td><td>task_reassignment</td><td><code>{'drone_id': 0, 'previous_goal': [7, 12], 'new_goal': [11, 1]}</code></td></tr>
+      
+        <tr><td>9</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [6, 12], 'new_goal': [10, 1]}</code></td></tr>
+      
+        <tr><td>9</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [8, 12], 'new_goal': [4, 1]}</code></td></tr>
+      
+        <tr><td>9</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [8, 13], 'new_goal': [8, 1]}</code></td></tr>
+      
+        <tr><td>9</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>9</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 29, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>9</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 19, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>9</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>9</td><td>comms_failure</td><td><code>{'drone_id': 1, 'recipient_id': 2, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>9</td><td>comms_failure</td><td><code>{'drone_id': 2, 'recipient_id': 3, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>10</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>10</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 28, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>10</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 20, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>10</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 30, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>10</td><td>comms_failure</td><td><code>{'drone_id': 0, 'recipient_id': 1, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>10</td><td>comms_failure</td><td><code>{'drone_id': 3, 'recipient_id': 0, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>10</td><td>comms_failure</td><td><code>{'drone_id': 3, 'recipient_id': 1, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>11</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [10, 1], 'new_goal': [4, 1]}</code></td></tr>
+      
+        <tr><td>11</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [4, 1], 'new_goal': [10, 1]}</code></td></tr>
+      
+        <tr><td>11</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [8, 1], 'new_goal': [13, 0]}</code></td></tr>
+      
+        <tr><td>11</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 28, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>11</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 28, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>11</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 29, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>11</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 22, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>11</td><td>comms_failure</td><td><code>{'drone_id': 2, 'recipient_id': 0, 'mode': 'packet_loss'}</code></td></tr>
+      
+        <tr><td>12</td><td>task_reassignment</td><td><code>{'drone_id': 0, 'previous_goal': [11, 1], 'new_goal': [4, 1]}</code></td></tr>
+      
+        <tr><td>12</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [4, 1], 'new_goal': [3, 9]}</code></td></tr>
+      
+        <tr><td>12</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [10, 1], 'new_goal': [2, 9]}</code></td></tr>
+      
+        <tr><td>12</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 28, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>12</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 20, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>12</td><td>scan_event</td><td><code>{'drone_id': 2, 'scanned_cell_count': 15, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>12</td><td>scan_event</td><td><code>{'drone_id': 3, 'scanned_cell_count': 14, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>13</td><td>task_reassignment</td><td><code>{'drone_id': 0, 'previous_goal': [4, 1], 'new_goal': [2, 9]}</code></td></tr>
+      
+        <tr><td>13</td><td>task_reassignment</td><td><code>{'drone_id': 1, 'previous_goal': [3, 9], 'new_goal': [1, 9]}</code></td></tr>
+      
+        <tr><td>13</td><td>task_reassignment</td><td><code>{'drone_id': 2, 'previous_goal': [2, 9], 'new_goal': [4, 13]}</code></td></tr>
+      
+        <tr><td>13</td><td>task_reassignment</td><td><code>{'drone_id': 3, 'previous_goal': [13, 0], 'new_goal': [1, 11]}</code></td></tr>
+      
+        <tr><td>13</td><td>scan_event</td><td><code>{'drone_id': 0, 'scanned_cell_count': 25, 'candidate_scores': {}}</code></td></tr>
+      
+        <tr><td>13</td><td>scan_event</td><td><code>{'drone_id': 1, 'scanned_cell_count': 25, 'candidate_scores': {}}</code></td></tr>
+      
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

@@ -79,15 +79,23 @@ body {
   }
 
   .primary-button {
-    @apply inline-flex items-center justify-center rounded-[20px] bg-accent px-4 py-3 text-sm font-semibold text-[#101317] transition hover:bg-[#e7ebf1] focus:outline-none focus:ring-2 focus:ring-accentStrong/25;
+    @apply inline-flex min-h-[54px] items-center justify-center rounded-[20px] bg-accent px-6 py-4 text-center text-sm font-semibold leading-5 text-[#101317] shadow-soft transition hover:bg-[#eef2f6] active:bg-[#d9dfe7] focus:outline-none focus:ring-2 focus:ring-accentStrong/25 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .secondary-button {
-    @apply inline-flex items-center justify-center rounded-[20px] border border-border bg-surfaceAlt px-4 py-3 text-sm font-medium text-white transition hover:border-accentStrong/45 hover:bg-surfaceAlt hover:text-white;
+    @apply inline-flex min-h-[54px] items-center justify-center rounded-[20px] border border-border bg-surfaceAlt px-6 py-4 text-center text-sm font-medium leading-5 text-white transition hover:border-accentStrong/45 hover:bg-white/[0.06] active:bg-white/[0.1] hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .ghost-button {
-    @apply inline-flex items-center justify-center rounded-[18px] px-3 py-2 text-sm font-medium text-muted transition hover:bg-surfaceAlt/70 hover:text-white;
+    @apply inline-flex min-h-[46px] items-center justify-center rounded-[18px] px-4 py-3 text-sm font-medium text-muted transition hover:bg-surfaceAlt/70 active:bg-white/[0.06] hover:text-white;
+  }
+
+  .hero-button {
+    @apply block rounded-[28px] border border-transparent bg-accent px-6 py-6 text-left text-[#101317] shadow-panel transition hover:bg-[#eef2f6] active:bg-[#d9dfe7];
+  }
+
+  .hero-button-secondary {
+    @apply border-border bg-white/[0.04] text-white hover:border-accentStrong/45 hover:bg-white/[0.07] active:bg-white/[0.1];
   }
 
   .pill {

@@ -6,6 +6,7 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { ExperimentsPage } from "@/pages/ExperimentsPage";
 import { LibraryPage } from "@/pages/LibraryPage";
 import { MissionControlPage } from "@/pages/MissionControlPage";
+import { MissionIntakePage } from "@/pages/MissionIntakePage";
 import { MissionPlansPage } from "@/pages/MissionPlansPage";
 import { PlanComparisonPage } from "@/pages/PlanComparisonPage";
 import { RecommendationsPage } from "@/pages/RecommendationsPage";
@@ -21,6 +22,7 @@ export const appRouteDefinitions: RouteObject[] = [
     element: <App />,
     children: [
       { index: true, element: <DashboardPage /> },
+      { path: "mission-intake", element: <MissionIntakePage /> },
       { path: "scenarios", element: <ScenariosPage /> },
       { path: "plans", element: <MissionPlansPage /> },
       { path: "library", element: <LibraryPage /> },

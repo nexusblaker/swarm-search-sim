@@ -45,6 +45,39 @@ def _wait_for_status(client: TestClient, path: str, expected: set[str], timeout:
     raise AssertionError(f"Timed out waiting for {path}")
 
 
+def _asset_package_payload() -> dict:
+    return {
+        "uniform_fleet": False,
+        "staging_location": "Southern base",
+        "drone_types": [
+            {
+                "display_name": "Scout quad",
+                "count": 4,
+                "max_endurance_minutes": 95,
+                "estimated_max_range_km": 9,
+                "cruise_speed_kph": 38,
+                "sensor_capability_level": "standard",
+                "thermal_capability_level": "assisted",
+                "detection_capability_proxy": 1.0,
+                "turnaround_time_minutes": 15,
+                "notes": "",
+            },
+            {
+                "display_name": "Long-range thermal",
+                "count": 2,
+                "max_endurance_minutes": 150,
+                "estimated_max_range_km": 18,
+                "cruise_speed_kph": 55,
+                "sensor_capability_level": "enhanced",
+                "thermal_capability_level": "full",
+                "detection_capability_proxy": 1.18,
+                "turnaround_time_minutes": 20,
+                "notes": "",
+            },
+        ],
+    }
+
+
 def test_mission_plan_crud_and_recommendation_snapshot(tmp_path: Path) -> None:
     client = _make_client(tmp_path)
     scenario = client.post("/scenarios", json=_scenario_payload("Plan Scenario")).json()
@@ -164,3 +197,38 @@ def test_after_action_review_and_library_flow(tmp_path: Path) -> None:
     assert loaded.status_code == 200
     assert loaded.json()["summary_json"]["alternate_plan_summary"]
     assert loaded.json()["report"] is not None
+
+
+def test_asset_package_persistence_and_concise_recommendation_summary(tmp_path: Path) -> None:
+    client = _make_client(tmp_path)
+    scenario_payload = _scenario_payload("Mixed Fleet Intake", max_steps=8)
+
+    created = client.post(
+        "/plans",
+        json={
+            "name": "Mixed Fleet Intake",
+            "scenario": scenario_payload,
+            "asset_package": _asset_package_payload(),
+            "mission_intent": "broad_area_coverage",
+            "intake_summary": {"search_area_size": "large", "environment_type": "mixed_terrain"},
+            "recommendation_num_seeds": 1,
+        },
+    )
+    assert created.status_code == 200
+    plan = created.json()
+
+    recommendation = client.post(
+        "/recommend",
+        json={
+            "plan_id": plan["id"],
+            "mission_intent": "broad_area_coverage",
+            "num_seeds": 1,
+        },
+    )
+    assert recommendation.status_code == 200
+
+    assert plan["asset_package"]["fleet_composition"]["total_drones"] == 6
+    assert plan["summary_json"]["mission_intent"] == "broad_area_coverage"
+    assert plan["recommendation_json"]["concise_summary"].startswith("Recommended:")
+    assert recommendation.json()["asset_package"]["fleet_composition"]["drone_type_count"] == 2
+    assert recommendation.json()["key_tradeoffs"]

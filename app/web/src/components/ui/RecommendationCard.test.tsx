@@ -11,15 +11,23 @@ describe("RecommendationCard", () => {
         drones={4}
         reserveThreshold={28}
         explanation="This setup balances expected success and search speed."
+        conciseSummary="Recommended: use a focused confirmation search with 4 drones from the southern base."
+        topAlternativeSummary="Alternative: a broad sweep with 5 drones."
+        keyTradeoffs={["Holds more battery margin than the top alternative."]}
+        keyRisks={["Coverage speed may lag the requested search tempo."]}
+        teamCoordinationLabel="guided from a single mission desk"
         riskSummary={{ battery: "moderate" }}
         uncertaintySummary={{ confidence: 0.78 }}
+        technicalDetails={{ mission_intent: "high_confidence_confirmation" }}
       />,
     );
 
-    expect(screen.getByText("Recommended setup")).toBeInTheDocument();
+    expect(screen.getByText("Recommended plan")).toBeInTheDocument();
+    expect(screen.getByText(/use a focused confirmation search/i)).toBeInTheDocument();
     expect(screen.getByText("information_gain")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
     expect(screen.getByText("28%")).toBeInTheDocument();
     expect(screen.getByText(/balances expected success/i)).toBeInTheDocument();
+    expect(screen.getByText(/guided from a single mission desk/i)).toBeInTheDocument();
   });
 });

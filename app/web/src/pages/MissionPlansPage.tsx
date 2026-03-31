@@ -95,12 +95,17 @@ export function MissionPlansPage() {
     <div className="page-stack">
       <PageHeader
         eyebrow="Planning workspace"
-        title="Mission plans"
-        description="Mission plans are the main operator object. They connect scenarios, strategy choices, recommendation snapshots, comparisons, runs, review, and reporting."
+        title="Saved missions"
+        description="Mission plans remain the reusable handoff object for comparison, launch, monitoring, review, and reporting. The guided intake now feeds directly into this workspace."
         actions={
-          <button type="button" onClick={() => savePlan.mutate()} className="primary-button">
-            {selected ? "Update mission plan" : "Create mission plan"}
-          </button>
+          <>
+            <Link to="/mission-intake" className="secondary-button">
+              Start new mission
+            </Link>
+            <button type="button" onClick={() => savePlan.mutate()} className="primary-button">
+              {selected ? "Update mission plan" : "Create mission plan"}
+            </button>
+          </>
         }
       />
 
@@ -221,8 +226,15 @@ export function MissionPlansPage() {
                 drones={selected.recommendation_json?.recommended_drone_count as number | null | undefined}
                 reserveThreshold={selected.recommendation_json?.recommended_return_threshold as number | null | undefined}
                 explanation={String(selected.recommendation_json?.explanation ?? "Recommendation snapshot stored with the plan.")}
+                conciseSummary={String(selected.recommendation_json?.concise_summary ?? selected.recommendation_json?.explanation ?? "Recommendation snapshot stored with the plan.")}
+                topAlternativeSummary={selected.recommendation_json?.top_alternative_summary as string | null | undefined}
+                keyTradeoffs={(selected.recommendation_json?.key_tradeoffs as string[] | undefined) ?? []}
+                keyRisks={(selected.recommendation_json?.key_risks as string[] | undefined) ?? []}
+                teamCoordinationLabel={selected.recommendation_json?.team_coordination_label as string | null | undefined}
+                assetPackage={selected.asset_package ?? undefined}
                 riskSummary={selected.recommendation_json?.risk_summary as Record<string, unknown> | undefined}
                 uncertaintySummary={selected.recommendation_json?.uncertainty_summary as Record<string, unknown> | undefined}
+                technicalDetails={selected.recommendation_json?.technical_details as Record<string, unknown> | undefined}
               />
               <DetailPanel
                 title="Linked workflow"
@@ -231,6 +243,12 @@ export function MissionPlansPage() {
                   { label: "Latest review", value: selected.latest_review_id ?? "n/a" },
                   { label: "Runs", value: selected.linked_run_ids_json.length ? selected.linked_run_ids_json.join(", ") : "n/a" },
                   { label: "Reports", value: linkedReports.length ? String(linkedReports.length) : "n/a" },
+                  {
+                    label: "Fleet package",
+                    value:
+                      selected.asset_package?.operator_summary ??
+                      String((selected.summary_json.asset_package as Record<string, unknown> | undefined)?.operator_summary ?? "n/a"),
+                  },
                 ]}
               />
             </div>

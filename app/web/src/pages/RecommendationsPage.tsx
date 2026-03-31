@@ -35,8 +35,8 @@ export function RecommendationsPage() {
     <div className="page-stack">
       <PageHeader
         eyebrow="Decision support"
-        title="Recommendations"
-        description="Request an explainable recommendation for a mission plan and inspect the reasoning, risk picture, and candidate support behind it."
+        title="Plan brief"
+        description="Generate a short, operator-facing recommendation brief for a saved mission plan, then inspect the supporting mission options below."
         actions={
           <button
             type="button"
@@ -50,8 +50,8 @@ export function RecommendationsPage() {
 
       <Panel
         eyebrow="Selection"
-        title="Choose the mission plan to brief"
-        description="Primary action: pick the plan you want to brief, then generate the recommendation snapshot."
+        title="Choose the mission to brief"
+        description="Pick a saved mission plan, then generate the latest recommendation summary."
       >
         <div className="max-w-md">
           <label>
@@ -75,14 +75,21 @@ export function RecommendationsPage() {
             drones={recommendation.data.recommended_drone_count}
             reserveThreshold={recommendation.data.recommended_return_threshold}
             explanation={recommendation.data.explanation}
+            conciseSummary={recommendation.data.concise_summary}
+            topAlternativeSummary={recommendation.data.top_alternative_summary}
+            keyTradeoffs={recommendation.data.key_tradeoffs}
+            keyRisks={recommendation.data.key_risks}
+            teamCoordinationLabel={recommendation.data.team_coordination_label}
+            assetPackage={recommendation.data.asset_package}
             riskSummary={recommendation.data.risk_summary}
             uncertaintySummary={recommendation.data.uncertainty_summary}
+            technicalDetails={recommendation.data.technical_details}
           />
 
           <div className="grid gap-6 xl:grid-cols-3">
             <RiskIndicator
               label="Battery margin risk"
-              value={String(recommendation.data.risk_summary?.battery_margin_risk ?? "n/a")}
+              value={String(recommendation.data.risk_summary?.battery_risk ?? "n/a")}
               tone="warning"
             />
             <RiskIndicator
@@ -91,22 +98,22 @@ export function RecommendationsPage() {
               tone="warning"
             />
             <RiskIndicator
-              label="Overlap inefficiency"
-              value={String(recommendation.data.risk_summary?.overlap_inefficiency ?? "n/a")}
+              label="Coverage overlap risk"
+              value={String(recommendation.data.risk_summary?.overlap_risk ?? "n/a")}
             />
           </div>
 
           <Panel
-            eyebrow="Candidate support"
-            title="Evidence behind the recommendation"
-            description="This table shows the candidate plans the backend evaluated and the tradeoffs it considered."
+            eyebrow="Mission options"
+            title="Mission options behind the brief"
+            description="These are the candidate options the recommendation engine evaluated before choosing the lead plan."
           >
             <DataTable
-              columns={["Strategy", "Drones", "Coordination", "Success", "Detection time", "Failure modes"]}
+              columns={["Search style", "Drones", "Team coordination", "Success", "Detection time", "Watch items"]}
               rows={recommendation.data.candidate_plans.map((candidate) => [
                 String(candidate.strategy ?? "n/a"),
                 String(candidate.drone_count ?? "n/a"),
-                String(candidate.coordination_mode ?? "n/a"),
+                String(candidate.team_coordination_label ?? candidate.coordination_mode ?? "n/a"),
                 String(candidate.expected_success_rate ?? "n/a"),
                 String(candidate.expected_detection_time ?? "n/a"),
                 String((candidate.failure_modes as string[] | undefined)?.join(", ") ?? "n/a"),

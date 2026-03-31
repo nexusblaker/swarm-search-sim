@@ -1,0 +1,333 @@
+import type { AssetPackage, MissionIntent, RecommendationResponse } from "@/api/types";
+
+export type LastKnownStatus = "known" | "unknown";
+export type SearchAreaSize = "small" | "medium" | "large" | "very_large";
+export type EnvironmentType =
+  | "open_terrain"
+  | "mixed_terrain"
+  | "dense_forest"
+  | "obstacle_heavy"
+  | "poor_comms";
+export type WeatherType = "clear" | "windy" | "rain" | "storm";
+export type TimeSinceContact = "under_1h" | "one_to_three_h" | "three_to_eight_h" | "over_eight_h";
+export type StagingLocation = "north_base" | "south_base" | "east_base" | "west_base" | "central_base";
+export type SensorCapabilityLevel = "basic" | "standard" | "enhanced" | "advanced";
+export type ThermalCapabilityLevel = "none" | "assisted" | "full";
+
+export interface DroneTypeDraft {
+  id: string;
+  displayName: string;
+  count: string;
+  maxEnduranceMinutes: string;
+  estimatedMaxRangeKm: string;
+  cruiseSpeedKph: string;
+  sensorCapabilityLevel: SensorCapabilityLevel;
+  thermalCapabilityLevel: ThermalCapabilityLevel;
+  detectionCapabilityProxy: string;
+  turnaroundTimeMinutes: string;
+  notes: string;
+}
+
+export interface MissionIntakeDraft {
+  missionName: string;
+  lastKnownStatus: LastKnownStatus;
+  searchAreaSize: SearchAreaSize;
+  environmentType: EnvironmentType;
+  weather: WeatherType;
+  timeSinceContact: TimeSinceContact;
+  allDronesSame: boolean;
+  stagingLocation: StagingLocation;
+  assets: DroneTypeDraft[];
+  missionIntent: MissionIntent;
+  operatorNotes: string;
+}
+
+export const missionIntentOptions: Array<{ value: MissionIntent; label: string; description: string }> = [
+  {
+    value: "broad_area_coverage",
+    label: "Broad area coverage",
+    description: "Cover the search box quickly and keep the team moving.",
+  },
+  {
+    value: "fast_containment",
+    label: "Fast containment",
+    description: "Move quickly to reduce escape routes and tighten the search window.",
+  },
+  {
+    value: "high_confidence_confirmation",
+    label: "High-confidence confirmation",
+    description: "Spend more effort confirming likely detections before moving on.",
+  },
+  {
+    value: "battery_conservative",
+    label: "Battery-conservative search",
+    description: "Protect reserve margins for longer missions and re-tasking.",
+  },
+];
+
+export const searchAreaOptions: Array<{ value: SearchAreaSize; label: string; description: string }> = [
+  { value: "small", label: "Small", description: "Under 5 km²" },
+  { value: "medium", label: "Medium", description: "5 to 20 km²" },
+  { value: "large", label: "Large", description: "20 to 60 km²" },
+  { value: "very_large", label: "Very large", description: "More than 60 km²" },
+];
+
+export const environmentOptions: Array<{ value: EnvironmentType; label: string; description: string }> = [
+  { value: "open_terrain", label: "Open terrain", description: "Clear lines of sight and faster coverage." },
+  { value: "mixed_terrain", label: "Mixed terrain", description: "Balanced obstacles, vegetation, and open ground." },
+  { value: "dense_forest", label: "Dense forest", description: "Slower coverage with higher confirmation demand." },
+  { value: "obstacle_heavy", label: "Obstacle-heavy", description: "Urban edges, ridges, or complex ground features." },
+  { value: "poor_comms", label: "Poor communications", description: "Patchy links and distributed coordination." },
+];
+
+export const weatherOptions: Array<{ value: WeatherType; label: string }> = [
+  { value: "clear", label: "Clear" },
+  { value: "windy", label: "Windy" },
+  { value: "rain", label: "Rain" },
+  { value: "storm", label: "Storm" },
+];
+
+export const timeSinceContactOptions: Array<{ value: TimeSinceContact; label: string; description: string }> = [
+  { value: "under_1h", label: "Under 1 hour", description: "Tighter initial uncertainty." },
+  { value: "one_to_three_h", label: "1 to 3 hours", description: "Moderate drift from the last contact area." },
+  { value: "three_to_eight_h", label: "3 to 8 hours", description: "Broader spread likely." },
+  { value: "over_eight_h", label: "Over 8 hours", description: "Large uncertainty and longer mission pacing." },
+];
+
+export const stagingLocationOptions: Array<{ value: StagingLocation; label: string }> = [
+  { value: "south_base", label: "Southern base" },
+  { value: "north_base", label: "Northern base" },
+  { value: "east_base", label: "Eastern base" },
+  { value: "west_base", label: "Western base" },
+  { value: "central_base", label: "Central base" },
+];
+
+const AREA_PRESETS: Record<SearchAreaSize, { mapSize: [number, number]; maxSteps: number }> = {
+  small: { mapSize: [12, 10], maxSteps: 28 },
+  medium: { mapSize: [18, 14], maxSteps: 40 },
+  large: { mapSize: [24, 18], maxSteps: 52 },
+  very_large: { mapSize: [30, 22], maxSteps: 64 },
+};
+
+const TIME_PRESETS: Record<TimeSinceContact, { targetStartRadius: number; driftSigma: number; moveProbability: number }> = {
+  under_1h: { targetStartRadius: 2, driftSigma: 3.4, moveProbability: 0.25 },
+  one_to_three_h: { targetStartRadius: 4, driftSigma: 5.0, moveProbability: 0.34 },
+  three_to_eight_h: { targetStartRadius: 6, driftSigma: 6.8, moveProbability: 0.4 },
+  over_eight_h: { targetStartRadius: 8, driftSigma: 8.4, moveProbability: 0.48 },
+};
+
+const ENVIRONMENT_PRESETS: Record<EnvironmentType, { targetBehavior: string; coordinationMode: string }> = {
+  open_terrain: { targetBehavior: "terrain_biased", coordinationMode: "centralized" },
+  mixed_terrain: { targetBehavior: "terrain_biased", coordinationMode: "centralized" },
+  dense_forest: { targetBehavior: "terrain_biased", coordinationMode: "centralized" },
+  obstacle_heavy: { targetBehavior: "trail_biased", coordinationMode: "centralized" },
+  poor_comms: { targetBehavior: "terrain_biased", coordinationMode: "decentralized" },
+};
+
+const DEFAULT_STRATEGY_BY_INTENT: Record<MissionIntent, string> = {
+  broad_area_coverage: "sector_search",
+  fast_containment: "auction_based",
+  high_confidence_confirmation: "information_gain",
+  battery_conservative: "probability_greedy",
+};
+
+const DEFAULT_RESERVE_BY_INTENT: Record<MissionIntent, number> = {
+  broad_area_coverage: 28,
+  fast_containment: 24,
+  high_confidence_confirmation: 30,
+  battery_conservative: 34,
+};
+
+export function createDroneTypeDraft(id: string, overrides?: Partial<DroneTypeDraft>): DroneTypeDraft {
+  return {
+    id,
+    displayName: "General purpose drone",
+    count: "4",
+    maxEnduranceMinutes: "120",
+    estimatedMaxRangeKm: "14",
+    cruiseSpeedKph: "42",
+    sensorCapabilityLevel: "standard",
+    thermalCapabilityLevel: "assisted",
+    detectionCapabilityProxy: "1.0",
+    turnaroundTimeMinutes: "18",
+    notes: "",
+    ...overrides,
+  };
+}
+
+export function createDefaultMissionIntakeDraft(): MissionIntakeDraft {
+  return {
+    missionName: "New search mission",
+    lastKnownStatus: "unknown",
+    searchAreaSize: "medium",
+    environmentType: "mixed_terrain",
+    weather: "clear",
+    timeSinceContact: "one_to_three_h",
+    allDronesSame: true,
+    stagingLocation: "south_base",
+    assets: [createDroneTypeDraft("asset-1")],
+    missionIntent: "broad_area_coverage",
+    operatorNotes: "",
+  };
+}
+
+function toNumber(value: string, fallback: number): number {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function totalDroneCount(assets: DroneTypeDraft[]): number {
+  return assets.reduce((total, asset) => total + Math.max(1, toNumber(asset.count, 1)), 0);
+}
+
+function stagingLocationLabel(stagingLocation: StagingLocation): string {
+  return stagingLocationOptions.find((option) => option.value === stagingLocation)?.label ?? "Southern base";
+}
+
+function stagingPosition(stagingLocation: StagingLocation, mapSize: [number, number]): [number, number] {
+  const [width, height] = mapSize;
+  const centerX = Math.floor(width / 2);
+  const centerY = Math.floor(height / 2);
+  switch (stagingLocation) {
+    case "north_base":
+      return [centerX, 1];
+    case "east_base":
+      return [width - 2, centerY];
+    case "west_base":
+      return [1, centerY];
+    case "central_base":
+      return [centerX, centerY];
+    case "south_base":
+    default:
+      return [centerX, height - 2];
+  }
+}
+
+export function buildAssetPackage(draft: MissionIntakeDraft): AssetPackage {
+  return {
+    package_name: `${draft.missionName} fleet`,
+    uniform_fleet: draft.allDronesSame,
+    staging_location: stagingLocationLabel(draft.stagingLocation),
+    notes: "",
+    operator_summary: "",
+    fleet_composition: {
+      mix_type: draft.allDronesSame ? "uniform" : "mixed",
+      total_drones: totalDroneCount(draft.assets),
+      drone_type_count: draft.assets.length,
+      aggregate_endurance_minutes: 0,
+      aggregate_range_km: 0,
+      aggregate_speed_kph: 0,
+      sensor_score: 0,
+      thermal_score: 0,
+      detection_score: 0,
+      endurance_score: 0,
+      coverage_score: 0,
+      coordination_complexity: draft.allDronesSame ? "low" : "moderate",
+      average_turnaround_minutes: 0,
+    },
+    drone_types: draft.assets.map((asset) => ({
+      display_name: asset.displayName,
+      model_name: asset.displayName,
+      count: Math.max(1, toNumber(asset.count, 1)),
+      max_endurance_minutes: Math.max(20, toNumber(asset.maxEnduranceMinutes, 120)),
+      estimated_max_range_km: Math.max(1, toNumber(asset.estimatedMaxRangeKm, 14)),
+      cruise_speed_kph: Math.max(10, toNumber(asset.cruiseSpeedKph, 42)),
+      sensor_capability_level: asset.sensorCapabilityLevel,
+      thermal_capability_level: asset.thermalCapabilityLevel,
+      detection_capability_proxy: Math.max(0.6, toNumber(asset.detectionCapabilityProxy, 1.0)),
+      turnaround_time_minutes: Math.max(5, toNumber(asset.turnaroundTimeMinutes, 18)),
+      notes: asset.notes,
+    })),
+  };
+}
+
+export function buildMissionScenario(draft: MissionIntakeDraft) {
+  const areaPreset = AREA_PRESETS[draft.searchAreaSize];
+  const timePreset = TIME_PRESETS[draft.timeSinceContact];
+  const environmentPreset = ENVIRONMENT_PRESETS[draft.environmentType];
+  const basePosition = stagingPosition(draft.stagingLocation, areaPreset.mapSize);
+  const center: [number, number] = [Math.floor(areaPreset.mapSize[0] / 2), Math.floor(areaPreset.mapSize[1] / 2)];
+  const uncertaintyOffset = draft.lastKnownStatus === "unknown" ? 2 : 0;
+
+  return {
+    scenario: {
+      name: draft.missionName,
+      map_size: areaPreset.mapSize,
+      weather: draft.weather,
+      num_drones: totalDroneCount(draft.assets),
+      last_known_position: center,
+      target_assumptions: {
+        behavior: environmentPreset.targetBehavior,
+        target_move_probability: Number((timePreset.moveProbability + (uncertaintyOffset * 0.04)).toFixed(2)),
+        target_speed: draft.timeSinceContact === "over_eight_h" ? 2 : 1,
+        drift_sigma: Number((timePreset.driftSigma + uncertaintyOffset).toFixed(1)),
+      },
+      target_start_radius: timePreset.targetStartRadius + uncertaintyOffset,
+      max_steps: areaPreset.maxSteps,
+      strategy: DEFAULT_STRATEGY_BY_INTENT[draft.missionIntent],
+      scenario_family: draft.environmentType,
+      base_position: basePosition,
+      communication: {
+        coordination_mode: environmentPreset.coordinationMode,
+      },
+      battery_policy: {
+        return_threshold: DEFAULT_RESERVE_BY_INTENT[draft.missionIntent],
+      },
+      render: {
+        save_frames: false,
+        frame_stride: 3,
+      },
+      mission_intent: draft.missionIntent,
+    },
+  };
+}
+
+export function buildRecommendationRequest(draft: MissionIntakeDraft) {
+  return {
+    scenario: buildMissionScenario(draft),
+    asset_package: buildAssetPackage(draft),
+    mission_intent: draft.missionIntent,
+    num_seeds: 1,
+  };
+}
+
+export function buildIntakeSummary(draft: MissionIntakeDraft) {
+  return {
+    mission_name: draft.missionName,
+    last_known_status: draft.lastKnownStatus,
+    search_area_size: draft.searchAreaSize,
+    environment_type: draft.environmentType,
+    weather: draft.weather,
+    time_since_contact: draft.timeSinceContact,
+    mission_intent: draft.missionIntent,
+    staging_location: stagingLocationLabel(draft.stagingLocation),
+    total_drones: totalDroneCount(draft.assets),
+    mixed_fleet: !draft.allDronesSame,
+  };
+}
+
+export function buildPlanPayload(draft: MissionIntakeDraft, recommendation?: RecommendationResponse) {
+  const scenario = buildMissionScenario(draft);
+  const topRecommendation = recommendation?.recommendation_snapshot["top_recommendation"] as
+    | Record<string, unknown>
+    | undefined;
+  return {
+    name: draft.missionName,
+    scenario,
+    asset_package: buildAssetPackage(draft),
+    mission_intent: draft.missionIntent,
+    intake_summary: buildIntakeSummary(draft),
+    operator_notes: draft.operatorNotes,
+    approval_state: "draft",
+    strategy: recommendation?.recommended_strategy ?? DEFAULT_STRATEGY_BY_INTENT[draft.missionIntent],
+    num_drones: recommendation?.recommended_drone_count ?? totalDroneCount(draft.assets),
+    reserve_policy: {
+      return_threshold: recommendation?.recommended_return_threshold ?? DEFAULT_RESERVE_BY_INTENT[draft.missionIntent],
+    },
+    communication_assumptions: {
+      coordination_mode: topRecommendation?.coordination_mode ?? ENVIRONMENT_PRESETS[draft.environmentType].coordinationMode,
+    },
+    recommendation_snapshot: recommendation,
+    candidate_alternatives: recommendation?.candidate_plans?.slice(1, 3) ?? [],
+  };
+}

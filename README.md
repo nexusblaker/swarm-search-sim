@@ -4,12 +4,11 @@ Swarm Search Sim is a local mission planning and evaluation platform for multi-d
 
 The platform is built around a practical SAR workflow:
 
-1. define or load a scenario
-2. create a mission plan
-3. compare candidate plans
-4. launch and monitor a simulated run
-5. replay outcomes
-6. generate reports and after-action review
+1. open the mission desk
+2. start a new mission or reopen an existing one
+3. complete the guided mission intake
+4. review the recommended plan summary
+5. continue into mission plans, comparison, launch, monitoring, replay, review, and reporting
 
 ## Architecture
 
@@ -47,7 +46,8 @@ The platform is built around a practical SAR workflow:
 
 The React app covers:
 
-- dashboard / home
+- mission desk / home
+- guided mission intake
 - scenarios
 - mission plans
 - doctrine / template library
@@ -66,11 +66,11 @@ For the smoothest local demo:
 
 1. start the FastAPI backend on `8000`
 2. start the React frontend on `5173`
-3. open the dashboard and use the suggested actions panel
-4. open the doctrine library and choose an operational template
-5. create a mission plan from that doctrine entry
-6. run a saved comparison from the plan workspace
-7. launch a monitored mission run from the top candidate
+3. open the mission desk and choose `Start a New Mission`
+4. complete the guided intake: situation, assets, search style, recommendation, continue
+5. save the mission into the mission plan workspace
+6. run a saved comparison from the mission options workspace
+7. launch a monitored mission run from the saved plan or top candidate
 8. watch Mission Control update live while the run progresses
 9. open Replay and After-Action Review once the run completes
 10. open the generated report from the Reports page
@@ -159,17 +159,40 @@ Contributors should prefer extending the shared UI primitives in `app/web/src/co
 
 ## Mission Planning Experience
 
-### Dashboard
+### Mission Desk
 
-The dashboard gives operators a top-level view of:
+The home screen now behaves as a calmer mission desk instead of a dense dashboard. It:
 
-- backend health
-- scenario, plan, comparison, run, review, and report counts
-- recent runs
-- recent reports
-- quick actions into planning and review workflows
-- suggested next steps for empty or incomplete workspaces
-- recent activity across plans, runs, reviews, and reports
+- greets the user and explains what the product is for
+- makes the primary next actions obvious:
+  - start a new mission
+  - open an existing mission
+- keeps sample missions easy to explore
+- moves operational counts and health lower on the page
+- keeps recent missions and recent activity visible without overwhelming the start experience
+
+### Guided Mission Intake
+
+The new intake flow is staged as:
+
+1. situation
+2. assets
+3. search style
+4. recommendation
+5. continue
+
+The guided intake keeps the first pass operator-friendly and hides advanced details until they are useful. It captures:
+
+- whether the last known location is known or unknown
+- search area size
+- environment type
+- weather
+- time since last contact
+- fleet package details
+- staging location
+- operator search intent
+
+The intake produces a standard `MissionPlan`, so the rest of the workflow remains compatible.
 
 ### Scenarios
 
@@ -186,6 +209,9 @@ Operators can:
 Mission plans are now the core product object and capture:
 
 - linked scenario or template
+- mission intent
+- mission intake summary
+- asset package / mixed fleet details
 - selected strategy
 - drone count and reserve policy
 - communication assumptions
@@ -225,11 +251,34 @@ Recommendation outputs include:
 - recommended strategy
 - recommended drone count
 - recommended reserve threshold
-- rationale
+- concise operator-facing summary
+- top alternative summary
+- key tradeoffs
+- key risks
+- human-readable rationale
 - risk summary
 - uncertainty summary
 - candidate support table
-- plain-English rationale that can be shown directly to operators
+- technical details under a collapsible section in the UI
+
+These summaries are deterministic and template-based. No external LLM is used for the operator brief.
+
+### Asset Package Support
+
+Slice 1 adds first-class product-layer fleet modeling through:
+
+- `DroneTypeProfile`
+- `AssetPackage`
+- `FleetComposition`
+
+The mission intake and mission plan workflow now support:
+
+- uniform fleets
+- mixed fleets with multiple drone types
+- endurance, range, cruise speed, sensor level, thermal capability proxy, turnaround time, and notes
+- staging location metadata
+
+The simulation core is still preserved. Where the core expects a uniform fleet, the product layer derives an explainable aggregate fleet profile instead of rewriting the simulator.
 
 ### Mission Control
 
@@ -285,7 +334,8 @@ Reports and review workflows support:
 
 ## Page Overview
 
-- `Dashboard`: start-here view with health, counts, activity, and quick actions
+- `Mission Desk`: start-here view with primary actions, quieter status context, and recent mission access
+- `New Mission`: guided intake workflow from situation through recommendation and save / compare / launch actions
 - `Scenarios`: grouped editor for map, target, drone, sensing, battery, and planner settings
 - `Mission Plans`: central workspace for planning context, notes, recommendation snapshot, and downstream links
 - `Doctrine Library`: operational presets with intended use, assumptions, risks, and recommended strategies
@@ -324,7 +374,7 @@ Main route groups:
 - `/scenarios`
 - `/templates`
 - `/library/templates`
-- `/plans`
+- `/plans` with asset-package and mission-intent aware payloads
 - `/comparisons`
 - `/runs`
 - `/experiments`
@@ -332,7 +382,7 @@ Main route groups:
 - `/reports`
 - `/reviews`
 - `/compare-plans`
-- `/recommend`
+- `/recommend` with concise recommendation summaries, alternatives, tradeoffs, risks, and technical details
 - `/artifacts/{owner_type}/{owner_id}/{artifact_type}`
 
 ## Docker
@@ -361,6 +411,13 @@ Frontend tests:
 ```bash
 cd app/web
 npm run test
+```
+
+Frontend production build check:
+
+```bash
+cd app/web
+npm run build
 ```
 
 ## Current Direction
