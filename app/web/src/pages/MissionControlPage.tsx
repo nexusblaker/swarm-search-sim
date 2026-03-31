@@ -3,7 +3,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import { useComparisons, useLibraryTemplates, usePlans, useRuns, useScenarios } from "@/api/hooks";
-import type { RunRecord, Snapshot } from "@/api/types";
+import type {
+  LifecycleSummaryRecord,
+  RunRecord,
+  RunSummaryRecord,
+  Snapshot,
+  SnapshotDrone,
+} from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { MissionSnapshotMap } from "@/components/mission/MissionSnapshotMap";
 import { DataTable } from "@/components/ui/DataTable";
@@ -17,6 +23,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { batteryBarClass, formatBatteryPercent, formatStepEta, reserveStatusLabel, serviceEtaLabel } from "@/lib/lifecycle";
 import { formatTimestamp } from "@/lib/format";
 
 const activeStatuses = new Set(["queued", "running", "paused"]);
@@ -123,6 +130,29 @@ export function MissionControlPage() {
   const liveSnapshot = replayFrames[replayFrames.length - 1] ?? latestSnapshot;
   const recentEvents = eventsQuery.data?.events ?? [];
   const selectedComparison = comparisons.find((item) => item.id === launchValue);
+  const runSummary = (selected?.summary_json ?? {}) as RunSummaryRecord;
+  const lifecycleSummary = (liveSnapshot?.lifecycle_summary ?? runSummary.lifecycle_summary ?? {}) as LifecycleSummaryRecord;
+  const liveDrones = liveSnapshot?.drones ?? [];
+  const activeSearchCount = Array.isArray(liveSnapshot?.active_search_drones)
+    ? liveSnapshot?.active_search_drones.length
+    : Number(
+        lifecycleSummary.active_search_drones ??
+          liveDrones.filter((drone) => Boolean(drone.contributing_to_search)).length,
+      );
+  const returningCount = Number(
+    lifecycleSummary.returning_drones ??
+      liveDrones.filter((drone) => drone.lifecycle_state === "returning_to_base").length,
+  );
+  const rechargingCount = Number(
+    lifecycleSummary.recharging_drones ??
+      liveDrones.filter((drone) => drone.lifecycle_state === "recharging_or_swapping").length,
+  );
+  const readyCount = Number(
+    lifecycleSummary.ready_to_redeploy ??
+      liveDrones.filter((drone) => drone.lifecycle_state === "ready_to_redeploy").length,
+  );
+  const runPhase = String(liveSnapshot?.run_phase ?? lifecycleSummary.run_phase ?? runSummary.run_phase ?? "Active search");
+  const reservePreset = String(lifecycleSummary.reserve_preset ?? runSummary.reserve_preset ?? "balanced");
 
   return (
     <div className="page-stack">
@@ -148,14 +178,9 @@ export function MissionControlPage() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Active Runs" value={runs.filter((run) => activeStatuses.has(run.status)).length} />
-        <MetricCard label="Queued Jobs" value={runs.filter((run) => run.status === "queued").length} />
-        <MetricCard label="Completed Runs" value={runs.filter((run) => run.status === "completed").length} />
-        <MetricCard
-          label="Selected Strategy"
-          value={String(selected?.summary_json.strategy ?? "n/a")}
-          hint={selected ? `Updated ${formatTimestamp(selected.updated_at)}` : "Select a run to inspect it."}
-          emphasis="accent"
-        />
+        <MetricCard label="Mission Phase" value={selected ? runPhase : "Waiting"} emphasis="accent" />
+        <MetricCard label="Active Search Assets" value={selected ? activeSearchCount : 0} />
+        <MetricCard label="Rotation in Progress" value={selected ? returningCount + rechargingCount : 0} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
@@ -264,13 +289,14 @@ export function MissionControlPage() {
             title={`Monitoring ${selected.id}`}
             description="This workspace separates current mission state from operator actions so it is always clear what is happening versus what you can do next."
           >
-            <div className="grid gap-4 xl:grid-cols-[1.35fr_0.95fr]">
+            <div className="grid gap-4 xl:grid-cols-[1.3fr_0.95fr]">
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-3">
                   <StatusBadge status={selected.status} />
                   <span className="pill">{selected.plan_id ? `plan:${selected.plan_id}` : "ad hoc run"}</span>
-                  <span className="pill">{String(selected.summary_json.scenario_family ?? "mixed_terrain")}</span>
-                  <span className="pill">{String(selected.summary_json.strategy ?? "n/a")}</span>
+                  <span className="pill">{String(runSummary.scenario_family ?? "mixed_terrain")}</span>
+                  <span className="pill">{String(runSummary.strategy ?? "n/a")}</span>
+                  <span className="pill">{reservePreset.replaceAll("_", " ")}</span>
                 </div>
                 <div className="panel-subtle p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -292,8 +318,8 @@ export function MissionControlPage() {
                     <MissionSnapshotMap snapshot={liveSnapshot} />
                     <div className="grid gap-4 md:grid-cols-4">
                       <MetricCard label="Step" value={liveSnapshot.step} />
-                      <MetricCard label="Weather" value={liveSnapshot.weather} />
-                      <MetricCard label="Assets" value={liveSnapshot.drones.length} />
+                      <MetricCard label="Mission Phase" value={runPhase} emphasis="accent" />
+                      <MetricCard label="Active Search" value={activeSearchCount} />
                       <MetricCard
                         label="Detection"
                         value={liveSnapshot.target_detected ? "Confirmed" : "Searching"}
@@ -316,19 +342,50 @@ export function MissionControlPage() {
                     { label: "Run ID", value: selected.id },
                     { label: "Plan", value: selected.plan_id ?? "n/a" },
                     { label: "Comparison", value: selected.comparison_id ?? "n/a" },
-                    { label: "Scenario family", value: String(selected.summary_json.scenario_family ?? "n/a") },
-                    { label: "Coordination", value: String(selected.summary_json.coordination_mode ?? "n/a") },
+                    { label: "Scenario family", value: String(runSummary.scenario_family ?? "n/a") },
+                    { label: "Team coordination", value: String(runSummary.coordination_mode ?? "n/a") },
+                    { label: "Reserve policy", value: reservePreset.replaceAll("_", " ") },
+                    { label: "Run phase", value: runPhase },
                   ]}
                 />
-                <Panel
-                  eyebrow="Mission metrics"
-                  title="Current operational summary"
-                  description="These values update as the run progresses and provide a fast sense of mission health."
-                >
-                  <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">
-                    {JSON.stringify(selected.summary_json, null, 2)}
+
+                <div className="panel-subtle p-5">
+                  <p className="section-kicker">Battery rotation</p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <RotationStat label="Returning to base" value={returningCount} />
+                    <RotationStat label="Recharging" value={rechargingCount} />
+                    <RotationStat label="Ready to redeploy" value={readyCount} />
+                    <RotationStat
+                      label="Coverage gap"
+                      value={lifecycleSummary.coverage_gap_active ? "Active" : "Covered"}
+                    />
+                  </div>
+                  <p className="mt-4 text-sm leading-6 text-muted">
+                    {lifecycleSummary.coverage_gap_active
+                      ? "The mission is compensating for temporary coverage loss while assets rotate through base."
+                      : "Coverage remains stable while the fleet cycles through search, return, service, and redeploy."}
+                  </p>
+                </div>
+
+                <div className="panel-subtle p-5">
+                  <p className="section-kicker">Fleet roster</p>
+                  <div className="mt-4 space-y-3">
+                    {liveDrones.length === 0 ? (
+                      <p className="text-sm text-muted">Drone status will appear once the run emits a snapshot.</p>
+                    ) : (
+                      liveDrones.map((drone) => <DroneRosterCard key={drone.id} drone={drone} />)
+                    )}
+                  </div>
+                </div>
+
+                <details className="panel-subtle p-5">
+                  <summary className="cursor-pointer text-xs uppercase tracking-[0.14em] text-muted">
+                    Technical details
+                  </summary>
+                  <pre className="mt-4 whitespace-pre-wrap text-xs leading-6 text-muted">
+                    {JSON.stringify(runSummary, null, 2)}
                   </pre>
-                </Panel>
+                </details>
               </div>
             </div>
           </Panel>
@@ -491,7 +548,7 @@ export function MissionControlPage() {
             <Panel
               eyebrow="Event feed"
               title="What changed recently"
-              description="The event stream is the fastest way to understand status changes, detections, reroutes, and operator interventions."
+              description="The event stream explains why a drone left search, when service started, and when coverage was restored."
             >
               {recentEvents.length === 0 ? (
                 <EmptyState
@@ -510,6 +567,46 @@ export function MissionControlPage() {
           body="Launch a run from a mission plan or comparison candidate to activate the monitoring workspace."
         />
       )}
+    </div>
+  );
+}
+
+function DroneRosterCard({ drone }: { drone: SnapshotDrone }) {
+  const batteryPct = typeof drone.battery_pct === "number" ? drone.battery_pct : drone.battery;
+
+  return (
+    <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/50 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-white">Drone {drone.id}</p>
+          <p className="mt-1 text-sm text-muted">{drone.operator_status ?? "Status unavailable"}</p>
+        </div>
+        <span className="pill whitespace-nowrap">
+          {drone.reserve_status_label ?? reserveStatusLabel(drone.reserve_status)}
+        </span>
+      </div>
+      <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/10">
+        <div
+          className={`h-full rounded-full transition-all ${batteryBarClass(batteryPct)}`}
+          style={{ width: `${Math.max(0, Math.min(100, Number(batteryPct ?? 0)))}%` }}
+        />
+      </div>
+      <div className="mt-3 grid gap-2 text-sm text-white/90 md:grid-cols-2">
+        <span>Battery: {formatBatteryPercent(batteryPct)}</span>
+        <span>{serviceEtaLabel(drone)}</span>
+        <span>Return ETA: {formatStepEta(drone.return_eta_steps, "At base")}</span>
+        <span>Sorties: {drone.sorties_completed ?? 0}</span>
+      </div>
+      {drone.reserve_reason ? <p className="mt-3 text-sm leading-6 text-muted">{drone.reserve_reason}</p> : null}
+    </div>
+  );
+}
+
+function RotationStat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-[18px] border border-border/70 bg-surfaceAlt/55 px-4 py-3">
+      <p className="text-xs uppercase tracking-[0.14em] text-muted">{label}</p>
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

@@ -2,82 +2,125 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Mission Report {{ run.run_id or run.id }}</title>
+  <title>Mission Report {{ run.id }}</title>
   <style>
     body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
     h1, h2 { color: #102a43; }
     .card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.85rem; }
+    .metric { background: #f8fbfd; border: 1px solid #d9e2ec; border-radius: 10px; padding: 0.8rem; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; }
+    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; vertical-align: top; }
     th { background: #f0f4f8; }
-    code { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+    code, pre { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+    pre { padding: 0.9rem; overflow-x: auto; }
+    ul { margin: 0.6rem 0 0; padding-left: 1.1rem; }
   </style>
 </head>
 <body>
-  <h1>Mission Summary Report</h1>
+  <h1>Mission Run Report</h1>
+
   <div class="card">
-    <p><strong>Run ID:</strong> {{ run.run_id or run.id }}</p>
-    <p><strong>Scenario:</strong> {{ run.scenario_id }}</p>
+    <p><strong>Run ID:</strong> {{ run.id }}</p>
     <p><strong>Status:</strong> {{ run.status }}</p>
-    <p><strong>Strategy:</strong> {{ run.summary.strategy if run.summary is defined else run.summary_json.strategy }}</p>
-    <p><strong>Scenario Family:</strong> {{ run.summary.scenario_family if run.summary is defined else run.summary_json.scenario_family }}</p>
-    <p><strong>Target Behavior:</strong> {{ run.summary.target_behavior if run.summary is defined else run.summary_json.target_behavior }}</p>
+    <p><strong>Plan ID:</strong> {{ run.plan_id or "Ad hoc run" }}</p>
+    <p><strong>Strategy:</strong> {{ run.summary_json.strategy }}</p>
+    <p><strong>Run phase:</strong> {{ battery_lifecycle.run_phase }}</p>
+    <p><strong>Reserve policy:</strong> {{ battery_lifecycle.reserve_preset|replace("_", " ")|title }}</p>
   </div>
 
   <div class="card">
-    <h2>Metrics</h2>
+    <h2>Battery Lifecycle Summary</h2>
+    <p>{{ battery_lifecycle.asset_utilization_summary }}</p>
+    <p>{{ battery_lifecycle.mission_continuity_impact }}</p>
+    <div class="grid">
+      <div class="metric">
+        <strong>Returns to Base</strong>
+        <div>{{ battery_lifecycle.return_to_base_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Service Cycles Completed</strong>
+        <div>{{ battery_lifecycle.recharge_completed_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Redeployments</strong>
+        <div>{{ battery_lifecycle.redeploy_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Rejoins</strong>
+        <div>{{ battery_lifecycle.rejoin_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Coverage Gaps</strong>
+        <div>{{ battery_lifecycle.coverage_gap_count }}</div>
+      </div>
+      <div class="metric">
+        <strong>Battery Margin</strong>
+        <div>Min {{ battery_lifecycle.battery_margin_summary.minimum_margin }} / Avg {{ battery_lifecycle.battery_margin_summary.average_margin }}</div>
+      </div>
+    </div>
+    <p><strong>Sustainability:</strong> {{ battery_lifecycle.battery_margin_summary.sustainability }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Mission Metrics</h2>
     <table>
-      <thead><tr><th>Metric</th><th>Value</th></tr></thead>
       <tbody>
-      {% for name, value in metrics.items() %}
-        <tr><td>{{ name }}</td><td>{{ value }}</td></tr>
+      <tr><th>Mission success</th><td>{{ metrics.mission_success }}</td></tr>
+      <tr><th>Time to detection</th><td>{{ metrics.time_to_detection }}</td></tr>
+      <tr><th>Area covered (%)</th><td>{{ metrics.area_covered_pct }}</td></tr>
+      <tr><th>Average active search drones</th><td>{{ metrics.average_active_search_drones }}</td></tr>
+      <tr><th>Battery used</th><td>{{ metrics.battery_used }}</td></tr>
+      <tr><th>Path efficiency</th><td>{{ metrics.path_efficiency }}</td></tr>
+      <tr><th>Return efficiency</th><td>{{ metrics.return_to_base_efficiency }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Lifecycle Highlights</h2>
+    {% if battery_lifecycle.highlights %}
+    <table>
+      <thead><tr><th>Step</th><th>Event</th><th>Summary</th></tr></thead>
+      <tbody>
+      {% for event in battery_lifecycle.highlights %}
+        <tr>
+          <td>{{ event.step }}</td>
+          <td>{{ event.title }}</td>
+          <td>{{ event.summary }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No battery lifecycle events were recorded for this run.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Event Mix</h2>
+    <table>
+      <thead><tr><th>Event</th><th>Count</th></tr></thead>
+      <tbody>
+      {% for event_type, count in event_counts.items() %}
+        <tr><td>{{ event_type|replace("_", " ") }}</td><td>{{ count }}</td></tr>
       {% endfor %}
       </tbody>
     </table>
   </div>
 
   <div class="card">
-    <h2>Key Event Summary</h2>
-    <table>
-      <thead><tr><th>Event Type</th><th>Count</th></tr></thead>
-      <tbody>
-      {% for name, value in event_counts.items() %}
-        <tr><td>{{ name }}</td><td>{{ value }}</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {% if recommendation %}
-  <div class="card">
-    <h2>Recommendation Context</h2>
-    <p><strong>Recommended strategy:</strong> {{ recommendation.recommended_strategy }}</p>
-    <p><strong>Recommended drone count:</strong> {{ recommendation.recommended_drone_count }}</p>
-    <p><strong>Recommended reserve threshold:</strong> {{ recommendation.recommended_return_threshold }}</p>
-    <p>{{ recommendation.explanation }}</p>
-    <p><strong>Risk summary:</strong> <code>{{ recommendation.risk_summary }}</code></p>
-  </div>
-  {% endif %}
-
-  <div class="card">
-    <h2>Artifact References</h2>
+    <h2>Artifacts</h2>
     <ul>
-      {% for name, path in artifacts.items() %}
-      <li><strong>{{ name }}</strong>: <code>{{ path }}</code></li>
+      {% for artifact_type, artifact_path in artifacts.items() %}
+      <li><strong>{{ artifact_type|replace("_", " ")|title }}:</strong> {{ artifact_path }}</li>
       {% endfor %}
     </ul>
   </div>
 
   <div class="card">
-    <h2>Detection Timeline / Event Samples</h2>
-    <table>
-      <thead><tr><th>Step</th><th>Type</th><th>Payload</th></tr></thead>
-      <tbody>
-      {% for event in events %}
-        <tr><td>{{ event.step }}</td><td>{{ event.event_type }}</td><td><code>{{ event }}</code></td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
+    <h2>Technical Details</h2>
+    <pre>{{ run.summary_json }}</pre>
   </div>
 </body>
 </html>

@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from app.backend.db.sqlite import MetadataStore
 from app.backend.domain.comparisons import PlanComparisonService
+from app.backend.domain.lifecycle import summarize_battery_lifecycle, summarize_lifecycle_event
 from app.backend.domain.plans import MissionPlanService
 from app.backend.domain.reports import ReportService
 from app.backend.domain.runs import MissionService
@@ -58,6 +59,7 @@ class AfterActionReviewService:
                 {
                     "step": event.get("step"),
                     "event_type": event.get("event_type"),
+                    "summary": summarize_lifecycle_event(event).get("summary"),
                     "details": {key: value for key, value in event.items() if key not in {"step", "event_type"}},
                 }
                 for event in events[:100]
@@ -81,6 +83,7 @@ class AfterActionReviewService:
             "coordination_differs": actual["coordination_mode"] != top.get("coordination_mode"),
             "reserve_differs": actual["return_to_base_threshold"] != top.get("return_threshold"),
         }
+        battery_lifecycle = summarize_battery_lifecycle(run_record, events)
         summary = {
             "mission_timeline": "Generated from replay, events, and intervention history.",
             "actual_outcome": {
@@ -94,6 +97,7 @@ class AfterActionReviewService:
                 "successful_returns_to_base": run_record["summary_json"].get("metrics", {}).get("successful_returns_to_base"),
                 "path_efficiency": run_record["summary_json"].get("metrics", {}).get("path_efficiency"),
             },
+            "battery_lifecycle": battery_lifecycle,
             "battery_comms_risk_summary": {
                 "battery_risk": run_record["summary_json"].get("metrics", {}).get("return_to_base_efficiency"),
                 "communications_fragility": run_record["summary_json"].get("metrics", {}).get("comms_failures"),

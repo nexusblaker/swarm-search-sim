@@ -232,3 +232,51 @@ def test_asset_package_persistence_and_concise_recommendation_summary(tmp_path: 
     assert plan["recommendation_json"]["concise_summary"].startswith("Recommended:")
     assert recommendation.json()["asset_package"]["fleet_composition"]["drone_type_count"] == 2
     assert recommendation.json()["key_tradeoffs"]
+
+
+def test_run_review_and_report_expose_battery_lifecycle_fields(tmp_path: Path) -> None:
+    client = _make_client(tmp_path)
+    scenario_payload = _scenario_payload("Battery Lifecycle Product", max_steps=10)
+    scenario_block = scenario_payload["scenario"]
+    scenario_block["num_drones"] = 2
+    scenario_block["step_duration_minutes"] = 1
+    scenario_block.setdefault("drone", {}).update(
+        {
+            "battery": 48,
+            "turnaround_time_minutes": 3,
+            "estimated_max_range_km": 9,
+        }
+    )
+    scenario_block.setdefault("battery_policy", {}).update(
+        {"return_threshold": 12, "reserve_preset": "conservative"}
+    )
+    scenario_block.setdefault("sensor", {}).update(
+        {
+            "false_negative_rate": 1.0,
+            "visual_false_negative_rate": 1.0,
+            "false_positive_rate": 0.0,
+        }
+    )
+
+    scenario = client.post("/scenarios", json=scenario_payload).json()
+    run = client.post("/runs", json={"scenario_id": scenario["id"], "seed": 7})
+    assert run.status_code == 200
+
+    completed = _wait_for_status(client, f"/runs/{run.json()['id']}", {"completed", "failed"})
+    replay = client.get(f"/runs/{run.json()['id']}/replay")
+    events = client.get(f"/runs/{run.json()['id']}/events")
+    report = client.post(f"/reports/{run.json()['id']}", json={})
+    review = client.post(f"/reviews/from-run/{run.json()['id']}")
+
+    assert completed["summary_json"]["lifecycle_summary"]["reserve_preset"] == "conservative"
+    assert "lifecycle_state" in completed["latest_snapshot_json"]["drones"][0]
+    assert "operator_status" in completed["latest_snapshot_json"]["drones"][0]
+    assert replay.status_code == 200
+    assert replay.json()["replay"][-1]["drones"][0]["lifecycle_state"]
+    assert events.status_code == 200
+    assert events.json()["events"]
+    assert report.status_code == 200
+    assert report.json()["summary_json"]["battery_lifecycle"]["run_phase"]
+    assert review.status_code == 200
+    assert review.json()["summary_json"]["battery_lifecycle"]["asset_utilization_summary"]
+    assert review.json()["timeline_json"]["key_events"][0]["summary"]

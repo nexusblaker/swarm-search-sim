@@ -3,6 +3,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import { useReports, useReviews, useRuns } from "@/api/hooks";
+import type { BatteryLifecycleSummary, ReviewSummaryRecord, ReviewTimelineRecord } from "@/api/types";
+import { EventTimeline } from "@/components/mission/EventTimeline";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
 import { DataTable } from "@/components/ui/DataTable";
 import { DetailPanel } from "@/components/ui/DetailPanel";
@@ -45,6 +47,12 @@ export function ReviewsPage() {
   if (isLoading) return <LoadingState label="Loading after-action reviews..." />;
   if (error) return <ErrorState message={(error as Error).message} />;
 
+  const summary = (selected?.summary_json ?? {}) as ReviewSummaryRecord;
+  const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
+  const timeline = (selected?.timeline_json ?? {}) as ReviewTimelineRecord;
+  const actualOutcome = summary.actual_outcome ?? {};
+  const actualMetrics = (actualOutcome.metrics as Record<string, unknown> | undefined) ?? {};
+
   return (
     <div className="page-stack">
       <PageHeader
@@ -62,7 +70,11 @@ export function ReviewsPage() {
         <MetricCard label="Reviews" value={reviews.length} />
         <MetricCard label="Completed runs" value={completedRuns.length} />
         <MetricCard label="Linked reports" value={reviews.filter((review) => review.report_id).length} />
-        <MetricCard label="Latest outcome" value={String(selected?.summary_json?.mission_success ?? "n/a")} emphasis="accent" />
+        <MetricCard
+          label="Reserve policy"
+          value={batteryLifecycle.reserve_preset?.replaceAll("_", " ") ?? "n/a"}
+          emphasis="accent"
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
@@ -117,23 +129,56 @@ export function ReviewsPage() {
       {selected ? (
         <>
           <div className="grid gap-6 xl:grid-cols-3">
-            <RiskIndicator label="Mission success" value={String(selected.summary_json?.mission_success ?? "n/a")} tone="good" />
-            <RiskIndicator label="Deviation from recommendation" value={String(selected.summary_json?.deviation_from_recommendation ?? "n/a")} tone="warning" />
-            <RiskIndicator label="Battery and comms risk" value={String(selected.summary_json?.battery_comms_risk ?? "n/a")} />
+            <RiskIndicator label="Mission status" value={String(actualOutcome.status ?? "n/a")} tone="good" />
+            <RiskIndicator
+              label="Mission continuity"
+              value={String(batteryLifecycle.mission_continuity_impact ?? "n/a")}
+              tone="warning"
+            />
+            <RiskIndicator
+              label="Battery sustainability"
+              value={String(batteryLifecycle.battery_margin_summary?.sustainability ?? "n/a")}
+            />
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[1.14fr_0.96fr]">
+          <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
             <Panel
               eyebrow="Outcome summary"
               title={selected.name}
-              description="Use this view to explain the mission outcome, the risk picture, and what the team should take away from the run."
+              description="Use this view to explain the mission outcome, the fleet rotation burden, and what the team should take away from the run."
             >
-              <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">{JSON.stringify(selected.summary_json, null, 2)}</pre>
-              <div className="mt-5 rounded-[22px] border border-border bg-surfaceAlt/55 p-4">
-                <p className="section-kicker">Alternate-plan summary</p>
-                <pre className="mt-3 whitespace-pre-wrap text-xs leading-6 text-muted">
-                  {JSON.stringify(selected.alternate_plan_json, null, 2)}
-                </pre>
+              <div className="space-y-4">
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Mission narrative</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {summary.mission_timeline ?? "Generated from replay, events, and intervention history."}
+                  </p>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <ReviewMetric label="Returns to base" value={batteryLifecycle.return_to_base_count ?? 0} />
+                  <ReviewMetric label="Service cycles completed" value={batteryLifecycle.recharge_completed_count ?? 0} />
+                  <ReviewMetric label="Redeployments" value={batteryLifecycle.redeploy_count ?? 0} />
+                  <ReviewMetric label="Coverage gaps" value={batteryLifecycle.coverage_gap_count ?? 0} />
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Battery rotation summary</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {batteryLifecycle.asset_utilization_summary ?? "No fleet rotation summary available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {batteryLifecycle.mission_continuity_impact ?? "No mission continuity note available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    Battery margin: min {String(batteryLifecycle.battery_margin_summary?.minimum_margin ?? "n/a")} /
+                    avg {String(batteryLifecycle.battery_margin_summary?.average_margin ?? "n/a")}
+                  </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Alternate plan summary</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {String(selected.alternate_plan_json.summary ?? "No alternate-plan analysis was captured.")}
+                  </p>
+                </div>
               </div>
             </Panel>
 
@@ -159,18 +204,55 @@ export function ReviewsPage() {
                   ) : null}
                 </div>
               </Panel>
+              <Panel
+                eyebrow="Mission metrics"
+                title="Captured outcome metrics"
+                description="These values summarize what the completed mission achieved."
+              >
+                <div className="space-y-3">
+                  <ReviewMetric label="Mission success" value={String(actualMetrics.mission_success ?? "n/a")} />
+                  <ReviewMetric label="Area covered (%)" value={String(actualMetrics.area_covered_pct ?? "n/a")} />
+                  <ReviewMetric label="Battery used" value={String(actualMetrics.battery_used ?? "n/a")} />
+                  <ReviewMetric
+                    label="Average active search drones"
+                    value={String(actualMetrics.average_active_search_drones ?? "n/a")}
+                  />
+                </div>
+              </Panel>
             </div>
           </div>
 
           <Panel
             eyebrow="Timeline"
             title="Review timeline"
-            description="The review timeline carries the key events that shaped the mission outcome."
+            description="The review timeline carries the key events that shaped the mission outcome and battery rotation story."
           >
-            <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">{JSON.stringify(selected.timeline_json, null, 2)}</pre>
+            {timeline.key_events?.length ? (
+              <EventTimeline events={timeline.key_events.slice(0, 16)} />
+            ) : (
+              <EmptyState title="No timeline captured" body="This review did not record key events." />
+            )}
           </Panel>
+
+          <details className="panel-surface p-6">
+            <summary className="cursor-pointer text-xs uppercase tracking-[0.14em] text-muted">
+              Technical details
+            </summary>
+            <pre className="mt-4 whitespace-pre-wrap text-xs leading-6 text-muted">
+              {JSON.stringify(summary, null, 2)}
+            </pre>
+          </details>
         </>
       ) : null}
+    </div>
+  );
+}
+
+function ReviewMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-[18px] border border-border/70 bg-surfaceAlt/55 px-4 py-3">
+      <p className="text-xs uppercase tracking-[0.14em] text-muted">{label}</p>
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

@@ -1,8 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { Snapshot } from "@/api/types";
+import { lifecycleStateLabel } from "@/lib/lifecycle";
 
 const terrainColors = ["#162338", "#1d4d3a", "#4b5563", "#334155", "#274c77"];
+const droneColors: Record<string, string> = {
+  searching: "#38bdf8",
+  deploying: "#38bdf8",
+  redeploying: "#2dd4bf",
+  returning_to_base: "#f59e0b",
+  recharging_or_swapping: "#94a3b8",
+  ready_to_redeploy: "#34d399",
+  unavailable: "#f87171",
+};
 
 export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -55,16 +65,30 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
 
     snapshot.drones.forEach((drone, index) => {
       const [x, y] = drone.position;
-      ctx.fillStyle = ["#38bdf8", "#34d399", "#f59e0b", "#f87171", "#a78bfa"][index % 5];
+      ctx.fillStyle =
+        droneColors[String(drone.lifecycle_state ?? "")] ??
+        ["#38bdf8", "#34d399", "#f59e0b", "#f87171", "#a78bfa"][index % 5];
       ctx.beginPath();
-      ctx.arc(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, Math.max(4, cellSize / 3), 0, Math.PI * 2);
+      ctx.arc(
+        x * cellSize + cellSize / 2,
+        y * cellSize + cellSize / 2,
+        Math.max(4, cellSize / 3),
+        0,
+        Math.PI * 2,
+      );
       ctx.fill();
     });
 
     const [targetX, targetY] = snapshot.target_position;
     ctx.fillStyle = snapshot.target_detected ? "#f97316" : "#facc15";
     ctx.beginPath();
-    ctx.arc(targetX * cellSize + cellSize / 2, targetY * cellSize + cellSize / 2, Math.max(3, cellSize / 4), 0, Math.PI * 2);
+    ctx.arc(
+      targetX * cellSize + cellSize / 2,
+      targetY * cellSize + cellSize / 2,
+      Math.max(3, cellSize / 4),
+      0,
+      Math.PI * 2,
+    );
     ctx.fill();
   }, [dimensions, snapshot]);
 
@@ -78,6 +102,13 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
       ) : (
         <canvas ref={canvasRef} className="max-w-full rounded-2xl" />
       )}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {snapshot.drones.map((drone) => (
+          <span key={drone.id} className="pill whitespace-nowrap">
+            Drone {drone.id} | {drone.operator_status ?? lifecycleStateLabel(drone.lifecycle_state)}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

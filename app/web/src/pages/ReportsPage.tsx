@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 
 import { api } from "@/api/client";
 import { useReports } from "@/api/hooks";
+import type { BatteryLifecycleSummary, ReportSummaryRecord } from "@/api/types";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
 import { DataTable } from "@/components/ui/DataTable";
 import { DetailPanel } from "@/components/ui/DetailPanel";
@@ -34,6 +35,9 @@ export function ReportsPage() {
       />
     );
   }
+
+  const summary = (selected.summary_json ?? {}) as ReportSummaryRecord;
+  const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
 
   return (
     <div className="page-stack">
@@ -90,20 +94,56 @@ export function ReportsPage() {
               { label: "Owner", value: `${selected.owner_type}:${selected.owner_id ?? "n/a"}` },
               { label: "Type", value: selected.report_type },
               { label: "Created", value: formatTimestamp(selected.created_at) },
+              { label: "Run phase", value: summary.run_phase ?? "n/a" },
             ]}
           />
           <Panel
-            eyebrow="Open"
-            title="Report actions"
-            description="Open the generated HTML report in a new tab or inspect the indexed metadata."
+            eyebrow="Lifecycle summary"
+            title="Report highlights"
+            description="This summary surfaces the main battery lifecycle and continuity points before you open the full HTML export."
           >
             <ArtifactLink href={`${api.baseUrl}/reports/${selected.id}/content`} label="Open HTML report" />
-            <pre className="mt-5 whitespace-pre-wrap text-xs leading-6 text-muted">
-              {JSON.stringify(selected.summary_json, null, 2)}
-            </pre>
+            <div className="mt-5 space-y-4">
+              <div className="panel-subtle p-4">
+                <p className="section-kicker">Reserve policy</p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {batteryLifecycle.reserve_preset?.replaceAll("_", " ") ?? "No reserve policy captured."}
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <ReportMetric label="Returns to base" value={batteryLifecycle.return_to_base_count ?? "n/a"} />
+                <ReportMetric label="Service cycles completed" value={batteryLifecycle.recharge_completed_count ?? "n/a"} />
+                <ReportMetric label="Redeployments" value={batteryLifecycle.redeploy_count ?? "n/a"} />
+                <ReportMetric label="Coverage gaps" value={batteryLifecycle.coverage_gap_count ?? "n/a"} />
+              </div>
+              <div className="panel-subtle p-4">
+                <p className="section-kicker">Mission continuity</p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {batteryLifecycle.mission_continuity_impact ?? "No continuity note available for this report."}
+                </p>
+              </div>
+            </div>
           </Panel>
+
+          <details className="panel-surface p-6">
+            <summary className="cursor-pointer text-xs uppercase tracking-[0.14em] text-muted">
+              Technical details
+            </summary>
+            <pre className="mt-4 whitespace-pre-wrap text-xs leading-6 text-muted">
+              {JSON.stringify(summary, null, 2)}
+            </pre>
+          </details>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ReportMetric({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-[18px] border border-border/70 bg-surfaceAlt/55 px-4 py-3">
+      <p className="text-xs uppercase tracking-[0.14em] text-muted">{label}</p>
+      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

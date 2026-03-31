@@ -51,6 +51,10 @@ class ScenarioConfig:
     coordination_mode: str = "centralized"
     base_position: Position = (0, 0)
     return_to_base_threshold: float = 28.0
+    reserve_preset: str = "balanced"
+    drone_range_km: float = 12.0
+    turnaround_time_minutes: float = 18.0
+    step_duration_minutes: float = 3.0
     scenario_family: str = "mixed_terrain"
     layer_paths: dict[str, str] = field(default_factory=dict)
     use_external_layers: bool = False
@@ -195,6 +199,10 @@ class ScenarioConfig:
             return_to_base_threshold=float(
                 battery_data.get("return_threshold", 28.0)
             ),
+            reserve_preset=str(battery_data.get("reserve_preset", "balanced")),
+            drone_range_km=float(drone_data.get("estimated_max_range_km", 12.0)),
+            turnaround_time_minutes=float(drone_data.get("turnaround_time_minutes", 18.0)),
+            step_duration_minutes=float(scenario_data.get("step_duration_minutes", 3.0)),
             scenario_family=str(scenario_data.get("scenario_family", "mixed_terrain")),
             layer_paths=dict(scenario_data.get("layer_paths", {})),
             use_external_layers=bool(scenario_data.get("use_external_layers", False)),
@@ -328,6 +336,7 @@ class ScenarioConfig:
             "low_battery_budget": {
                 "drone_battery": 85.0,
                 "return_to_base_threshold": 32.0,
+                "reserve_preset": "conservative",
             },
             "layered_demo": {
                 "use_external_layers": True,

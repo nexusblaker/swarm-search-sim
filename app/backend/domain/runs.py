@@ -161,6 +161,18 @@ class MissionRunController:
                 "summary_json": {
                     **scenario_summary(self.config),
                     "metrics": to_jsonable(asdict(self.engine.metrics)),
+                    "run_phase": snapshot.get("run_phase"),
+                    "lifecycle_summary": snapshot.get("lifecycle_summary", {}),
+                    "drone_statuses": [
+                        {
+                            "id": drone["id"],
+                            "operator_status": drone.get("operator_status"),
+                            "reserve_status_label": drone.get("reserve_status_label"),
+                            "battery_pct": drone.get("battery_pct"),
+                            "return_service_eta_steps": drone.get("return_service_eta_steps"),
+                        }
+                        for drone in snapshot.get("drones", [])
+                    ],
                     "error": error,
                     "plan_id": self.plan_id,
                     "comparison_id": self.comparison_id,

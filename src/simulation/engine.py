@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import asdict, dataclass, field, replace as dataclass_replace
+from math import ceil
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,23 @@ from src.probability.belief import BeliefState
 from src.probability.heatmap import ProbabilityMap
 from src.scenarios.scenario import ScenarioConfig
 from src.sensors.thermal import ThermalSensorModel
+from src.simulation.lifecycle import (
+    BatteryDecision,
+    LIFECYCLE_DEPLOYING,
+    LIFECYCLE_RECHARGING,
+    LIFECYCLE_READY,
+    LIFECYCLE_REDEPLOYING,
+    LIFECYCLE_RETURNING,
+    LIFECYCLE_SEARCHING,
+    LIFECYCLE_UNAVAILABLE,
+    RESERVE_APPROACHING,
+    RESERVE_CRITICAL,
+    RESERVE_RETURNING,
+    RESERVE_SAFE,
+    lifecycle_label,
+    reserve_status_label,
+    resolve_reserve_profile,
+)
 from src.simulation.planning import astar_path, path_cost
 from src.utils.event_logger import EventLogger
 
@@ -145,9 +163,20 @@ class SimulationEngine:
         self.reserved_paths: dict[int, list[Position]] = {}
         self.forced_return_events = 0
         self.successful_return_events = 0
+        self.approaching_reserve_events = 0
+        self.critical_battery_events = 0
+        self.recharge_start_events = 0
+        self.recharge_complete_events = 0
+        self.redeploy_events = 0
+        self.rejoin_events = 0
+        self.coverage_gap_events = 0
+        self.coverage_gap_active = False
+        self.coverage_gap_steps = 0
         self.comms_failures = 0
         self.stale_information_events = 0
         self.step_overlap_history: list[float] = []
+        self.active_search_history: list[float] = []
+        self.battery_margin_history: list[float] = []
         self.total_path_cost = 0.0
         self.total_direct_cost = 0.0
         self.initial_entropy = 0.0
@@ -221,9 +250,20 @@ class SimulationEngine:
         self.reserved_paths = {}
         self.forced_return_events = 0
         self.successful_return_events = 0
+        self.approaching_reserve_events = 0
+        self.critical_battery_events = 0
+        self.recharge_start_events = 0
+        self.recharge_complete_events = 0
+        self.redeploy_events = 0
+        self.rejoin_events = 0
+        self.coverage_gap_events = 0
+        self.coverage_gap_active = False
+        self.coverage_gap_steps = 0
         self.comms_failures = 0
         self.stale_information_events = 0
         self.step_overlap_history = []
+        self.active_search_history = []
+        self.battery_margin_history = []
         self.total_path_cost = 0.0
         self.total_direct_cost = 0.0
         self.initial_entropy = self.probability_map.total_entropy()
@@ -266,8 +306,12 @@ class SimulationEngine:
         self._refresh_communication_links()
         self._propagate_beliefs()
         self.target.advance(self.environment, self.rng)
+        self._advance_lifecycle_states()
 
         for drone in self.drones:
+            if drone.lifecycle_state in {LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}:
+                drone.stale_steps = 0
+                continue
             if self.current_step - drone.last_successful_sync_step > self.config.communication_latency:
                 drone.stale_steps += 1
                 self.stale_information_events += 1
@@ -280,13 +324,15 @@ class SimulationEngine:
             else:
                 drone.stale_steps = 0
 
+        strategic_drones = self._strategic_drones()
         proposed_goals = self.strategy.select_moves(
-            drones=self.drones,
+            drones=strategic_drones,
             environment=self.environment,
             probability_map=self.probability_map,
             step_index=self.current_step,
         )
         proposed_goals = self._apply_operator_guidance(proposed_goals)
+        proposed_goals = self._seed_redeploy_goals(proposed_goals)
         self.global_objectives = self._derive_global_objectives(proposed_goals)
         resolved_goals = self._apply_battery_policy(self.global_objectives)
         self._plan_and_execute_routes(resolved_goals)
@@ -294,7 +340,7 @@ class SimulationEngine:
         step_scanned_events = 0
         step_scanned_unique: set[Position] = set()
         for drone in self.drones:
-            if not drone.is_operational:
+            if not drone.can_scan:
                 continue
             scan_result = self.sensor_model.scan(
                 drone=drone,
@@ -393,7 +439,7 @@ class SimulationEngine:
 
         self._enqueue_communications()
 
-        if self.current_step >= self.config.max_steps or not any(drone.is_operational for drone in self.drones):
+        if self.current_step >= self.config.max_steps or not self._has_future_mission_capacity():
             self.done = True
 
         self._update_metrics()
@@ -420,9 +466,10 @@ class SimulationEngine:
             drone = self._get_drone(drone_id)
             drone.returning_to_base = True
             drone.forced_return_triggered = True
+            self._set_drone_state(drone, LIFECYCLE_RETURNING)
         elif normalized_action == "assign_waypoint":
             drone_id = int(payload["drone_id"])
-            waypoint = self._normalize_position(payload["position"])
+            waypoint = self._normalize_position(payload.get("position") or payload["waypoint"])
             self.manual_targets[drone_id] = self._resolve_open_cell(waypoint)
         elif normalized_action == "set_priority_zone":
             self.priority_zones.append(self._normalize_zone(payload))
@@ -466,6 +513,7 @@ class SimulationEngine:
             "weather": self.config.weather,
             "strategy": self.config.strategy,
             "coordination_mode": self.config.coordination_mode,
+            "run_phase": self._run_phase_label(),
             "base_position": self.config.base_position,
             "terrain_grid": self.environment.terrain_grid.copy(),
             "obstacle_mask": self.environment.obstacle_mask.copy(),
@@ -487,12 +535,15 @@ class SimulationEngine:
             "priority_zones": list(self.priority_zones),
             "exclusion_zones": list(self.exclusion_zones),
             "returning_drones": [drone.id for drone in self.drones if drone.returning_to_base],
+            "active_search_drones": [drone.id for drone in self.drones if drone.contributes_to_search],
+            "lifecycle_summary": self._lifecycle_summary(),
             "detection_event": dict(self.last_detection_event) if self.last_detection_event else None,
             "drones": [
                 {
                     "id": drone.id,
                     "position": drone.position,
                     "battery": drone.battery,
+                    "battery_pct": round((drone.battery / max(drone.initial_battery, 1.0)) * 100.0, 1),
                     "visited_cells": set(drone.visited_cells),
                     "path_history": list(drone.path_history),
                     "planned_path": list(drone.planned_path),
@@ -501,6 +552,22 @@ class SimulationEngine:
                     "detections": list(drone.detections),
                     "comms_online": drone.comms_online,
                     "stale_steps": drone.stale_steps,
+                    "lifecycle_state": drone.lifecycle_state,
+                    "operator_status": drone.operator_status,
+                    "reserve_status": drone.reserve_status,
+                    "reserve_status_label": drone.reserve_status_label,
+                    "reserve_reason": drone.reserve_reason,
+                    "energy_required_to_base": drone.energy_required_to_base,
+                    "reserve_required": drone.reserve_required,
+                    "continue_margin_required": drone.continue_margin_required,
+                    "battery_margin": drone.battery_margin,
+                    "return_eta_steps": drone.return_eta_steps,
+                    "return_service_eta_steps": drone.return_service_eta_steps,
+                    "turnaround_remaining_steps": drone.turnaround_remaining_steps,
+                    "sorties_completed": drone.sorties_completed,
+                    "recharge_cycles": drone.recharge_cycles,
+                    "redeployments": drone.redeployments,
+                    "contributing_to_search": drone.contributes_to_search,
                     "returning_to_base": drone.returning_to_base,
                 }
                 for drone in self.drones
@@ -640,37 +707,112 @@ class SimulationEngine:
         resolved: dict[int, Position] = {}
         for drone in self.drones:
             proposed_goal = proposed_goals.get(drone.id, drone.position)
-            path_home = astar_path(self.environment, drone.position, drone.base_position)
-            cost_home = path_cost(self.environment, path_home)
-            if (
-                drone.id in self.forced_return_overrides
-                or drone.returning_to_base
-                or drone.battery <= cost_home + self.config.return_to_base_threshold
-            ):
-                if not drone.forced_return_triggered:
-                    drone.forced_return_triggered = True
-                    drone.returning_to_base = True
-                    self.forced_return_events += 1
+            if drone.lifecycle_state == LIFECYCLE_RECHARGING:
+                drone.intended_target = drone.base_position
+                resolved[drone.id] = drone.base_position
+                continue
+            if drone.lifecycle_state == LIFECYCLE_READY:
+                drone.intended_target = drone.base_position
+                if drone.ready_since_step is not None and self.current_step > drone.ready_since_step and not self.done:
+                    drone.redeploy_target = proposed_goal
+                    drone.redeployments += 1
+                    self.redeploy_events += 1
+                    self._set_drone_state(
+                        drone,
+                        LIFECYCLE_REDEPLOYING,
+                        operator_status="Redeploying",
+                    )
                     self.logger.record(
-                        "low_battery_return",
+                        "drone_redeployed",
                         self.current_step,
                         drone_id=drone.id,
-                        battery=drone.battery,
-                        cost_home=cost_home,
+                        target=proposed_goal,
+                        reserve_preset=self.config.reserve_preset,
                     )
+                else:
+                    resolved[drone.id] = drone.base_position
+                    continue
+            if drone.lifecycle_state == LIFECYCLE_UNAVAILABLE:
+                drone.intended_target = drone.position
+                resolved[drone.id] = drone.position
+                continue
+
+            decision = self._evaluate_battery_decision(drone, proposed_goal)
+            self._apply_reserve_status(drone, decision)
+
+            should_return = (
+                drone.id in self.forced_return_overrides
+                or drone.lifecycle_state == LIFECYCLE_RETURNING
+                or decision.should_return
+                or decision.critical
+            )
+
+            if should_return:
+                if drone.lifecycle_state != LIFECYCLE_RETURNING:
+                    self._order_return_to_base(drone, decision, proposed_goal)
                 resolved_goal = drone.base_position
             else:
+                if drone.lifecycle_state not in {LIFECYCLE_DEPLOYING, LIFECYCLE_REDEPLOYING} and drone.position != drone.base_position:
+                    self._set_drone_state(drone, LIFECYCLE_SEARCHING)
                 resolved_goal = proposed_goal
             drone.intended_target = resolved_goal
             resolved[drone.id] = resolved_goal
+        self._update_coverage_gap_status()
         return resolved
+
+    def _seed_redeploy_goals(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
+        seeded = dict(proposed_goals)
+        occupied = {goal for goal in seeded.values() if goal is not None}
+        for drone in self.drones:
+            if drone.lifecycle_state != LIFECYCLE_READY or drone.id in seeded:
+                continue
+            goal = self._pick_redeploy_goal(drone, occupied)
+            seeded[drone.id] = goal
+            occupied.add(goal)
+        return seeded
+
+    def _pick_redeploy_goal(self, drone: Drone, occupied: set[Position]) -> Position:
+        assert self.environment is not None
+        assert self.probability_map is not None
+
+        candidate_pool: list[Position] = []
+        if drone.redeploy_target is not None:
+            candidate_pool.append(drone.redeploy_target)
+        if drone.id in self.last_objectives:
+            candidate_pool.append(self.last_objectives[drone.id])
+        candidate_pool.extend(self._priority_cells(limit=max(4, len(self.drones))))
+        candidate_pool.extend(
+            BaseStrategy.top_candidate_cells(
+                self.environment,
+                self.probability_map,
+                limit=max(8, len(self.drones) * 3),
+            )
+        )
+
+        for candidate in candidate_pool:
+            if candidate == drone.base_position and len(candidate_pool) > 1:
+                continue
+            if candidate in occupied or self._is_excluded(candidate):
+                continue
+            return candidate
+
+        fallback_cells = sorted(
+            self.environment.iter_traversable_cells(),
+            key=lambda position: self.probability_map.value_at(position),
+            reverse=True,
+        )
+        for candidate in fallback_cells:
+            if candidate in occupied or candidate == drone.base_position or self._is_excluded(candidate):
+                continue
+            return candidate
+        return drone.base_position
 
     def _plan_and_execute_routes(self, goals: dict[int, Position]) -> None:
         assert self.environment is not None
 
         self.reserved_paths = {}
         reserved_cells: set[Position] = set()
-        ordered_drones = sorted(self.drones, key=lambda drone: (not drone.returning_to_base, drone.id))
+        ordered_drones = sorted(self.drones, key=lambda drone: (drone.lifecycle_state != LIFECYCLE_RETURNING, drone.id))
         for drone in ordered_drones:
             goal = goals.get(drone.id, drone.position)
             previous_goal = self.last_objectives.get(drone.id)
@@ -706,28 +848,321 @@ class SimulationEngine:
     def _move_drone_along_path(self, drone: Drone) -> None:
         assert self.environment is not None
 
+        if drone.lifecycle_state in {LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}:
+            drone.planned_path = [drone.position]
+            return
         if not drone.is_operational or len(drone.planned_path) <= 1:
             if drone.returning_to_base and drone.position == drone.base_position and not drone.return_completed:
-                drone.return_completed = True
-                self.successful_return_events += 1
+                self._start_turnaround(drone)
             return
 
         steps_taken = 0
+        starting_state = drone.lifecycle_state
         for next_position in drone.planned_path[1:]:
             if steps_taken >= max(drone.speed, 1) or self.environment.is_obstacle(next_position):
                 break
-            movement_cost = self.environment.get_movement_cost(next_position)
-            movement_cost += 0.2 * self.environment.get_wind_factor(next_position)
+            movement_cost = self._movement_energy(next_position)
             if drone.battery < movement_cost:
+                if drone.returning_to_base and drone.position != drone.base_position:
+                    self._set_drone_state(drone, LIFECYCLE_UNAVAILABLE)
+                    drone.reserve_reason = "Battery exhausted before reaching base."
+                    self.logger.record(
+                        "battery_unavailable",
+                        self.current_step,
+                        drone_id=drone.id,
+                        position=drone.position,
+                        battery=drone.battery,
+                    )
                 break
             drone.move_to(next_position, movement_cost)
             self.unique_visited_cells.add(next_position)
             steps_taken += 1
 
         if drone.returning_to_base and drone.position == drone.base_position and not drone.return_completed:
-            drone.return_completed = True
-            self.successful_return_events += 1
-            self.logger.record("return_to_base", self.current_step, drone_id=drone.id)
+            self._start_turnaround(drone)
+            return
+
+        if steps_taken > 0 and starting_state in {LIFECYCLE_DEPLOYING, LIFECYCLE_REDEPLOYING} and drone.position != drone.base_position:
+            if starting_state == LIFECYCLE_REDEPLOYING:
+                drone.rejoined_search_step = self.current_step
+                self.rejoin_events += 1
+                self._set_drone_state(drone, LIFECYCLE_SEARCHING, operator_status="Back in Search")
+                self.logger.record(
+                    "drone_rejoined_search",
+                    self.current_step,
+                    drone_id=drone.id,
+                    position=drone.position,
+                    target=drone.reserved_goal,
+                )
+            else:
+                self._set_drone_state(drone, LIFECYCLE_SEARCHING)
+
+    def _movement_energy(self, position: Position) -> float:
+        assert self.environment is not None
+
+        return self.environment.get_movement_cost(position) + 0.2 * self.environment.get_wind_factor(position)
+
+    def _route_energy_cost(self, path: list[Position]) -> float:
+        if len(path) <= 1:
+            return 0.0
+        return float(sum(self._movement_energy(position) for position in path[1:]))
+
+    def _evaluate_battery_decision(self, drone: Drone, proposed_goal: Position) -> BatteryDecision:
+        assert self.environment is not None
+
+        profile = resolve_reserve_profile(self.config.reserve_preset)
+        path_home = astar_path(self.environment, drone.position, drone.base_position)
+        energy_to_base = self._route_energy_cost(path_home)
+        if len(path_home) == 1 and drone.position != drone.base_position:
+            energy_to_base = max(drone.initial_battery, self.config.drone_battery) * 2.0
+
+        path_to_goal = astar_path(self.environment, drone.position, proposed_goal)
+        next_position = path_to_goal[1] if len(path_to_goal) > 1 else drone.position
+        projected_step_energy = 0.0 if next_position == drone.position else self._movement_energy(next_position)
+        projected_home_path = astar_path(self.environment, next_position, drone.base_position)
+        energy_to_base_from_next = self._route_energy_cost(projected_home_path)
+        if len(projected_home_path) == 1 and next_position != drone.base_position:
+            energy_to_base_from_next = max(drone.initial_battery, self.config.drone_battery) * 2.0
+
+        reserve_floor = self.config.return_to_base_threshold * profile.floor_multiplier
+        range_capacity_units = max(self.config.drone_range_km * max(self.config.drone_speed, 1) * 1.8, 1.0)
+        range_pressure = min(1.0, max(energy_to_base, energy_to_base_from_next) / range_capacity_units)
+        reserve_required = max(
+            reserve_floor,
+            max(energy_to_base, energy_to_base_from_next) * profile.contingency_ratio,
+        )
+        reserve_required *= 1.0 + range_pressure * profile.range_pressure_ratio
+        return_required = energy_to_base + reserve_required
+        continue_required = projected_step_energy + energy_to_base_from_next + reserve_required
+        warning_required = continue_required + max(float(self.config.drone_speed), reserve_required * profile.warning_ratio)
+        critical_required = energy_to_base + max(1.0, reserve_required * profile.critical_ratio)
+        battery_margin = drone.battery - continue_required
+        if drone.battery <= critical_required:
+            reserve_status = RESERVE_CRITICAL
+            reason = "Battery margin is critical for a safe return."
+        elif drone.battery <= continue_required:
+            reserve_status = RESERVE_RETURNING
+            reason = "Continuing the task would cut into the safe return margin."
+        elif drone.battery <= warning_required:
+            reserve_status = RESERVE_APPROACHING
+            reason = "Battery reserve is tightening and return planning should begin."
+        else:
+            reserve_status = RESERVE_SAFE
+            reason = "Battery margin supports continued search."
+
+        return BatteryDecision(
+            energy_to_base=round(energy_to_base, 3),
+            energy_to_base_from_next=round(energy_to_base_from_next, 3),
+            reserve_required=round(reserve_required, 3),
+            return_required=round(return_required, 3),
+            continue_required=round(continue_required, 3),
+            warning_required=round(warning_required, 3),
+            critical_required=round(critical_required, 3),
+            battery_margin=round(battery_margin, 3),
+            return_eta_steps=max(len(path_home) - 1, 0),
+            reserve_status=reserve_status,
+            should_return=drone.battery <= continue_required,
+            critical=drone.battery <= critical_required,
+            reason=reason,
+        )
+
+    def _apply_reserve_status(self, drone: Drone, decision: BatteryDecision) -> None:
+        previous_status = drone.reserve_status
+        drone.reserve_status = decision.reserve_status
+        drone.reserve_status_label = reserve_status_label(decision.reserve_status)
+        drone.reserve_reason = decision.reason
+        drone.energy_required_to_base = decision.energy_to_base
+        drone.reserve_required = decision.reserve_required
+        drone.continue_margin_required = decision.continue_required
+        drone.battery_margin = decision.battery_margin
+        drone.return_eta_steps = decision.return_eta_steps
+        if drone.lifecycle_state == LIFECYCLE_RECHARGING:
+            drone.return_service_eta_steps = drone.turnaround_remaining_steps
+        elif drone.lifecycle_state == LIFECYCLE_RETURNING or decision.should_return:
+            drone.return_service_eta_steps = decision.return_eta_steps + self._turnaround_steps()
+        else:
+            drone.return_service_eta_steps = 0
+        if previous_status == decision.reserve_status:
+            return
+        if decision.reserve_status == RESERVE_APPROACHING:
+            self.approaching_reserve_events += 1
+            self.logger.record(
+                "approaching_reserve_limit",
+                self.current_step,
+                drone_id=drone.id,
+                battery=drone.battery,
+                energy_to_base=decision.energy_to_base,
+                reserve_required=decision.reserve_required,
+            )
+        elif decision.reserve_status == RESERVE_CRITICAL:
+            self.critical_battery_events += 1
+            self.logger.record(
+                "critical_battery_margin",
+                self.current_step,
+                drone_id=drone.id,
+                battery=drone.battery,
+                return_required=decision.return_required,
+            )
+
+    def _order_return_to_base(self, drone: Drone, decision: BatteryDecision, proposed_goal: Position) -> None:
+        previous_state = drone.lifecycle_state
+        drone.forced_return_triggered = True
+        drone.returning_to_base = True
+        drone.return_completed = False
+        drone.ready_since_step = None
+        drone.redeploy_target = None
+        self.forced_return_events += 1
+        self._set_drone_state(drone, LIFECYCLE_RETURNING)
+        self.logger.record(
+            "battery_return_ordered",
+            self.current_step,
+            drone_id=drone.id,
+            battery=drone.battery,
+            energy_to_base=decision.energy_to_base,
+            reserve_required=decision.reserve_required,
+            continue_required=decision.continue_required,
+            previous_goal=proposed_goal,
+            reserve_preset=self.config.reserve_preset,
+            reason=decision.reason,
+        )
+        self.logger.record(
+            "low_battery_return",
+            self.current_step,
+            drone_id=drone.id,
+            battery=drone.battery,
+            cost_home=decision.energy_to_base,
+        )
+        if previous_state in {LIFECYCLE_SEARCHING, LIFECYCLE_DEPLOYING, LIFECYCLE_REDEPLOYING}:
+            self.logger.record(
+                "coverage_rebalance_triggered",
+                self.current_step,
+                drone_id=drone.id,
+                previous_goal=proposed_goal,
+                active_search_drones=sum(1 for item in self.drones if item.contributes_to_search),
+            )
+
+    def _advance_lifecycle_states(self) -> None:
+        for drone in self.drones:
+            if drone.lifecycle_state != LIFECYCLE_RECHARGING:
+                continue
+            if drone.turnaround_remaining_steps > 0:
+                drone.turnaround_remaining_steps -= 1
+            drone.return_service_eta_steps = drone.turnaround_remaining_steps
+            if drone.turnaround_remaining_steps > 0:
+                continue
+            drone.battery = drone.initial_battery
+            drone.returning_to_base = False
+            drone.forced_return_triggered = False
+            drone.return_completed = False
+            drone.energy_required_to_base = 0.0
+            drone.reserve_required = 0.0
+            drone.continue_margin_required = 0.0
+            drone.battery_margin = drone.initial_battery
+            drone.return_eta_steps = 0
+            drone.return_service_eta_steps = 0
+            drone.ready_since_step = self.current_step
+            self.recharge_complete_events += 1
+            self._set_drone_state(drone, LIFECYCLE_READY)
+            self.logger.record(
+                "battery_service_completed",
+                self.current_step,
+                drone_id=drone.id,
+                battery=drone.battery,
+            )
+
+    def _start_turnaround(self, drone: Drone) -> None:
+        drone.return_completed = True
+        drone.returning_to_base = False
+        drone.forced_return_triggered = False
+        drone.ready_since_step = None
+        drone.redeploy_target = None
+        drone.sorties_completed += 1
+        drone.recharge_cycles += 1
+        self.successful_return_events += 1
+        self.recharge_start_events += 1
+        drone.turnaround_remaining_steps = self._turnaround_steps()
+        drone.return_eta_steps = 0
+        drone.return_service_eta_steps = drone.turnaround_remaining_steps
+        self._set_drone_state(drone, LIFECYCLE_RECHARGING)
+        self.logger.record("return_to_base", self.current_step, drone_id=drone.id)
+        self.logger.record(
+            "battery_service_started",
+            self.current_step,
+            drone_id=drone.id,
+            turnaround_steps=drone.turnaround_remaining_steps,
+            turnaround_minutes=self.config.turnaround_time_minutes,
+        )
+
+    def _turnaround_steps(self) -> int:
+        return max(1, int(ceil(self.config.turnaround_time_minutes / max(self.config.step_duration_minutes, 1.0))))
+
+    def _strategic_drones(self) -> list[Drone]:
+        return [
+            drone
+            for drone in self.drones
+            if drone.lifecycle_state not in {LIFECYCLE_RETURNING, LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}
+        ]
+
+    def _set_drone_state(self, drone: Drone, lifecycle_state: str, operator_status: str | None = None) -> None:
+        drone.lifecycle_state = lifecycle_state
+        drone.operator_status = operator_status or lifecycle_label(lifecycle_state)
+        drone.last_lifecycle_change_step = self.current_step
+
+    def _update_coverage_gap_status(self) -> None:
+        active_search = sum(1 for drone in self.drones if drone.contributes_to_search)
+        threshold = max(1, int(ceil(self.config.num_drones * 0.6)))
+        gap_active = active_search < threshold
+        if gap_active:
+            self.coverage_gap_steps += 1
+        if gap_active and not self.coverage_gap_active:
+            self.coverage_gap_events += 1
+            self.logger.record(
+                "coverage_gap",
+                self.current_step,
+                active_search_drones=active_search,
+                threshold=threshold,
+            )
+        if not gap_active and self.coverage_gap_active:
+            self.logger.record(
+                "coverage_rebalanced",
+                self.current_step,
+                active_search_drones=active_search,
+            )
+        self.coverage_gap_active = gap_active
+
+    def _has_future_mission_capacity(self) -> bool:
+        return any(
+            drone.lifecycle_state in {LIFECYCLE_DEPLOYING, LIFECYCLE_SEARCHING, LIFECYCLE_RETURNING, LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_REDEPLOYING}
+            or drone.is_operational
+            for drone in self.drones
+        )
+
+    def _run_phase_label(self) -> str:
+        if self.done and self.target.detected:
+            return "Target confirmed"
+        if self.done:
+            return "Mission complete"
+        if any(drone.lifecycle_state == LIFECYCLE_RECHARGING for drone in self.drones):
+            return "Battery rotation underway"
+        if any(drone.lifecycle_state == LIFECYCLE_RETURNING for drone in self.drones):
+            return "Return-to-base rotation underway"
+        if any(drone.lifecycle_state == LIFECYCLE_READY for drone in self.drones):
+            return "Assets ready to redeploy"
+        return "Active search"
+
+    def _lifecycle_summary(self) -> dict[str, Any]:
+        state_counts = Counter(drone.lifecycle_state for drone in self.drones)
+        return {
+            "run_phase": self._run_phase_label(),
+            "reserve_preset": self.config.reserve_preset,
+            "drone_state_counts": dict(state_counts),
+            "active_search_drones": sum(1 for drone in self.drones if drone.contributes_to_search),
+            "returning_drones": state_counts.get(LIFECYCLE_RETURNING, 0),
+            "recharging_drones": state_counts.get(LIFECYCLE_RECHARGING, 0),
+            "ready_to_redeploy": state_counts.get(LIFECYCLE_READY, 0),
+            "coverage_gap_active": self.coverage_gap_active,
+            "coverage_gap_steps": self.coverage_gap_steps,
+        }
 
     def _apply_operator_guidance(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
         adjusted = dict(proposed_goals)
@@ -783,6 +1218,10 @@ class SimulationEngine:
     def _refresh_communication_links(self) -> None:
         self.communication_links = []
         for drone in self.drones:
+            if drone.lifecycle_state in {LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}:
+                drone.comms_online = True
+                drone.last_successful_sync_step = self.current_step
+                continue
             drone.comms_online = (
                 self.current_step - drone.last_successful_sync_step
                 <= self.config.communication_latency + 1
@@ -800,6 +1239,8 @@ class SimulationEngine:
     def _enqueue_communications(self) -> None:
         if self.config.coordination_mode == "centralized":
             for drone in self.drones:
+                if drone.lifecycle_state in {LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}:
+                    continue
                 if self._distance(drone.position, drone.base_position) > self.config.communication_radius:
                     self.comms_failures += 1
                     self.logger.record("comms_failure", self.current_step, drone_id=drone.id, mode="out_of_range")
@@ -818,7 +1259,11 @@ class SimulationEngine:
                 )
         else:
             for index, drone_a in enumerate(self.drones):
+                if drone_a.lifecycle_state in {LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}:
+                    continue
                 for drone_b in self.drones[index + 1 :]:
+                    if drone_b.lifecycle_state in {LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}:
+                        continue
                     if self._distance(drone_a.position, drone_b.position) > self.config.communication_radius:
                         self.comms_failures += 2
                         self.logger.record("comms_failure", self.current_step, drone_a=drone_a.id, drone_b=drone_b.id, mode="out_of_range")
@@ -941,9 +1386,29 @@ class SimulationEngine:
             0.0,
             (self.cumulative_scanned_events - len(self.cumulative_searched_cells)) / max(self.cumulative_scanned_events, 1),
         )
+        active_search_drones = sum(1 for drone in self.drones if drone.contributes_to_search)
+        self.active_search_history.append(float(active_search_drones))
+        self.battery_margin_history.extend(drone.battery_margin for drone in self.drones)
         self.metrics.battery_used = float(sum(drone.battery_used for drone in self.drones))
         self.metrics.successful_returns_to_base = self.successful_return_events
         self.metrics.forced_low_battery_returns = self.forced_return_events
+        self.metrics.approaching_reserve_events = self.approaching_reserve_events
+        self.metrics.critical_battery_events = self.critical_battery_events
+        self.metrics.recharge_cycles_started = self.recharge_start_events
+        self.metrics.recharge_cycles_completed = self.recharge_complete_events
+        self.metrics.redeployments = self.redeploy_events
+        self.metrics.rejoined_search_events = self.rejoin_events
+        self.metrics.coverage_gap_events = self.coverage_gap_events
+        self.metrics.coverage_gap_steps = self.coverage_gap_steps
+        self.metrics.average_active_search_drones = (
+            float(np.mean(self.active_search_history)) if self.active_search_history else float(active_search_drones)
+        )
+        self.metrics.battery_margin_min = (
+            float(min(self.battery_margin_history)) if self.battery_margin_history else 0.0
+        )
+        self.metrics.battery_margin_average = (
+            float(np.mean(self.battery_margin_history)) if self.battery_margin_history else 0.0
+        )
         self.metrics.comms_failures = self.comms_failures
         self.metrics.stale_information_events = self.stale_information_events
         self.metrics.path_efficiency = self.total_direct_cost / self.total_path_cost if self.total_path_cost > 0 else 1.0

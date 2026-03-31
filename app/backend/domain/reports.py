@@ -7,6 +7,7 @@ from typing import Any
 from uuid import uuid4
 
 from app.backend.db.sqlite import MetadataStore
+from app.backend.domain.lifecycle import summarize_battery_lifecycle
 from app.backend.reporting import ReportGenerator
 
 
@@ -29,6 +30,7 @@ class ReportService:
 
     def generate_run_report(self, run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
         path = self.generator.generate_run_report(run_record, events)
+        battery_lifecycle = summarize_battery_lifecycle(run_record, events)
         return self._register_report(
             owner_type="run",
             owner_id=run_record["id"],
@@ -38,6 +40,8 @@ class ReportService:
                 "run_id": run_record["id"],
                 "strategy": run_record["summary_json"].get("strategy"),
                 "status": run_record["status"],
+                "run_phase": battery_lifecycle.get("run_phase"),
+                "battery_lifecycle": battery_lifecycle,
             },
             run_id=run_record["id"],
         )
@@ -74,6 +78,7 @@ class ReportService:
 
     def generate_review_report(self, review_record: dict[str, Any]) -> dict[str, Any]:
         path = self.generator.generate_review_report(review_record)
+        battery_lifecycle = review_record.get("summary_json", {}).get("battery_lifecycle", {})
         return self._register_report(
             owner_type="review",
             owner_id=review_record["id"],
@@ -83,6 +88,8 @@ class ReportService:
                 "review_id": review_record["id"],
                 "run_id": review_record["run_id"],
                 "plan_id": review_record.get("plan_id"),
+                "run_phase": battery_lifecycle.get("run_phase"),
+                "battery_lifecycle": battery_lifecycle,
             },
             run_id=review_record["run_id"],
         )

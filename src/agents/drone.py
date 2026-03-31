@@ -34,9 +34,28 @@ class Drone:
     local_known_searched: set[Position] = field(default_factory=set)
     known_teammate_targets: dict[int, Position] = field(default_factory=dict)
     local_probability_map: np.ndarray | None = None
+    lifecycle_state: str = "deploying"
+    operator_status: str = "Deploying"
+    reserve_status: str = "safe"
+    reserve_status_label: str = "Safe"
+    reserve_reason: str = ""
     returning_to_base: bool = False
     forced_return_triggered: bool = False
     return_completed: bool = False
+    energy_required_to_base: float = 0.0
+    reserve_required: float = 0.0
+    continue_margin_required: float = 0.0
+    battery_margin: float = 0.0
+    return_eta_steps: int | None = None
+    return_service_eta_steps: int | None = None
+    turnaround_remaining_steps: int = 0
+    ready_since_step: int | None = None
+    redeploy_target: Position | None = None
+    last_lifecycle_change_step: int = 0
+    rejoined_search_step: int | None = None
+    sorties_completed: int = 0
+    recharge_cycles: int = 0
+    redeployments: int = 0
     stale_steps: int = 0
     last_successful_sync_step: int = 0
     heading: tuple[int, int] = (0, 1)
@@ -44,6 +63,7 @@ class Drone:
 
     def __post_init__(self) -> None:
         self.initial_battery = self.battery
+        self.battery_margin = self.battery
         self.visited_cells.add(self.position)
         self.local_known_visited.add(self.position)
         self.path_history.append(self.position)
@@ -91,6 +111,23 @@ class Drone:
         """Return whether the drone can continue moving and scanning."""
 
         return self.battery > 0.0
+
+    @property
+    def can_scan(self) -> bool:
+        """Return whether the drone should contribute sensing at this moment."""
+
+        return self.is_operational and self.lifecycle_state not in {
+            "returning_to_base",
+            "recharging_or_swapping",
+            "ready_to_redeploy",
+            "unavailable",
+        }
+
+    @property
+    def contributes_to_search(self) -> bool:
+        """Return whether the drone is actively contributing to coverage."""
+
+        return self.can_scan and self.lifecycle_state in {"searching", "redeploying", "deploying"}
 
     @property
     def distance_from_base(self) -> int:

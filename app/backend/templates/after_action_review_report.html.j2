@@ -24,29 +24,66 @@
 
   <div class="card">
     <h2>Outcome Summary</h2>
-    <code>{{ review.summary_json.actual_outcome }}</code>
+    <p><strong>Status:</strong> {{ review.summary_json.actual_outcome.status }}</p>
+    <p><strong>Mission timeline:</strong> {{ review.summary_json.mission_timeline }}</p>
   </div>
 
   <div class="card">
     <h2>Deviation From Recommendation</h2>
-    <code>{{ review.summary_json.deviation_from_recommendation }}</code>
+    <table>
+      <tbody>
+        {% for key, value in review.summary_json.deviation_from_recommendation.items() %}
+        <tr><th>{{ key|replace("_", " ")|title }}</th><td>{{ value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Battery Lifecycle Review</h2>
+    <p><strong>Run phase:</strong> {{ review.summary_json.battery_lifecycle.run_phase }}</p>
+    <p><strong>Reserve policy:</strong> {{ review.summary_json.battery_lifecycle.reserve_preset|replace("_", " ")|title }}</p>
+    <p>{{ review.summary_json.battery_lifecycle.asset_utilization_summary }}</p>
+    <p>{{ review.summary_json.battery_lifecycle.mission_continuity_impact }}</p>
+    <table>
+      <thead><tr><th>Measure</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Returns to base</td><td>{{ review.summary_json.battery_lifecycle.return_to_base_count }}</td></tr>
+        <tr><td>Recharge or swap started</td><td>{{ review.summary_json.battery_lifecycle.recharge_started_count }}</td></tr>
+        <tr><td>Recharge or swap completed</td><td>{{ review.summary_json.battery_lifecycle.recharge_completed_count }}</td></tr>
+        <tr><td>Redeployments</td><td>{{ review.summary_json.battery_lifecycle.redeploy_count }}</td></tr>
+        <tr><td>Rejoins</td><td>{{ review.summary_json.battery_lifecycle.rejoin_count }}</td></tr>
+        <tr><td>Coverage gaps</td><td>{{ review.summary_json.battery_lifecycle.coverage_gap_count }}</td></tr>
+      </tbody>
+    </table>
+    <p>
+      <strong>Battery margin:</strong>
+      Min {{ review.summary_json.battery_lifecycle.battery_margin_summary.minimum_margin }}
+      / Avg {{ review.summary_json.battery_lifecycle.battery_margin_summary.average_margin }}
+    </p>
+    <p>{{ review.summary_json.battery_lifecycle.battery_margin_summary.sustainability }}</p>
   </div>
 
   <div class="card">
     <h2>Alternate Plan Analysis</h2>
-    <code>{{ review.alternate_plan_json }}</code>
+    <p>{{ review.alternate_plan_json.summary }}</p>
   </div>
 
   <div class="card">
     <h2>Timeline</h2>
     <table>
-      <thead><tr><th>Step</th><th>Event</th><th>Details</th></tr></thead>
+      <thead><tr><th>Step</th><th>Event</th><th>Summary</th></tr></thead>
       <tbody>
       {% for event in review.timeline_json.key_events %}
-        <tr><td>{{ event.step }}</td><td>{{ event.event_type }}</td><td><code>{{ event.details }}</code></td></tr>
+        <tr><td>{{ event.step }}</td><td>{{ event.event_type }}</td><td>{{ event.summary or event.details }}</td></tr>
       {% endfor %}
       </tbody>
     </table>
+  </div>
+
+  <div class="card">
+    <h2>Technical Details</h2>
+    <code>{{ review.summary_json }}</code>
   </div>
 </body>
 </html>

@@ -57,6 +57,9 @@ def scenario_summary(config: ScenarioConfig) -> dict[str, Any]:
         "target_behavior": config.target_behavior,
         "coordination_mode": config.coordination_mode,
         "return_to_base_threshold": config.return_to_base_threshold,
+        "reserve_preset": config.reserve_preset,
+        "drone_range_km": config.drone_range_km,
+        "turnaround_time_minutes": config.turnaround_time_minutes,
     }
 
 

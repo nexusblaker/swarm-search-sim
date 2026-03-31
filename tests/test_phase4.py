@@ -7,10 +7,12 @@ from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from benchmark import run_benchmarks, run_grouped_experiments
 from src.probability.belief import BeliefState
 from src.simulation.engine import SimulationEngine
+from src.simulation.lifecycle import LIFECYCLE_READY, LIFECYCLE_RECHARGING, LIFECYCLE_RETURNING
 from src.simulation.planning import astar_path
 from src.utils.config_loader import load_scenario_config
 from src.utils.event_logger import EventLogger
@@ -79,7 +81,104 @@ def test_low_battery_drones_eventually_return_to_base() -> None:
     metrics = engine.run()
 
     assert metrics.forced_low_battery_returns >= 1
-    assert any(drone.return_completed for drone in engine.drones)
+    assert metrics.successful_returns_to_base >= 1
+    assert any(event["event_type"] == "battery_service_started" for event in engine.logger.events)
+
+
+def test_reserve_preset_changes_point_of_no_return_margin() -> None:
+    config = replace(load_scenario_config(), max_steps=1, num_drones=1)
+    aggressive_engine = SimulationEngine(replace(config, reserve_preset="aggressive"))
+    conservative_engine = SimulationEngine(replace(config, reserve_preset="conservative"))
+
+    aggressive_drone = aggressive_engine.drones[0]
+    aggressive_drone.position = aggressive_engine._resolve_open_cell((8, 8))
+    conservative_drone = conservative_engine.drones[0]
+    conservative_drone.position = conservative_engine._resolve_open_cell((8, 8))
+    goal = aggressive_engine._resolve_open_cell((10, 8))
+
+    aggressive_baseline = aggressive_engine._evaluate_battery_decision(aggressive_drone, goal)
+    conservative_baseline = conservative_engine._evaluate_battery_decision(conservative_drone, goal)
+    shared_battery = (aggressive_baseline.continue_required + conservative_baseline.continue_required) / 2.0
+
+    aggressive_drone.battery = shared_battery
+    conservative_drone.battery = shared_battery
+    aggressive = aggressive_engine._evaluate_battery_decision(aggressive_drone, goal)
+    conservative = conservative_engine._evaluate_battery_decision(conservative_drone, goal)
+
+    assert conservative.reserve_required > aggressive.reserve_required
+    assert conservative.continue_required > aggressive.continue_required
+    assert not aggressive.should_return
+    assert conservative.should_return
+
+
+def test_return_decision_uses_route_energy_not_flat_threshold() -> None:
+    config = replace(load_scenario_config().with_scenario_family("layered_demo"), max_steps=1, num_drones=1)
+    engine = SimulationEngine(config)
+    drone = engine.drones[0]
+    drone.position = engine._resolve_open_cell((10, 10))
+    goal = engine._resolve_open_cell((10, 9))
+
+    decision = engine._evaluate_battery_decision(drone, goal)
+    path_home = astar_path(engine.environment, drone.position, drone.base_position)
+
+    assert len(path_home) > 1
+    assert decision.energy_to_base == pytest.approx(engine._route_energy_cost(path_home), abs=1e-3)
+    assert decision.energy_to_base > 0.0
+    assert decision.energy_to_base != pytest.approx(engine._distance(drone.position, drone.base_position))
+
+
+def test_battery_policy_prevents_unsafe_overextension() -> None:
+    config = replace(load_scenario_config(), max_steps=1, num_drones=1, reserve_preset="balanced")
+    engine = SimulationEngine(config)
+    drone = engine.drones[0]
+    drone.position = engine._resolve_open_cell((8, 8))
+    goal = engine._resolve_open_cell((10, 8))
+
+    baseline = engine._evaluate_battery_decision(drone, goal)
+    drone.battery = max(0.5, baseline.continue_required - 0.25)
+    decision = engine._evaluate_battery_decision(drone, goal)
+    resolved = engine._apply_battery_policy({drone.id: goal})
+
+    assert decision.should_return
+    assert resolved[drone.id] == drone.base_position
+    assert drone.returning_to_base
+    assert drone.lifecycle_state == LIFECYCLE_RETURNING
+
+
+def test_force_return_cycle_records_recharge_and_redeploy_events() -> None:
+    config = replace(
+        load_scenario_config(),
+        max_steps=18,
+        num_drones=1,
+        turnaround_time_minutes=2.0,
+        step_duration_minutes=1.0,
+        false_negative_rate=1.0,
+        visual_false_negative_rate=1.0,
+        false_positive_rate=0.0,
+    )
+    engine = SimulationEngine(config)
+    drone = engine.drones[0]
+    repositioned = engine._resolve_open_cell((5, 5))
+    drone.position = repositioned
+    drone.path_history.append(repositioned)
+    drone.visited_cells.add(repositioned)
+    drone.local_known_visited.add(repositioned)
+
+    engine.apply_intervention("force_return", {"drone_id": 0})
+    seen_states: set[str] = set()
+    for _ in range(12):
+        engine.step()
+        seen_states.add(engine.drones[0].lifecycle_state)
+        if engine.drones[0].redeployments > 0:
+            break
+
+    event_types = {event["event_type"] for event in engine.logger.events}
+
+    assert LIFECYCLE_RETURNING in seen_states
+    assert LIFECYCLE_RECHARGING in seen_states
+    assert LIFECYCLE_READY in seen_states or engine.drones[0].redeployments > 0
+    assert engine.drones[0].redeployments >= 1
+    assert {"return_to_base", "battery_service_started", "battery_service_completed", "drone_redeployed"} <= event_types
 
 
 def test_comms_delay_and_loss_change_shared_state_behavior() -> None:

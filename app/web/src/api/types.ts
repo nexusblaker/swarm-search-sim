@@ -12,6 +12,100 @@ export type ResourceStatus =
 
 export type SummaryRecord = Record<string, unknown>;
 
+export interface BatteryMarginSummary {
+  minimum_margin?: number;
+  average_margin?: number;
+  sustainability?: string;
+}
+
+export interface LifecycleHighlight {
+  step?: number;
+  event_type?: string;
+  title?: string;
+  summary?: string;
+}
+
+export interface BatteryLifecycleSummary {
+  run_phase?: string;
+  reserve_preset?: string;
+  return_to_base_count?: number;
+  recharge_started_count?: number;
+  recharge_completed_count?: number;
+  redeploy_count?: number;
+  rejoin_count?: number;
+  coverage_gap_count?: number;
+  battery_margin_summary?: BatteryMarginSummary;
+  asset_utilization_summary?: string;
+  mission_continuity_impact?: string;
+  highlights?: LifecycleHighlight[];
+}
+
+export interface DroneStatusSummary {
+  id: number;
+  operator_status?: string;
+  reserve_status_label?: string;
+  battery_pct?: number;
+  return_service_eta_steps?: number | null;
+}
+
+export interface LifecycleSummaryRecord {
+  run_phase?: string;
+  reserve_preset?: string;
+  drone_state_counts?: Record<string, number>;
+  active_search_drones?: number;
+  returning_drones?: number;
+  recharging_drones?: number;
+  ready_to_redeploy?: number;
+  coverage_gap_active?: boolean;
+  coverage_gap_steps?: number;
+}
+
+export interface RunSummaryRecord extends SummaryRecord {
+  strategy?: string;
+  scenario_family?: string;
+  coordination_mode?: string;
+  reserve_preset?: string;
+  run_phase?: string;
+  metrics?: Record<string, unknown>;
+  lifecycle_summary?: LifecycleSummaryRecord;
+  drone_statuses?: DroneStatusSummary[];
+  battery_lifecycle?: BatteryLifecycleSummary;
+}
+
+export interface ReviewTimelineKeyEvent extends Record<string, unknown> {
+  step?: number;
+  event_type?: string;
+  summary?: string;
+  details?: Record<string, unknown>;
+}
+
+export interface ReviewTimelineRecord extends SummaryRecord {
+  key_events?: ReviewTimelineKeyEvent[];
+  interventions?: Record<string, unknown>[];
+  detection_timeline?: Record<string, unknown>[];
+}
+
+export interface ReviewSummaryRecord extends SummaryRecord {
+  mission_timeline?: string;
+  actual_outcome?: Record<string, unknown>;
+  deviation_from_recommendation?: Record<string, unknown>;
+  asset_utilization?: Record<string, unknown>;
+  battery_lifecycle?: BatteryLifecycleSummary;
+  battery_comms_risk_summary?: Record<string, unknown>;
+  alternate_plan_summary?: Record<string, unknown>;
+  links?: Record<string, unknown>;
+}
+
+export interface ReportSummaryRecord extends SummaryRecord {
+  run_id?: string;
+  review_id?: string;
+  plan_id?: string | null;
+  strategy?: string;
+  status?: string;
+  run_phase?: string;
+  battery_lifecycle?: BatteryLifecycleSummary;
+}
+
 export type MissionIntent =
   | "broad_area_coverage"
   | "fast_containment"
@@ -176,7 +270,7 @@ export interface RunRecord {
   updated_at: number;
   completed_at?: number | null;
   config_json: Record<string, unknown>;
-  summary_json: SummaryRecord;
+  summary_json: RunSummaryRecord;
   latest_snapshot_json?: Snapshot | null;
   output_dir: string;
   job_id?: string | null;
@@ -244,7 +338,7 @@ export interface ReportRecord {
   owner_id?: string | null;
   report_type: string;
   created_at: number;
-  summary_json: SummaryRecord;
+  summary_json: ReportSummaryRecord;
   file_path: string;
 }
 
@@ -256,8 +350,8 @@ export interface AfterActionReviewRecord {
   name: string;
   created_at: number;
   updated_at: number;
-  summary_json: Record<string, unknown>;
-  timeline_json: Record<string, unknown>;
+  summary_json: ReviewSummaryRecord;
+  timeline_json: ReviewTimelineRecord;
   alternate_plan_json: Record<string, unknown>;
   report_id?: string | null;
   report?: ReportRecord | null;
@@ -293,12 +387,29 @@ export interface SnapshotDrone {
   id: number;
   position: [number, number];
   battery: number;
+  battery_pct?: number;
   path_history: [number, number][];
   planned_path: [number, number][];
   intended_target?: [number, number] | null;
   comms_online: boolean;
   returning_to_base: boolean;
   stale_steps: number;
+  lifecycle_state?: string;
+  operator_status?: string;
+  reserve_status?: string;
+  reserve_status_label?: string;
+  reserve_reason?: string;
+  energy_required_to_base?: number;
+  reserve_required?: number;
+  continue_margin_required?: number;
+  battery_margin?: number;
+  return_eta_steps?: number | null;
+  return_service_eta_steps?: number | null;
+  turnaround_remaining_steps?: number;
+  sorties_completed?: number;
+  recharge_cycles?: number;
+  redeployments?: number;
+  contributing_to_search?: boolean;
 }
 
 export interface Snapshot {
@@ -308,6 +419,7 @@ export interface Snapshot {
   weather: string;
   strategy: string;
   coordination_mode: string;
+  run_phase?: string;
   base_position: [number, number];
   terrain_grid: number[][];
   obstacle_mask: boolean[][];
@@ -320,6 +432,8 @@ export interface Snapshot {
   communication_links: [[number, number], [number, number]][];
   reserved_paths: Record<string, [number, number][]>;
   global_objectives: Record<string, [number, number]>;
+  active_search_drones?: number[];
+  lifecycle_summary?: LifecycleSummaryRecord;
   detection_event?: Record<string, unknown> | null;
   drones: SnapshotDrone[];
   metrics: Record<string, unknown>;

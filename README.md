@@ -280,6 +280,35 @@ The mission intake and mission plan workflow now support:
 
 The simulation core is still preserved. Where the core expects a uniform fleet, the product layer derives an explainable aggregate fleet profile instead of rewriting the simulator.
 
+### Battery Lifecycle Realism
+
+Slice 2 adds a more operationally believable battery lifecycle without rewriting the simulation core. The simulator now models:
+
+- path-aware return-to-base decisions instead of a flat battery percentage trigger
+- reserve presets:
+  - `conservative`
+  - `balanced`
+  - `aggressive`
+- point-of-no-return evaluation based on route energy, reserve margin, terrain cost, and wind factor
+- lifecycle states for:
+  - deploying
+  - searching
+  - returning to base
+  - recharging or swapping
+  - ready to redeploy
+  - redeploying
+  - unavailable
+- turnaround time driven by fleet metadata such as `turnaround_time_minutes`
+- automatic redeploy and rejoin behavior after service completes
+
+The current Slice 2 model stays intentionally lightweight:
+
+- no battery chemistry model
+- no direct hardware integration
+- no large coordination rewrite
+
+The product layer uses Slice 1 asset package data to influence endurance, return margin, turnaround time, and redeploy sustainability.
+
 ### Mission Control
 
 Mission Control is the live operator view. It supports:
@@ -287,8 +316,10 @@ Mission Control is the live operator view. It supports:
 - launching runs from plans, scenarios, comparisons, or templates
 - polling run status and progress
 - viewing the latest mission snapshot
-- inspecting mission metrics
-- viewing a recent event feed
+- inspecting the live fleet roster with battery and lifecycle state
+- viewing battery rotation counts and mission phase
+- viewing a recent event feed with readable lifecycle summaries
+- seeing return-to-service timing and reserve status for each drone
 - applying interventions
 - clearer separation between mission state and operator actions
 - subtle live refresh behavior while the run is active
@@ -310,7 +341,9 @@ Replay supports:
 - loading completed runs
 - scrubbing timeline frames
 - viewing replay state and events together
-- step summaries with cleaner timeline-oriented layout
+- timeline points for return-to-base, service complete, and redeploy events
+- step summaries with clearer battery rotation context
+- readable fleet state at each replay step
 
 ### Experiments
 
@@ -329,6 +362,11 @@ Reports and review workflows support:
 - review creation from completed runs
 - outcome and deviation summaries
 - alternate-plan summary where available
+- battery lifecycle summaries
+- asset rotation counts
+- mission continuity impact notes
+- battery margin and reserve policy summaries
+- lifecycle event highlights for return, service, redeploy, and rejoin moments
 - links back to replay and run artifacts
 - clearer artifact linkage and cleaner export browsing
 
@@ -365,6 +403,12 @@ Default locations:
 - `app/storage/reports/`
 - `outputs/` for direct simulator artifacts
 
+Run artifacts now include lifecycle-rich replay and event outputs that preserve:
+
+- drone lifecycle state in replay frames
+- reserve status and battery margin fields in live and saved snapshots
+- return-to-base, service, redeploy, and rejoin events in the event log
+
 ## API Coverage
 
 Main route groups:
@@ -376,14 +420,35 @@ Main route groups:
 - `/library/templates`
 - `/plans` with asset-package and mission-intent aware payloads
 - `/comparisons`
-- `/runs`
+- `/runs` with lifecycle-rich snapshots, events, and replay payloads
 - `/experiments`
 - `/jobs`
-- `/reports`
-- `/reviews`
+- `/reports` with battery lifecycle summaries in run and review exports
+- `/reviews` with lifecycle-aware AAR summaries and readable timeline entries
 - `/compare-plans`
 - `/recommend` with concise recommendation summaries, alternatives, tradeoffs, risks, and technical details
 - `/artifacts/{owner_type}/{owner_id}/{artifact_type}`
+
+Important Slice 2 payload additions include:
+
+- scenario / run config:
+  - `battery_policy.reserve_preset`
+  - `drone.turnaround_time_minutes`
+  - `drone.estimated_max_range_km`
+  - `scenario.step_duration_minutes`
+- run snapshots:
+  - `run_phase`
+  - `lifecycle_summary`
+  - per-drone `lifecycle_state`
+  - per-drone `operator_status`
+  - per-drone `reserve_status_label`
+  - per-drone `return_eta_steps`
+  - per-drone `return_service_eta_steps`
+- review and report summaries:
+  - `battery_lifecycle`
+  - mission continuity impact
+  - asset utilization summary
+  - battery margin summary
 
 ## Docker
 
@@ -405,6 +470,23 @@ Backend and simulator tests:
 ```bash
 pytest
 ```
+
+Full local validation used for Slice 2:
+
+```bash
+pytest -q
+cd app/web
+npm run test
+npm run build
+```
+
+Optional backend smoke check:
+
+```bash
+python -m app.backend.server --host 127.0.0.1 --port 8000
+```
+
+Then open [http://127.0.0.1:8000/health](http://127.0.0.1:8000/health).
 
 Frontend tests:
 

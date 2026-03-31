@@ -16,6 +16,17 @@ class SimulationMetrics:
     battery_used: float = 0.0
     successful_returns_to_base: int = 0
     forced_low_battery_returns: int = 0
+    approaching_reserve_events: int = 0
+    critical_battery_events: int = 0
+    recharge_cycles_started: int = 0
+    recharge_cycles_completed: int = 0
+    redeployments: int = 0
+    rejoined_search_events: int = 0
+    coverage_gap_events: int = 0
+    coverage_gap_steps: int = 0
+    average_active_search_drones: float = 0.0
+    battery_margin_min: float = 0.0
+    battery_margin_average: float = 0.0
     comms_failures: int = 0
     stale_information_events: int = 0
     path_efficiency: float = 0.0
