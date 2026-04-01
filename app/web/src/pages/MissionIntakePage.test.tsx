@@ -39,5 +39,9 @@ describe("MissionIntakePage", () => {
     fireEvent.click(screen.getByText("Add another drone type"));
 
     expect(screen.getByText("Drone type 3")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /step 3 search style/i }));
+    expect(screen.getByText("Set the search intent and pattern")).toBeInTheDocument();
+    expect(screen.getAllByText("Let the system recommend").length).toBeGreaterThan(0);
   });
 });

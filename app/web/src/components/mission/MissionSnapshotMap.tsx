@@ -127,6 +127,12 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
         <canvas ref={canvasRef} className="max-w-full rounded-2xl" />
       )}
       <div className="mt-3 flex flex-wrap gap-2">
+        {snapshot.search_pattern_label ? (
+          <span className="pill whitespace-nowrap">
+            {snapshot.search_pattern_label}
+            {snapshot.search_pattern_rebalanced ? " | Rebalanced" : ""}
+          </span>
+        ) : null}
         {snapshot.drones.map((drone) => (
           <span key={drone.id} className="pill whitespace-nowrap">
             Drone {drone.id} | {drone.operator_status ?? lifecycleStateLabel(drone.lifecycle_state)}

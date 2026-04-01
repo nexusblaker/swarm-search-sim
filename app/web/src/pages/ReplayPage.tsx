@@ -99,6 +99,21 @@ export function ReplayPage() {
       0,
   );
   const runPhase = String(frame?.run_phase ?? lifecycleSummary.run_phase ?? selectedRun?.summary_json.run_phase ?? "Mission replay");
+  const searchPatternLabel = String(
+    frame?.search_pattern_label ?? selectedRun?.summary_json.search_pattern_label ?? "Search pattern pending",
+  );
+  const searchPatternSummary = String(
+    frame?.search_pattern_summary ?? selectedRun?.summary_json.search_pattern_summary ?? "Pattern summary not recorded for this replay frame.",
+  );
+  const searchPatternReason = String(
+    frame?.search_pattern_reason ?? selectedRun?.summary_json.search_pattern_reason ?? "",
+  );
+  const searchPatternRebalanced = Boolean(
+    frame?.search_pattern_rebalanced ?? selectedRun?.summary_json.search_pattern_rebalanced,
+  );
+  const searchPatternRebalanceReason = String(
+    frame?.search_pattern_rebalance_reason ?? selectedRun?.summary_json.search_pattern_rebalance_reason ?? "",
+  );
   const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
   const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
   const sensingNarrative = String(
@@ -246,6 +261,7 @@ export function ReplayPage() {
                   items={[
                     { label: "Step", value: frame.step },
                     { label: "Mission phase", value: runPhase },
+                    { label: "Search pattern", value: searchPatternLabel },
                     { label: "Strategy", value: frame.strategy },
                     { label: "Team coordination", value: frame.coordination_mode },
                     { label: "Active search assets", value: activeSearchCount },
@@ -254,6 +270,15 @@ export function ReplayPage() {
                   ]}
                 />
                 <div className="mt-4 space-y-4">
+                  <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Search pattern</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">{searchPatternSummary}</p>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {searchPatternRebalanced
+                        ? `Adaptive rebalance is active because ${searchPatternRebalanceReason || "mission conditions changed"}.`
+                        : searchPatternReason || "The run is still following its planned pattern."}
+                    </p>
+                  </div>
                   <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Contact workflow</p>
                     <p className="mt-3 text-sm leading-6 text-white/90">{sensingNarrative}</p>

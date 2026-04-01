@@ -7,6 +7,7 @@ import type {
   BatteryLifecycleSummary,
   ReviewSummaryRecord,
   ReviewTimelineRecord,
+  SearchPatternSummary,
   SensingLifecycleSummary,
 } from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
@@ -56,6 +57,7 @@ export function ReviewsPage() {
   const summary = (selected?.summary_json ?? {}) as ReviewSummaryRecord;
   const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
   const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
+  const searchPattern = (summary.search_pattern ?? {}) as SearchPatternSummary;
   const timeline = (selected?.timeline_json ?? {}) as ReviewTimelineRecord;
   const actualOutcome = summary.actual_outcome ?? {};
   const actualMetrics = (actualOutcome.metrics as Record<string, unknown> | undefined) ?? {};
@@ -184,6 +186,18 @@ export function ReviewsPage() {
                   <ReviewMetric label="Coverage gaps" value={batteryLifecycle.coverage_gap_count ?? 0} />
                 </div>
                 <div className="panel-subtle p-4">
+                  <p className="section-kicker">Search pattern summary</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {searchPattern.summary ?? "No search pattern summary available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {searchPattern.reason ?? "No pattern-fit note available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {searchPattern.mission_effect_summary ?? "No pattern-change summary available."}
+                  </p>
+                </div>
+                <div className="panel-subtle p-4">
                   <p className="section-kicker">Main takeaways</p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
                     {batteryLifecycle.mission_continuity_impact ?? "No mission continuity note available."}
@@ -265,6 +279,8 @@ export function ReviewsPage() {
                 defaultOpen={false}
               >
                 <div className="space-y-3">
+                  <ReviewMetric label="Pattern" value={searchPattern.pattern_label ?? "n/a"} />
+                  <ReviewMetric label="Pattern changes" value={searchPattern.change_count ?? 0} />
                   <ReviewMetric label="Mission success" value={String(actualMetrics.mission_success ?? "n/a")} />
                   <ReviewMetric label="Area covered (%)" value={String(actualMetrics.area_covered_pct ?? "n/a")} />
                   <ReviewMetric label="Battery used" value={String(actualMetrics.battery_used ?? "n/a")} />

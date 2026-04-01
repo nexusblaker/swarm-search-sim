@@ -13,6 +13,22 @@ export type TimeSinceContact = "under_1h" | "one_to_three_h" | "three_to_eight_h
 export type StagingLocation = "north_base" | "south_base" | "east_base" | "west_base" | "central_base";
 export type SensorCapabilityLevel = "basic" | "standard" | "enhanced" | "advanced";
 export type ThermalCapabilityLevel = "none" | "assisted" | "full";
+export type SearchPatternChoice =
+  | "auto"
+  | "broad_area_sweep"
+  | "sector_split"
+  | "expanding_ring"
+  | "perimeter_containment"
+  | "adaptive_rebalance";
+
+const SEARCH_PATTERN_CHOICES: SearchPatternChoice[] = [
+  "auto",
+  "broad_area_sweep",
+  "sector_split",
+  "expanding_ring",
+  "perimeter_containment",
+  "adaptive_rebalance",
+];
 
 export interface DroneTypeDraft {
   id: string;
@@ -39,6 +55,7 @@ export interface MissionIntakeDraft {
   stagingLocation: StagingLocation;
   assets: DroneTypeDraft[];
   missionIntent: MissionIntent;
+  searchPattern: SearchPatternChoice;
   operatorNotes: string;
 }
 
@@ -62,6 +79,39 @@ export const missionIntentOptions: Array<{ value: MissionIntent; label: string; 
     value: "battery_conservative",
     label: "Battery-conservative search",
     description: "Protect reserve margins for longer missions and re-tasking.",
+  },
+];
+
+export const searchPatternOptions: Array<{ value: SearchPatternChoice; label: string; description: string }> = [
+  {
+    value: "auto",
+    label: "Let the system recommend",
+    description: "Choose the strongest pattern from the mission area, uncertainty, fleet, and reserve profile.",
+  },
+  {
+    value: "broad_area_sweep",
+    label: "Broad Area Sweep",
+    description: "Evenly spaced lanes for wide-area early coverage when the location is uncertain.",
+  },
+  {
+    value: "sector_split",
+    label: "Sector Split",
+    description: "Divide the search box into sectors so the fleet can work in parallel.",
+  },
+  {
+    value: "expanding_ring",
+    label: "Expanding Ring",
+    description: "Start near the last known area and grow outward over time.",
+  },
+  {
+    value: "perimeter_containment",
+    label: "Perimeter Containment",
+    description: "Prioritize the outer boundary when containment matters most.",
+  },
+  {
+    value: "adaptive_rebalance",
+    label: "Adaptive Rebalance",
+    description: "Start structured, then shift toward clues, inspections, and thinner coverage.",
   },
 ];
 
@@ -167,6 +217,7 @@ export function createDefaultMissionIntakeDraft(): MissionIntakeDraft {
     stagingLocation: "south_base",
     assets: [createDroneTypeDraft("asset-1")],
     missionIntent: "broad_area_coverage",
+    searchPattern: "auto",
     operatorNotes: "",
   };
 }
@@ -174,6 +225,13 @@ export function createDefaultMissionIntakeDraft(): MissionIntakeDraft {
 function toNumber(value: string, fallback: number): number {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function normalizeSearchPatternChoice(value: string | null | undefined): SearchPatternChoice {
+  if (!value) {
+    return "auto";
+  }
+  return SEARCH_PATTERN_CHOICES.includes(value as SearchPatternChoice) ? (value as SearchPatternChoice) : "auto";
 }
 
 function totalDroneCount(assets: DroneTypeDraft[]): number {
@@ -265,7 +323,9 @@ export function buildMissionScenario(draft: MissionIntakeDraft) {
       target_start_radius: timePreset.targetStartRadius + uncertaintyOffset,
       max_steps: areaPreset.maxSteps,
       strategy: DEFAULT_STRATEGY_BY_INTENT[draft.missionIntent],
+      search_pattern: draft.searchPattern,
       scenario_family: draft.environmentType,
+      last_known_status: draft.lastKnownStatus,
       base_position: basePosition,
       communication: {
         coordination_mode: environmentPreset.coordinationMode,
@@ -287,6 +347,7 @@ export function buildRecommendationRequest(draft: MissionIntakeDraft) {
     scenario: buildMissionScenario(draft),
     asset_package: buildAssetPackage(draft),
     mission_intent: draft.missionIntent,
+    search_pattern: draft.searchPattern,
     num_seeds: 1,
   };
 }
@@ -300,6 +361,7 @@ export function buildIntakeSummary(draft: MissionIntakeDraft) {
     weather: draft.weather,
     time_since_contact: draft.timeSinceContact,
     mission_intent: draft.missionIntent,
+    search_pattern_preference: draft.searchPattern,
     staging_location: stagingLocationLabel(draft.stagingLocation),
     total_drones: totalDroneCount(draft.assets),
     mixed_fleet: !draft.allDronesSame,
@@ -311,11 +373,17 @@ export function buildPlanPayload(draft: MissionIntakeDraft, recommendation?: Rec
   const topRecommendation = recommendation?.recommendation_snapshot["top_recommendation"] as
     | Record<string, unknown>
     | undefined;
+  const selectedPattern: SearchPatternChoice =
+    draft.searchPattern === "auto"
+      ? normalizeSearchPatternChoice(recommendation?.recommended_search_pattern)
+      : draft.searchPattern;
+  scenario.scenario.search_pattern = selectedPattern;
   return {
     name: draft.missionName,
     scenario,
     asset_package: buildAssetPackage(draft),
     mission_intent: draft.missionIntent,
+    search_pattern: selectedPattern,
     intake_summary: buildIntakeSummary(draft),
     operator_notes: draft.operatorNotes,
     approval_state: "draft",

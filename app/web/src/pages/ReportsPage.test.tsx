@@ -15,6 +15,11 @@ vi.mock("@/api/hooks", () => ({
           created_at: 1_700_000_000,
           summary_json: {
             status: "ready",
+            search_pattern: {
+              pattern_label: "Sector Split",
+              summary: "Divides the search box into independent sectors for parallel coverage.",
+              mission_effect_summary: "The mission largely held its planned sector split layout.",
+            },
             sensing_lifecycle: {
               operator_summary: "Possible contacts were detected and tracked for closer inspection.",
             },
@@ -37,6 +42,7 @@ describe("ReportsPage", () => {
     expect(screen.getAllByText("After-action report").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/review:review-1/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Export after-action report")).toBeInTheDocument();
+    expect(screen.getByText("Search pattern")).toBeInTheDocument();
     expect(screen.getByText("Sensing workflow")).toBeInTheDocument();
   });
 });

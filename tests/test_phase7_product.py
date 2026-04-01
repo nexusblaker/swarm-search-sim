@@ -230,6 +230,9 @@ def test_asset_package_persistence_and_concise_recommendation_summary(tmp_path: 
     assert plan["asset_package"]["fleet_composition"]["total_drones"] == 6
     assert plan["summary_json"]["mission_intent"] == "broad_area_coverage"
     assert plan["recommendation_json"]["concise_summary"].startswith("Recommended:")
+    assert recommendation.json()["recommended_search_pattern"] is not None
+    assert recommendation.json()["recommended_search_pattern_label"] is not None
+    assert recommendation.json()["search_pattern_summary"]
     assert recommendation.json()["asset_package"]["fleet_composition"]["drone_type_count"] == 2
     assert recommendation.json()["key_tradeoffs"]
 
@@ -269,6 +272,7 @@ def test_run_review_and_report_expose_battery_lifecycle_fields(tmp_path: Path) -
     review = client.post(f"/reviews/from-run/{run.json()['id']}")
 
     assert completed["summary_json"]["lifecycle_summary"]["reserve_preset"] == "conservative"
+    assert completed["summary_json"]["search_pattern_label"] is not None
     assert "lifecycle_state" in completed["latest_snapshot_json"]["drones"][0]
     assert "operator_status" in completed["latest_snapshot_json"]["drones"][0]
     assert replay.status_code == 200
@@ -277,8 +281,10 @@ def test_run_review_and_report_expose_battery_lifecycle_fields(tmp_path: Path) -
     assert events.json()["events"]
     assert report.status_code == 200
     assert report.json()["summary_json"]["battery_lifecycle"]["run_phase"]
+    assert report.json()["summary_json"]["search_pattern"]["pattern_label"]
     assert review.status_code == 200
     assert review.json()["summary_json"]["battery_lifecycle"]["asset_utilization_summary"]
+    assert review.json()["summary_json"]["search_pattern"]["summary"]
     assert review.json()["timeline_json"]["key_events"][0]["summary"]
 
 
@@ -307,11 +313,14 @@ def test_run_review_and_report_expose_sensing_lifecycle_fields(tmp_path: Path) -
     review = client.post(f"/reviews/from-run/{run.json()['id']}")
 
     assert completed["summary_json"]["sensing_summary"]["candidate_detection_count"] >= 1
+    assert completed["summary_json"]["search_pattern_label"] is not None
     assert "sensing_state" in completed["latest_snapshot_json"]["drones"][0]
     assert events.status_code == 200
     event_types = {event["event_type"] for event in events.json()["events"]}
     assert "possible_contact_detected" in event_types
     assert report.status_code == 200
     assert report.json()["summary_json"]["sensing_lifecycle"]["candidate_detection_count"] >= 1
+    assert report.json()["summary_json"]["search_pattern"]["pattern_label"]
     assert review.status_code == 200
     assert review.json()["summary_json"]["sensing_lifecycle"]["operator_summary"]
+    assert review.json()["summary_json"]["search_pattern"]["summary"]

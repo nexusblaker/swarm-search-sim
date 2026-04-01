@@ -223,6 +223,11 @@ export function MissionPlansPage() {
             <div className="grid gap-6 xl:grid-cols-[1fr_0.92fr]">
               <RecommendationCard
                 strategy={selected.recommendation_json?.recommended_strategy as string | null | undefined}
+                searchPattern={selected.recommendation_json?.recommended_search_pattern as string | null | undefined}
+                searchPatternLabel={selected.recommendation_json?.recommended_search_pattern_label as string | null | undefined}
+                searchPatternSummary={selected.recommendation_json?.search_pattern_summary as string | null | undefined}
+                searchPatternReason={selected.recommendation_json?.search_pattern_reason as string | null | undefined}
+                searchPatternFitSummary={selected.recommendation_json?.search_pattern_fit_summary as string | null | undefined}
                 drones={selected.recommendation_json?.recommended_drone_count as number | null | undefined}
                 reserveThreshold={selected.recommendation_json?.recommended_return_threshold as number | null | undefined}
                 explanation={String(selected.recommendation_json?.explanation ?? "Recommendation snapshot stored with the plan.")}

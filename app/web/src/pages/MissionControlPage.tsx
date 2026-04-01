@@ -157,6 +157,21 @@ export function MissionControlPage() {
   );
   const runPhase = String(liveSnapshot?.run_phase ?? lifecycleSummary.run_phase ?? runSummary.run_phase ?? "Active search");
   const reservePreset = String(lifecycleSummary.reserve_preset ?? runSummary.reserve_preset ?? "balanced");
+  const searchPatternLabel = String(
+    liveSnapshot?.search_pattern_label ?? runSummary.search_pattern_label ?? "Search pattern pending",
+  );
+  const searchPatternSummary = String(
+    liveSnapshot?.search_pattern_summary ?? runSummary.search_pattern_summary ?? "The active search layout will appear here once the run emits a pattern summary.",
+  );
+  const searchPatternReason = String(
+    liveSnapshot?.search_pattern_reason ?? runSummary.search_pattern_reason ?? "",
+  );
+  const searchPatternRebalanced = Boolean(
+    liveSnapshot?.search_pattern_rebalanced ?? runSummary.search_pattern_rebalanced,
+  );
+  const searchPatternRebalanceReason = String(
+    liveSnapshot?.search_pattern_rebalance_reason ?? runSummary.search_pattern_rebalance_reason ?? "",
+  );
   const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
   const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
   const confirmedContactCount = Number(sensingSummary.confirmed_contact_count ?? 0);
@@ -318,6 +333,7 @@ export function MissionControlPage() {
                   <StatusBadge status={selected.status} />
                   <span className="pill">{selected.plan_id ? `Plan ${selected.plan_id}` : "Ad hoc run"}</span>
                   <span className="pill">{String(runSummary.scenario_family ?? "mixed terrain").replaceAll("_", " ")}</span>
+                  <span className="pill">{searchPatternLabel}</span>
                   <span className="pill">{String(runSummary.strategy ?? "n/a").replaceAll("_", " ")}</span>
                   <span className="pill">{reservePreset.replaceAll("_", " ")}</span>
                 </div>
@@ -348,7 +364,9 @@ export function MissionControlPage() {
                     <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/50 p-5">
                       <p className="section-kicker">Mission story</p>
                       <p className="mt-3 text-base leading-7 text-white">
-                        {confirmedContactCount > 0
+                        {searchPatternRebalanced
+                          ? `${searchPatternLabel} is currently active because ${searchPatternRebalanceReason || "mission conditions changed"}.`
+                          : confirmedContactCount > 0
                           ? "A contact has been confirmed. Keep attention on the latest event feed and active asset assignment."
                           : candidateContactCount > 0
                             ? sensingNarrative
@@ -356,6 +374,10 @@ export function MissionControlPage() {
                               ? "The mission is managing temporary coverage loss while assets rotate through return and service."
                               : "The mission remains in broad search with coverage holding steady across the active fleet."}
                       </p>
+                      <p className="mt-3 text-sm leading-6 text-muted">{searchPatternSummary}</p>
+                      {searchPatternReason ? (
+                        <p className="mt-2 text-sm leading-6 text-muted">{searchPatternReason}</p>
+                      ) : null}
                       <div className="mt-4 grid gap-3 md:grid-cols-4">
                         <RotationStat label="Step" value={liveSnapshot.step} />
                         <RotationStat label="Returning to base" value={returningCount} />
@@ -384,11 +406,20 @@ export function MissionControlPage() {
                       { label: "Plan", value: selected.plan_id ?? "n/a" },
                       { label: "Comparison", value: selected.comparison_id ?? "n/a" },
                       { label: "Scenario family", value: String(runSummary.scenario_family ?? "n/a").replaceAll("_", " ") },
+                      { label: "Search pattern", value: searchPatternLabel },
+                      { label: "Pattern status", value: searchPatternRebalanced ? "Rebalanced" : "Planned layout" },
                       { label: "Team coordination", value: String(runSummary.coordination_mode ?? "n/a").replaceAll("_", " ") },
                       { label: "Reserve policy", value: reservePreset.replaceAll("_", " ") },
                       { label: "Run phase", value: runPhase },
                     ]}
                   />
+                  <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Search pattern</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">{searchPatternSummary}</p>
+                    {searchPatternReason ? (
+                      <p className="mt-3 text-sm leading-6 text-muted">{searchPatternReason}</p>
+                    ) : null}
+                  </div>
                   <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Battery rotation</p>
                     <p className="mt-3 text-sm leading-6 text-muted">

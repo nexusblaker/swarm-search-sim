@@ -7,7 +7,7 @@ from typing import Any
 from uuid import uuid4
 
 from app.backend.db.sqlite import MetadataStore
-from app.backend.domain.lifecycle import summarize_battery_lifecycle, summarize_sensing_lifecycle
+from app.backend.domain.lifecycle import summarize_battery_lifecycle, summarize_search_pattern, summarize_sensing_lifecycle
 from app.backend.reporting import ReportGenerator
 
 
@@ -32,6 +32,7 @@ class ReportService:
         path = self.generator.generate_run_report(run_record, events)
         battery_lifecycle = summarize_battery_lifecycle(run_record, events)
         sensing_lifecycle = summarize_sensing_lifecycle(run_record, events)
+        search_pattern = summarize_search_pattern(run_record, events)
         return self._register_report(
             owner_type="run",
             owner_id=run_record["id"],
@@ -40,6 +41,7 @@ class ReportService:
             summary_json={
                 "run_id": run_record["id"],
                 "strategy": run_record["summary_json"].get("strategy"),
+                "search_pattern": search_pattern,
                 "status": run_record["status"],
                 "run_phase": battery_lifecycle.get("run_phase"),
                 "battery_lifecycle": battery_lifecycle,
@@ -59,6 +61,8 @@ class ReportService:
                 "plan_id": plan_record["id"],
                 "name": plan_record["name"],
                 "approval_state": plan_record["approval_state"],
+                "search_pattern": plan_record.get("summary_json", {}).get("search_pattern"),
+                "search_pattern_label": plan_record.get("summary_json", {}).get("search_pattern_label"),
             },
             run_id=plan_record["id"],
         )
@@ -82,6 +86,7 @@ class ReportService:
         path = self.generator.generate_review_report(review_record)
         battery_lifecycle = review_record.get("summary_json", {}).get("battery_lifecycle", {})
         sensing_lifecycle = review_record.get("summary_json", {}).get("sensing_lifecycle", {})
+        search_pattern = review_record.get("summary_json", {}).get("search_pattern", {})
         return self._register_report(
             owner_type="review",
             owner_id=review_record["id"],
@@ -94,6 +99,7 @@ class ReportService:
                 "run_phase": battery_lifecycle.get("run_phase"),
                 "battery_lifecycle": battery_lifecycle,
                 "sensing_lifecycle": sensing_lifecycle,
+                "search_pattern": search_pattern,
             },
             run_id=review_record["run_id"],
         )

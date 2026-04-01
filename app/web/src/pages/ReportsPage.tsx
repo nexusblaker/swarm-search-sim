@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 import { api } from "@/api/client";
 import { useReports } from "@/api/hooks";
-import type { BatteryLifecycleSummary, ReportSummaryRecord, SensingLifecycleSummary } from "@/api/types";
+import type { BatteryLifecycleSummary, ReportSummaryRecord, SearchPatternSummary, SensingLifecycleSummary } from "@/api/types";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
 import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { DataTable } from "@/components/ui/DataTable";
@@ -40,6 +40,7 @@ export function ReportsPage() {
   const summary = (selected.summary_json ?? {}) as ReportSummaryRecord;
   const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
   const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
+  const searchPattern = (summary.search_pattern ?? {}) as SearchPatternSummary;
   const reportTitle =
     selected.owner_type === "review"
       ? "After-action report"
@@ -134,6 +135,18 @@ export function ReportsPage() {
               <ArtifactLink href={`${api.baseUrl}/reports/${selected.id}/content`} label="Download technical report" />
             </div>
             <div className="mt-5 space-y-4">
+              <div className="panel-subtle p-4">
+                <p className="section-kicker">Search pattern</p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {searchPattern.pattern_label ?? summary.search_pattern_label ?? "No search pattern recorded."}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {searchPattern.summary ?? "No search pattern summary available for this report."}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {searchPattern.mission_effect_summary ?? "No pattern-change note available."}
+                </p>
+              </div>
               <div className="panel-subtle p-4">
                 <p className="section-kicker">Reserve policy</p>
                 <p className="mt-3 text-sm leading-6 text-white/90">

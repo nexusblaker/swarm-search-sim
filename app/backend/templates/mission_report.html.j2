@@ -25,8 +25,27 @@
     <p><strong>Status:</strong> {{ run.status }}</p>
     <p><strong>Plan ID:</strong> {{ run.plan_id or "Ad hoc run" }}</p>
     <p><strong>Strategy:</strong> {{ run.summary_json.strategy }}</p>
+    <p><strong>Search pattern:</strong> {{ search_pattern.pattern_label or "Not recorded" }}</p>
     <p><strong>Run phase:</strong> {{ battery_lifecycle.run_phase }}</p>
     <p><strong>Reserve policy:</strong> {{ battery_lifecycle.reserve_preset|replace("_", " ")|title }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Search Pattern Summary</h2>
+    <p><strong>Pattern:</strong> {{ search_pattern.pattern_label or "Not recorded" }}</p>
+    <p>{{ search_pattern.summary or "Pattern summary not recorded." }}</p>
+    <p>{{ search_pattern.reason or "Pattern fit note not recorded." }}</p>
+    <p>{{ search_pattern.mission_effect_summary or "No pattern-change note recorded." }}</p>
+    {% if search_pattern.geometry %}
+    <table>
+      <tbody>
+      <tr><th>Lane spacing</th><td>{{ search_pattern.geometry.lane_spacing_cells }}</td></tr>
+      <tr><th>Effective swath</th><td>{{ search_pattern.geometry.effective_swath_cells }}</td></tr>
+      <tr><th>Sectors</th><td>{{ search_pattern.geometry.sector_rows }} x {{ search_pattern.geometry.sector_cols }}</td></tr>
+      <tr><th>Coverage depth</th><td>{{ search_pattern.geometry.coverage_depth }}</td></tr>
+      </tbody>
+    </table>
+    {% endif %}
   </div>
 
   <div class="card">

@@ -11,6 +11,7 @@ from app.backend.domain.comparisons import PlanComparisonService
 from app.backend.domain.lifecycle import (
     summarize_battery_lifecycle,
     summarize_lifecycle_event,
+    summarize_search_pattern,
     summarize_sensing_lifecycle,
 )
 from app.backend.domain.plans import MissionPlanService
@@ -100,9 +101,10 @@ class AfterActionReviewService:
         }
         battery_lifecycle = summarize_battery_lifecycle(run_record, events)
         sensing_lifecycle = summarize_sensing_lifecycle(run_record, events)
+        search_pattern = summarize_search_pattern(run_record, events)
         summary = {
             "mission_timeline": (
-                f"{sensing_lifecycle['operator_summary']} {battery_lifecycle['mission_continuity_impact']}"
+                f"{search_pattern['summary']} {sensing_lifecycle['operator_summary']} {battery_lifecycle['mission_continuity_impact']}"
             ),
             "actual_outcome": {
                 "status": run_record["status"],
@@ -117,6 +119,7 @@ class AfterActionReviewService:
             },
             "battery_lifecycle": battery_lifecycle,
             "sensing_lifecycle": sensing_lifecycle,
+            "search_pattern": search_pattern,
             "battery_comms_risk_summary": {
                 "battery_risk": run_record["summary_json"].get("metrics", {}).get("return_to_base_efficiency"),
                 "communications_fragility": run_record["summary_json"].get("metrics", {}).get("comms_failures"),
@@ -166,11 +169,12 @@ class AfterActionReviewService:
         return {
             "available": True,
             "recommended_strategy": recommended.get("strategy"),
+            "recommended_search_pattern": recommended.get("search_pattern"),
             "recommended_drone_count": recommended.get("drone_count"),
             "actual_strategy": actual["strategy"],
             "actual_drone_count": actual["num_drones"],
             "summary": (
-                f"Top saved comparison favored {recommended.get('strategy')} with "
+                f"Top saved comparison favored {recommended.get('search_pattern_label') or recommended.get('strategy')} with "
                 f"{recommended.get('drone_count')} drones versus actual {actual['strategy']} "
                 f"with {actual['num_drones']} drones."
             ),

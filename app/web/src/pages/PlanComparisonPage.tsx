@@ -95,7 +95,11 @@ export function PlanComparisonPage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Saved comparisons" value={comparisons.length} />
         <MetricCard label="Ranked candidates" value={rankedCandidates.length} />
-        <MetricCard label="Top strategy" value={String(selected?.recommendation_json?.strategy ?? "n/a")} emphasis="accent" />
+        <MetricCard
+          label="Top pattern"
+          value={String(selected?.recommendation_json?.search_pattern_label ?? selected?.recommendation_json?.strategy ?? "n/a")}
+          emphasis="accent"
+        />
         <MetricCard label="Confidence" value={`${Math.round(Number(selected?.uncertainty_json?.confidence ?? 0) * 100)}%`} />
       </div>
 
@@ -181,10 +185,10 @@ export function PlanComparisonPage() {
         <>
           <div className="grid gap-6 xl:grid-cols-3">
             <ComparisonSummaryCard
-              title={`Top recommendation: ${String(selected.recommendation_json?.strategy ?? "n/a")}`}
+              title={`Top recommendation: ${String(selected.recommendation_json?.search_pattern_label ?? selected.recommendation_json?.strategy ?? "n/a")}`}
               description="This summary shows why the winning candidate surfaced to the top of the ranked set."
               metrics={[
-                { label: "Top strategy", value: String(selected.recommendation_json?.strategy ?? "n/a"), tone: "good" },
+                { label: "Top pattern", value: String(selected.recommendation_json?.search_pattern_label ?? selected.recommendation_json?.strategy ?? "n/a"), tone: "good" },
                 { label: "Confidence", value: `${Math.round(Number(selected.uncertainty_json?.confidence ?? 0) * 100)}%` },
                 { label: "Candidates", value: String(rankedCandidates.length) },
               ]}
@@ -216,11 +220,11 @@ export function PlanComparisonPage() {
               description="The ranked table is designed to make launch decisions fast. Select the candidate that best balances mission success, speed, and operational risk."
             >
               <DataTable
-                columns={["Rank", "Candidate", "Strategy", "Success", "Detection time", "Launch"]}
+                columns={["Rank", "Candidate", "Pattern", "Success", "Detection time", "Launch"]}
                 rows={rankedCandidates.map((candidate) => [
                   candidate.rank,
                   candidate.name,
-                  String(candidate.config_json.strategy ?? "n/a"),
+                  String(candidate.summary_json.search_pattern_label ?? candidate.config_json.search_pattern ?? candidate.config_json.strategy ?? "n/a"),
                   String(candidate.summary_json.success_rate ?? candidate.summary_json.mission_success ?? "n/a"),
                   String(candidate.summary_json.mean_time_to_detection ?? candidate.summary_json.time_to_detection ?? "n/a"),
                   <button
@@ -249,10 +253,10 @@ export function PlanComparisonPage() {
                   <div className="panel-subtle p-5">
                     <p className="section-kicker">Primary tradeoff</p>
                     <p className="mt-2 text-base font-medium text-white">
-                      {String(topCandidate.config_json.strategy ?? "n/a")} surfaced as the best balance of expected success and search speed.
+                      {String(topCandidate.summary_json.search_pattern_label ?? topCandidate.config_json.search_pattern ?? topCandidate.config_json.strategy ?? "n/a")} surfaced as the best balance of expected success and search speed.
                     </p>
                     <p className="mt-3 text-sm leading-6 text-muted">
-                      Use this candidate when you want the cleanest path from evaluation to monitored run.
+                      {String(topCandidate.summary_json.search_pattern_reason ?? "Use this candidate when you want the cleanest path from evaluation to monitored run.")}
                     </p>
                   </div>
                   <pre className="rounded-[22px] border border-border bg-surfaceAlt/60 p-4 text-xs leading-6 text-muted">

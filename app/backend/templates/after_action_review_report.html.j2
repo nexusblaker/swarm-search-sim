@@ -29,6 +29,14 @@
   </div>
 
   <div class="card">
+    <h2>Search Pattern Review</h2>
+    <p><strong>Pattern:</strong> {{ search_pattern.pattern_label or "Not recorded" }}</p>
+    <p>{{ search_pattern.summary or "Pattern summary not recorded." }}</p>
+    <p>{{ search_pattern.reason or "Pattern fit note not recorded." }}</p>
+    <p>{{ search_pattern.mission_effect_summary or "No pattern-change note recorded." }}</p>
+  </div>
+
+  <div class="card">
     <h2>Deviation From Recommendation</h2>
     <table>
       <tbody>

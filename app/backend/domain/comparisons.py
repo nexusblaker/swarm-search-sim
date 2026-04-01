@@ -14,6 +14,7 @@ from app.backend.domain.plans import MissionPlanService
 from app.backend.domain.reports import ReportService
 from app.backend.domain.scenarios import ScenarioService
 from app.backend.domain.shared import confidence_band, metrics_to_summary, to_jsonable
+from src.simulation.search_patterns import recommend_search_pattern
 from src.simulation.engine import SimulationEngine
 
 
@@ -61,6 +62,8 @@ class ComparisonEvaluator:
                 config = replace(
                     base_config,
                     strategy=candidate["strategy"],
+                    mission_intent=mission_intent,
+                    search_pattern=str(candidate.get("search_pattern") or base_config.search_pattern),
                     num_drones=int(candidate["drone_count"]),
                     coordination_mode=str(candidate["coordination_mode"]),
                     return_to_base_threshold=float(candidate["return_threshold"]),
@@ -72,10 +75,17 @@ class ComparisonEvaluator:
             summary = self._summarize_candidate(
                 candidate,
                 metrics,
-                base_config.max_steps,
+                replace(
+                    base_config,
+                    strategy=candidate["strategy"],
+                    mission_intent=mission_intent,
+                    search_pattern=str(candidate.get("search_pattern") or base_config.search_pattern),
+                    num_drones=int(candidate["drone_count"]),
+                    coordination_mode=str(candidate["coordination_mode"]),
+                    return_to_base_threshold=float(candidate["return_threshold"]),
+                ),
                 asset_package,
                 mission_intent,
-                base_config.scenario_family,
             )
             ranked_plans.append(summary)
 
@@ -98,6 +108,7 @@ class ComparisonEvaluator:
             "uncertainty_summary": uncertainty,
             "sensitivity_summary": {
                 "strategy_count": len({item["strategy"] for item in ranked_plans}),
+                "search_pattern_count": len({item.get("search_pattern") for item in ranked_plans}),
                 "drone_count_options": sorted({item["drone_count"] for item in ranked_plans}),
                 "coordination_modes": sorted({item["coordination_mode"] for item in ranked_plans}),
                 "return_thresholds": sorted({item["return_threshold"] for item in ranked_plans}),
@@ -130,6 +141,7 @@ class ComparisonEvaluator:
                     {
                         "name": candidate.get("name") or f"Candidate {index}",
                         "strategy": candidate.get("strategy", base_config.strategy),
+                        "search_pattern": candidate.get("search_pattern", base_config.search_pattern),
                         "drone_count": int(candidate.get("drone_count", base_config.num_drones)),
                         "coordination_mode": candidate.get("coordination_mode", base_config.coordination_mode),
                         "return_threshold": float(
@@ -160,6 +172,7 @@ class ComparisonEvaluator:
                             {
                                 "name": f"{strategy}-{drone_count}d-{coordination_mode}-{threshold}",
                                 "strategy": strategy,
+                                "search_pattern": request.get("search_pattern") or base_config.search_pattern,
                                 "drone_count": int(drone_count),
                                 "coordination_mode": str(coordination_mode),
                                 "return_threshold": float(threshold),
@@ -214,14 +227,13 @@ class ComparisonEvaluator:
     def _summarize_candidate(
         candidate: dict[str, Any],
         metrics: list[Any],
-        max_steps: int,
+        candidate_config: Any,
         asset_package: dict[str, Any],
         mission_intent: str,
-        scenario_family: str,
     ) -> dict[str, Any]:
         success_values = [1.0 if metric.mission_success else 0.0 for metric in metrics]
         detection_times = [
-            float(metric.time_to_confirmed_detection or metric.time_to_detection or max_steps)
+            float(metric.time_to_confirmed_detection or metric.time_to_detection or candidate_config.max_steps)
             for metric in metrics
         ]
         battery_risks = [float(metric.return_to_base_efficiency) for metric in metrics]
@@ -239,7 +251,11 @@ class ComparisonEvaluator:
             candidate,
             asset_package.get("fleet_composition", {}),
             mission_intent,
-            scenario_family,
+            candidate_config.scenario_family,
+        )
+        pattern_decision = recommend_search_pattern(
+            candidate_config,
+            asset_package.get("fleet_composition", {}),
         )
         score = (
             100.0 * success_rate
@@ -290,6 +306,7 @@ class ComparisonEvaluator:
             "sensing_conditions_summary": heuristics["sensing_summary"],
             "inspection_burden": heuristics["inspection_burden"],
             "team_coordination_label": ComparisonEvaluator._coordination_label(candidate["coordination_mode"]),
+            **pattern_decision.to_record(),
             "score": round(score, 2),
             "metrics_sample": [metrics_to_summary(metric) for metric in metrics[:3]],
         }
@@ -495,6 +512,7 @@ class PlanComparisonService:
                     "config_json": to_jsonable(
                         {
                             "strategy": candidate["strategy"],
+                            "search_pattern": candidate.get("search_pattern"),
                             "drone_count": candidate["drone_count"],
                             "coordination_mode": candidate["coordination_mode"],
                             "return_threshold": candidate["return_threshold"],

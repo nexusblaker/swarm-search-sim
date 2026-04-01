@@ -20,6 +20,9 @@ class ScenarioConfig:
     target_assumptions: dict[str, Any]
     max_steps: int
     strategy: str = "probability_greedy"
+    mission_intent: str = "broad_area_coverage"
+    search_pattern: str = "auto"
+    last_known_status: str = "known"
     seed: int = 7
     drone_battery: float = 120.0
     drone_speed: int = 1
@@ -56,6 +59,7 @@ class ScenarioConfig:
     turnaround_time_minutes: float = 18.0
     step_duration_minutes: float = 3.0
     scenario_family: str = "mixed_terrain"
+    coverage_overlap_margin: float = 0.18
     layer_paths: dict[str, str] = field(default_factory=dict)
     use_external_layers: bool = False
     belief_motion_strength: float = 0.18
@@ -133,6 +137,11 @@ class ScenarioConfig:
             target_assumptions=target_assumptions,
             max_steps=int(scenario_data.get("max_steps", 50)),
             strategy=str(scenario_data.get("strategy", "probability_greedy")),
+            mission_intent=str(
+                scenario_data.get("mission_intent", "broad_area_coverage")
+            ),
+            search_pattern=str(scenario_data.get("search_pattern", "auto")),
+            last_known_status=str(scenario_data.get("last_known_status", "known")),
             seed=int(scenario_data.get("seed", 7)),
             drone_battery=float(drone_data.get("battery", 120.0)),
             drone_speed=int(drone_data.get("speed", 1)),
@@ -204,6 +213,9 @@ class ScenarioConfig:
             turnaround_time_minutes=float(drone_data.get("turnaround_time_minutes", 18.0)),
             step_duration_minutes=float(scenario_data.get("step_duration_minutes", 3.0)),
             scenario_family=str(scenario_data.get("scenario_family", "mixed_terrain")),
+            coverage_overlap_margin=float(
+                scenario_data.get("coverage_overlap_margin", 0.18)
+            ),
             layer_paths=dict(scenario_data.get("layer_paths", {})),
             use_external_layers=bool(scenario_data.get("use_external_layers", False)),
             belief_motion_strength=float(belief_data.get("motion_strength", 0.18)),

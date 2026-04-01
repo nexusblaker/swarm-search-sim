@@ -72,6 +72,11 @@ class RecommendationService:
         key_risks = self._build_risks(top, mission_intent)
         return {
             "recommended_strategy": top.get("strategy"),
+            "recommended_search_pattern": top.get("search_pattern"),
+            "recommended_search_pattern_label": top.get("search_pattern_label"),
+            "search_pattern_summary": top.get("search_pattern_summary"),
+            "search_pattern_reason": top.get("search_pattern_reason"),
+            "search_pattern_fit_summary": top.get("search_pattern_fit_summary"),
             "recommended_drone_count": top.get("drone_count"),
             "recommended_return_threshold": top.get("return_threshold"),
             "risk_summary": {
@@ -93,6 +98,7 @@ class RecommendationService:
             "asset_package": asset_package,
             "technical_details": {
                 "operator_fit_summary": top.get("operator_fit_summary"),
+                "search_pattern_geometry": top.get("search_pattern_geometry"),
                 "sensing_conditions_summary": top.get("sensing_conditions_summary"),
                 "inspection_burden": top.get("inspection_burden"),
                 "mission_intent": mission_intent,
@@ -116,11 +122,12 @@ class RecommendationService:
 
     def _build_explanation(self, top: dict[str, Any], mission_intent: str) -> str:
         strategy_label = self.STRATEGY_LABELS.get(str(top.get("strategy")), str(top.get("strategy") or "this search style"))
+        pattern_label = str(top.get("search_pattern_label") or "this search pattern")
         intent_label = self.INTENT_LABELS.get(mission_intent, mission_intent.replace("_", " "))
         return (
-            f"Recommended {strategy_label} using {top.get('drone_count')} drones with a "
-            f"{top.get('return_threshold')}% return reserve. This best matches the requested {intent_label} "
-            f"while balancing detection speed, battery margin, search overlap, and communications resilience."
+            f"{pattern_label} is the best fit for the requested {intent_label}. "
+            f"It uses {strategy_label} underneath with {top.get('drone_count')} drones and a "
+            f"{top.get('return_threshold')}% return reserve so coverage geometry, battery margin, and confirmation tempo stay aligned."
         )
 
     def _build_concise_summary(
@@ -130,7 +137,7 @@ class RecommendationService:
         asset_package: dict[str, Any],
         mission_intent: str,
     ) -> str:
-        strategy_label = self.STRATEGY_LABELS.get(str(top.get("strategy")), "a recommended search pattern")
+        pattern_label = str(top.get("search_pattern_label") or "a recommended search pattern")
         staging = asset_package.get("staging_location")
         staging_text = f" from the {staging}" if staging else ""
         fleet = asset_package.get("fleet_composition", {})
@@ -138,6 +145,7 @@ class RecommendationService:
         if fleet.get("drone_type_count", 1) <= 1:
             fleet_text = f"{top.get('drone_count')} drones"
         intent_label = self.INTENT_LABELS.get(mission_intent, mission_intent.replace("_", " "))
+        reason = str(top.get("search_pattern_reason") or "").strip()
         tradeoff = ""
         if alternative:
             tradeoff = (
@@ -150,15 +158,18 @@ class RecommendationService:
         elif mission_intent == "high_confidence_confirmation":
             sensing_note = " It favors deliberate cue-to-confirm inspection over the fastest possible sweep."
         return (
-            f"Recommended: use {strategy_label} with {fleet_text}{staging_text}. "
-            f"This gives the best balance for {intent_label}.{tradeoff}{sensing_note}"
+            f"Recommended: use {pattern_label} with {fleet_text}{staging_text}. "
+            f"{reason or f'This gives the best balance for {intent_label}.'}{tradeoff}{sensing_note}"
         )
 
     def _build_alternative_summary(self, alternative: dict[str, Any]) -> str:
-        strategy_label = self.STRATEGY_LABELS.get(str(alternative.get("strategy")), str(alternative.get("strategy") or "alternative plan"))
+        pattern_label = str(
+            alternative.get("search_pattern_label")
+            or self.STRATEGY_LABELS.get(str(alternative.get("strategy")), str(alternative.get("strategy") or "alternative plan"))
+        )
         return (
-            f"Alternative: {strategy_label} with {alternative.get('drone_count')} drones. "
-            f"It stays viable, but gives up some margin on speed, confidence, or reserve."
+            f"Alternative: {pattern_label} with {alternative.get('drone_count')} drones. "
+            f"{alternative.get('search_pattern_reason') or 'It stays viable, but gives up some margin on speed, confidence, or reserve.'}"
         )
 
     def _build_tradeoffs(self, top: dict[str, Any], alternative: dict[str, Any] | None) -> list[str]:

@@ -21,6 +21,7 @@ import {
   createDroneTypeDraft,
   environmentOptions,
   missionIntentOptions,
+  searchPatternOptions,
   searchAreaOptions,
   stagingLocationOptions,
   timeSinceContactOptions,
@@ -28,6 +29,7 @@ import {
   type DroneTypeDraft,
   type EnvironmentType,
   type MissionIntakeDraft,
+  type SearchPatternChoice,
   type SearchAreaSize,
   type StagingLocation,
   type TimeSinceContact,
@@ -538,31 +540,60 @@ export function MissionIntakePage() {
           {step === 2 ? (
             <Panel
               eyebrow="Step 3"
-              title="Choose the search style"
-              description="Choose the operational intent that matters most. The recommendation engine will balance around that goal."
+              title="Set the search intent and pattern"
+              description="Choose the operational intent first, then either let the system recommend the search layout or guide it toward a preferred pattern."
             >
-              <div className="grid gap-3 md:grid-cols-2">
-                {missionIntentOptions.map((option) => (
-                  <ChoiceCard
-                    key={option.value}
-                    label={option.label}
-                    description={option.description}
-                    selected={draft.missionIntent === option.value}
-                    onClick={() =>
-                      updateDraft((current) => ({ ...current, missionIntent: option.value as MissionIntent }))
-                    }
+              <div className="space-y-6">
+                <div>
+                  <p className="field-label">Search intent</p>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {missionIntentOptions.map((option) => (
+                      <ChoiceCard
+                        key={option.value}
+                        label={option.label}
+                        description={option.description}
+                        selected={draft.missionIntent === option.value}
+                        onClick={() =>
+                          updateDraft((current) => ({ ...current, missionIntent: option.value as MissionIntent }))
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="field-label">Search pattern</p>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {searchPatternOptions.map((option) => (
+                      <ChoiceCard
+                        key={option.value}
+                        label={option.label}
+                        description={option.description}
+                        selected={draft.searchPattern === option.value}
+                        onClick={() =>
+                          updateDraft((current) => ({
+                            ...current,
+                            searchPattern: option.value as SearchPatternChoice,
+                          }))
+                        }
+                      />
+                    ))}
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    Automatic selection is recommended for first use. The recommendation briefing will still explain why the chosen layout fits.
+                  </p>
+                </div>
+
+                <label className="block">
+                  <span className="field-label">Operator notes</span>
+                  <textarea
+                    className="field-textarea"
+                    value={draft.operatorNotes}
+                    onChange={(event) => updateDraft((current) => ({ ...current, operatorNotes: event.target.value }))}
+                    placeholder="Optional briefing notes, assumptions, handoff details, or special constraints."
                   />
-                ))}
+                </label>
               </div>
-              <label className="mt-6 block">
-                <span className="field-label">Operator notes</span>
-                <textarea
-                  className="field-textarea"
-                  value={draft.operatorNotes}
-                  onChange={(event) => updateDraft((current) => ({ ...current, operatorNotes: event.target.value }))}
-                  placeholder="Optional briefing notes, assumptions, handoff details, or special constraints."
-                />
-              </label>
             </Panel>
           ) : null}
 
@@ -584,6 +615,11 @@ export function MissionIntakePage() {
               {recommendation.data ? (
                 <RecommendationCard
                   strategy={recommendation.data.recommended_strategy}
+                  searchPattern={recommendation.data.recommended_search_pattern}
+                  searchPatternLabel={recommendation.data.recommended_search_pattern_label}
+                  searchPatternSummary={recommendation.data.search_pattern_summary}
+                  searchPatternReason={recommendation.data.search_pattern_reason}
+                  searchPatternFitSummary={recommendation.data.search_pattern_fit_summary}
                   drones={recommendation.data.recommended_drone_count}
                   reserveThreshold={recommendation.data.recommended_return_threshold}
                   explanation={recommendation.data.explanation}
@@ -682,6 +718,10 @@ export function MissionIntakePage() {
               <SummaryRow
                 label="Search style"
                 value={missionIntentOptions.find((option) => option.value === draft.missionIntent)?.label ?? draft.missionIntent}
+              />
+              <SummaryRow
+                label="Pattern"
+                value={searchPatternOptions.find((option) => option.value === draft.searchPattern)?.label ?? "Let the system recommend"}
               />
             </div>
           </div>

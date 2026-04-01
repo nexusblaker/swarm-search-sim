@@ -39,6 +39,11 @@ function DetailRows({ title, record }: { title: string; record?: Record<string, 
 
 export function RecommendationCard({
   strategy,
+  searchPattern,
+  searchPatternLabel,
+  searchPatternSummary,
+  searchPatternReason,
+  searchPatternFitSummary,
   drones,
   reserveThreshold,
   explanation,
@@ -53,6 +58,11 @@ export function RecommendationCard({
   technicalDetails,
 }: {
   strategy?: string | null;
+  searchPattern?: string | null;
+  searchPatternLabel?: string | null;
+  searchPatternSummary?: string | null;
+  searchPatternReason?: string | null;
+  searchPatternFitSummary?: string | null;
   drones?: number | null;
   reserveThreshold?: number | null;
   explanation: string;
@@ -71,6 +81,7 @@ export function RecommendationCard({
   const mainTradeoff = (keyTradeoffs.length
     ? keyTradeoffs
     : ["Balances speed, confidence, and reserve without a major compromise."])[0];
+  const patternTitle = searchPatternLabel ?? searchPattern ?? strategy ?? "Recommended pattern";
 
   return (
     <div className="panel-subtle p-5 md:p-6">
@@ -80,8 +91,17 @@ export function RecommendationCard({
 
       <div className="mt-6 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-[24px] border border-border bg-white/[0.04] p-5">
-          <p className="section-kicker">Why this is the best fit</p>
-          <p className="mt-3 text-sm leading-7 text-muted">{mainTradeoff}</p>
+          <p className="section-kicker">Recommended pattern</p>
+          <p className="mt-3 text-xl font-semibold text-white">{patternTitle}</p>
+          <p className="mt-3 text-sm leading-7 text-muted">
+            {searchPatternSummary ?? "Pattern summary not available."}
+          </p>
+          <p className="mt-3 text-sm leading-7 text-muted">
+            {searchPatternReason ?? mainTradeoff}
+          </p>
+          {searchPatternFitSummary ? (
+            <p className="mt-3 text-sm leading-7 text-white/90">{searchPatternFitSummary}</p>
+          ) : null}
           {assetPackage?.operator_summary ? (
             <p className="mt-3 text-sm leading-7 text-muted">{assetPackage.operator_summary}</p>
           ) : null}
@@ -112,7 +132,7 @@ export function RecommendationCard({
       </div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <RiskIndicator label="Search style" value={strategy ?? "n/a"} tone="good" />
+        <RiskIndicator label="Search pattern" value={patternTitle} tone="good" />
         <RiskIndicator label="Drone count" value={drones ? String(drones) : "n/a"} />
         <RiskIndicator
           label="Reserve threshold"

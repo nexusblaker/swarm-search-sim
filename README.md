@@ -193,8 +193,30 @@ The guided intake keeps the first pass operator-friendly and hides advanced deta
 - fleet package details
 - staging location
 - operator search intent
+- preferred search pattern or a request for automatic pattern selection
 
 The intake produces a standard `MissionPlan`, so the rest of the workflow remains compatible.
+
+### Search Patterns And Formations
+
+Slice 4 adds an operator-facing search-pattern layer so the platform can explain how the fleet will actually cover ground. Supported patterns include:
+
+- `Broad Area Sweep`: evenly spaced lane coverage for fast early search over wide areas
+- `Sector Split`: parallel zone-based search that makes fleet allocation easy to monitor
+- `Expanding Ring`: outward growth from a known or likely origin area
+- `Perimeter Containment`: boundary-focused search to reduce missed movement beyond the search box
+- `Adaptive Rebalance`: starts from a base pattern and shifts assets when clues, inspections, confirmations, or battery rotations change the mission
+
+Pattern selection is deterministic and explainable. At a high level it considers:
+
+- whether the last known position is known or unknown
+- search area size and shape
+- fleet size and mixed-fleet composition
+- effective sensor swath and overlap margin
+- battery sustainability and reserve burden
+- mission intent from intake
+
+Unknown-location wide-area missions now bias toward coverage-first layouts instead of acting like a point search. Lane spacing and sector partitioning are derived from effective sensor coverage rather than a fixed arbitrary distance.
 
 ### Scenarios
 
@@ -250,10 +272,12 @@ Operators can:
 
 Recommendation outputs include:
 
+- recommended search pattern
 - recommended strategy
 - recommended drone count
 - recommended reserve threshold
 - concise operator-facing summary
+- search-pattern summary and why it fits
 - top alternative summary
 - key tradeoffs
 - key risks
@@ -347,6 +371,8 @@ Mission Control is the live operator view. It supports:
 - clearer separation between mission state and operator actions
 - a dominant mission visual with collapsible event, roster, intervention, and contact modules
 - subtle live refresh behavior while the run is active
+- active search-pattern visibility with plain-language pattern status
+- readable rebalance context when coverage shifts because of candidate contacts, confirmations, returns to base, or redeploys
 
 Supported interventions include:
 
@@ -369,8 +395,10 @@ Replay supports:
 - timeline points for possible contact, inspection, confirmation, and rejection events
 - step summaries with clearer battery rotation context
 - step summaries with clearer sensing progression context
+- step summaries with clearer search-pattern progression context
 - readable fleet state at each replay step
 - a fixed playback workstation layout with collapsible event and roster panels
+- search-pattern change markers and rebalance summaries when the mission shifts coverage
 
 ### Experiments
 
@@ -391,12 +419,14 @@ Reports and review workflows support:
 - alternate-plan summary where available
 - battery lifecycle summaries
 - sensing workflow summaries
+- search-pattern summaries and pattern-change highlights
 - asset rotation counts
 - possible contact, inspection, confirmation, and false-alarm counts
 - mission continuity impact notes
 - battery margin and reserve policy summaries
 - lifecycle event highlights for return, service, redeploy, and rejoin moments
 - sensing highlights for cue, inspect, confirm, reject, and search-resume moments
+- search-pattern highlights for initial layout, rebalance, and restored coverage moments
 - links back to replay and run artifacts
 - clearer artifact linkage and cleaner export browsing
 - human-readable report actions such as mission brief, run summary, and after-action report exports
@@ -441,6 +471,8 @@ Run artifacts now include lifecycle-rich replay and event outputs that preserve:
 - return-to-base, service, redeploy, and rejoin events in the event log
 - sensing-stage state in replay frames and live snapshots
 - candidate contact summaries and cue-to-confirm event history
+- active search-pattern state and search-geometry summary
+- search-pattern selection, rebalance, and restoration events
 
 ## API Coverage
 
@@ -505,6 +537,31 @@ Important Slice 3 payload additions include:
   - `false_positive_rejected`
   - `search_resumed_after_reject`
 
+Important Slice 4 payload additions include:
+
+- plan and recommendation payloads:
+  - `search_pattern`
+  - `recommended_search_pattern`
+  - `recommended_search_pattern_label`
+  - `search_pattern_summary`
+  - `search_pattern_reason`
+  - `search_pattern_fit_summary`
+- run snapshots:
+  - `search_pattern`
+  - `search_pattern_label`
+  - `search_pattern_base`
+  - `search_pattern_rebalanced`
+  - `search_pattern_rebalance_reason`
+  - `search_pattern_geometry`
+- run, review, and report summaries:
+  - `search_pattern`
+  - pattern effectiveness summary
+  - pattern-change highlights
+- event stream:
+  - `search_pattern_selected`
+  - `search_pattern_rebalanced`
+  - `search_pattern_restored`
+
 ## Docker
 
 Local container flow:
@@ -539,6 +596,15 @@ Full local validation used for Slice 3:
 
 ```bash
 pytest -q
+cd app/web
+npm run test
+npm run build
+```
+
+Full local validation used for Slice 4:
+
+```bash
+pytest tests/test_phase4.py tests/test_phase7_product.py -q
 cd app/web
 npm run test
 npm run build

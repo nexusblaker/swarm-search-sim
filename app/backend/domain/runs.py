@@ -162,6 +162,16 @@ class MissionRunController:
                     **scenario_summary(self.config),
                     "metrics": to_jsonable(asdict(self.engine.metrics)),
                     "run_phase": snapshot.get("run_phase"),
+                    "search_pattern": snapshot.get("search_pattern"),
+                    "search_pattern_label": snapshot.get("search_pattern_label"),
+                    "search_pattern_summary": snapshot.get("search_pattern_summary"),
+                    "search_pattern_reason": snapshot.get("search_pattern_reason"),
+                    "search_pattern_fit_summary": snapshot.get("search_pattern_fit_summary"),
+                    "search_pattern_base": snapshot.get("search_pattern_base"),
+                    "search_pattern_base_label": snapshot.get("search_pattern_base_label"),
+                    "search_pattern_rebalanced": snapshot.get("search_pattern_rebalanced"),
+                    "search_pattern_rebalance_reason": snapshot.get("search_pattern_rebalance_reason"),
+                    "search_pattern_geometry": snapshot.get("search_pattern_geometry", {}),
                     "lifecycle_summary": snapshot.get("lifecycle_summary", {}),
                     "sensing_summary": snapshot.get("sensing_summary", {}),
                     "drone_statuses": [
@@ -317,6 +327,8 @@ class MissionService:
             if candidate:
                 candidate_config = candidate["config_json"]
                 scenario_payload["scenario"]["strategy"] = candidate_config["strategy"]
+                if candidate_config.get("search_pattern"):
+                    scenario_payload["scenario"]["search_pattern"] = candidate_config["search_pattern"]
                 scenario_payload["scenario"]["num_drones"] = int(candidate_config["drone_count"])
                 scenario_payload["scenario"].setdefault("communication", {})["coordination_mode"] = candidate_config["coordination_mode"]
                 scenario_payload["scenario"].setdefault("battery_policy", {})["return_threshold"] = float(

@@ -243,6 +243,8 @@ class MissionPlanService:
 
         if request.get("strategy"):
             scenario_block["strategy"] = request["strategy"]
+        if request.get("search_pattern"):
+            scenario_block["search_pattern"] = request["search_pattern"]
         if request.get("num_drones") is not None:
             scenario_block["num_drones"] = int(request["num_drones"])
         if request.get("weather"):

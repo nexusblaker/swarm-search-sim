@@ -14,6 +14,11 @@ from src.probability.belief import BeliefState
 from src.simulation.engine import SimulationEngine
 from src.simulation.lifecycle import LIFECYCLE_READY, LIFECYCLE_RECHARGING, LIFECYCLE_RETURNING
 from src.simulation.planning import astar_path
+from src.simulation.search_patterns import (
+    SearchPatternPlanner,
+    estimate_search_geometry,
+    recommend_search_pattern,
+)
 from src.utils.config_loader import load_scenario_config
 from src.utils.event_logger import EventLogger
 
@@ -67,6 +72,33 @@ def test_information_gain_strategy_and_hierarchical_objectives_run() -> None:
     assert engine.global_objectives
     assert len(engine.global_objectives) == config.num_drones
     assert engine.information_gain_history
+
+
+def test_search_pattern_recommendation_prefers_broad_sweep_for_unknown_wide_area() -> None:
+    config = replace(
+        load_scenario_config(),
+        map_size=(30, 22),
+        num_drones=4,
+        mission_intent="broad_area_coverage",
+        search_pattern="auto",
+        last_known_status="unknown",
+    )
+
+    decision = recommend_search_pattern(config)
+
+    assert decision.pattern == "broad_area_sweep"
+    assert "wide" in decision.reason.lower() or "uncertain" in decision.reason.lower()
+
+
+def test_search_geometry_lane_spacing_grows_with_sensor_swath() -> None:
+    base = replace(load_scenario_config(), sensor_range=4.0)
+    wide = replace(load_scenario_config(), sensor_range=8.0)
+
+    base_geometry = estimate_search_geometry(base)
+    wide_geometry = estimate_search_geometry(wide)
+
+    assert wide_geometry.effective_swath_cells > base_geometry.effective_swath_cells
+    assert wide_geometry.lane_spacing_cells > base_geometry.lane_spacing_cells
 
 
 def test_low_battery_drones_eventually_return_to_base() -> None:
@@ -254,6 +286,26 @@ def test_force_return_cycle_records_recharge_and_redeploy_events() -> None:
     assert LIFECYCLE_READY in seen_states or engine.drones[0].redeployments > 0
     assert engine.drones[0].redeployments >= 1
     assert {"return_to_base", "battery_service_started", "battery_service_completed", "drone_redeployed"} <= event_types
+
+
+def test_engine_snapshot_and_events_expose_search_pattern_state() -> None:
+    config = replace(
+        load_scenario_config(),
+        max_steps=6,
+        search_pattern="broad_area_sweep",
+        last_known_status="unknown",
+        false_positive_rate=0.0,
+        false_negative_rate=1.0,
+        visual_false_negative_rate=1.0,
+    )
+    engine = SimulationEngine(config)
+    snapshot = engine.step()
+
+    event_types = {event["event_type"] for event in engine.logger.events}
+
+    assert snapshot["search_pattern_label"] == "Broad Area Sweep"
+    assert "search_pattern_geometry" in snapshot
+    assert "search_pattern_selected" in event_types
 
 
 def test_comms_delay_and_loss_change_shared_state_behavior() -> None:

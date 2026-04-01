@@ -7,6 +7,9 @@ from typing import Any
 
 
 LIFECYCLE_EVENT_ORDER = {
+    "search_pattern_selected": "search pattern selected",
+    "search_pattern_rebalanced": "search pattern rebalanced",
+    "search_pattern_restored": "search pattern restored",
     "approaching_reserve_limit": "approaching reserve limit",
     "critical_battery_margin": "critical battery margin",
     "battery_return_ordered": "return to base ordered",
@@ -78,6 +81,12 @@ def summarize_lifecycle_event(event: dict[str, Any]) -> dict[str, Any]:
         summary = f"Drone {drone_id} rejected the contact as a false alarm."
     elif event_type == "search_resumed_after_reject":
         summary = f"Drone {drone_id} resumed the wider search after rejecting the contact."
+    elif event_type == "search_pattern_selected":
+        summary = f"{event.get('pattern_label', 'Search pattern')} selected for the mission."
+    elif event_type == "search_pattern_rebalanced":
+        summary = f"{event.get('pattern_label', 'Adaptive Rebalance')} engaged because {event.get('reason', 'mission conditions changed')}."
+    elif event_type == "search_pattern_restored":
+        summary = f"The mission returned to {event.get('base_pattern_label', 'the planned search pattern')} after the temporary rebalance."
     return {
         "step": event.get("step"),
         "event_type": event_type,
@@ -219,5 +228,49 @@ def summarize_sensing_lifecycle(run_record: dict[str, Any], events: list[dict[st
         "operator_summary": operator_summary,
         "inspection_burden_summary": inspection_burden,
         "mission_impact_summary": mission_impact,
+        "highlights": highlights,
+    }
+
+
+def summarize_search_pattern(run_record: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return a readable search-pattern summary for reports and reviews."""
+
+    summary_json = run_record.get("summary_json", {})
+    pattern_events = [
+        event
+        for event in events
+        if str(event.get("event_type"))
+        in {"search_pattern_selected", "search_pattern_rebalanced", "search_pattern_restored", "coverage_rebalance_triggered"}
+    ]
+    pattern_label = str(summary_json.get("search_pattern_label") or "Search pattern")
+    base_label = str(summary_json.get("search_pattern_base_label") or pattern_label)
+    summary = str(summary_json.get("search_pattern_summary") or "Pattern summary not recorded.")
+    reason = str(summary_json.get("search_pattern_reason") or "Pattern fit note not recorded.")
+    fit = str(summary_json.get("search_pattern_fit_summary") or "Pattern fit note not recorded.")
+    rebalanced = bool(summary_json.get("search_pattern_rebalanced"))
+    rebalance_reason = summary_json.get("search_pattern_rebalance_reason")
+    geometry = dict(summary_json.get("search_pattern_geometry", {}))
+    highlights = [summarize_lifecycle_event(event) for event in pattern_events[:12]]
+
+    if rebalanced and rebalance_reason:
+        mission_effect = (
+            f"The mission temporarily shifted away from {base_label.lower()} because {rebalance_reason}."
+        )
+    else:
+        mission_effect = f"The mission largely held its planned {base_label.lower()} layout."
+
+    return {
+        "pattern": summary_json.get("search_pattern"),
+        "pattern_label": pattern_label,
+        "base_pattern": summary_json.get("search_pattern_base") or summary_json.get("search_pattern"),
+        "base_pattern_label": base_label,
+        "summary": summary,
+        "reason": reason,
+        "fit_summary": fit,
+        "rebalanced": rebalanced,
+        "rebalance_reason": rebalance_reason,
+        "geometry": geometry,
+        "mission_effect_summary": mission_effect,
+        "change_count": len([event for event in pattern_events if event.get("event_type") == "search_pattern_rebalanced"]),
         "highlights": highlights,
     }

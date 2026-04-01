@@ -43,6 +43,7 @@ from src.simulation.lifecycle import (
     resolve_reserve_profile,
 )
 from src.simulation.planning import astar_path, path_cost
+from src.simulation.search_patterns import SearchPatternPlanner
 from src.simulation.sensing import (
     CONTACT_CONFIRMED,
     CONTACT_CONFIRMATION_PENDING,
@@ -214,6 +215,8 @@ class SimulationEngine:
         self.rejected_contact_events = 0
         self.contact_index = 0
         self.tracked_contacts: dict[str, TrackedContact] = {}
+        self.search_pattern_planner: SearchPatternPlanner | None = None
+        self.search_pattern_state: dict[str, Any] = {}
         self.global_objectives: dict[int, Position] = {}
         self.last_objectives: dict[int, Position] = {}
         self.paused = False
@@ -259,6 +262,9 @@ class SimulationEngine:
         self.target = self._build_target()
         self.strategy = self._build_strategy(self.config.strategy)
         self.strategy.reset(self.environment, self.drones)
+        self.search_pattern_planner = SearchPatternPlanner(self.config, self.environment)
+        self.search_pattern_planner.prepare(self.drones)
+        self.search_pattern_state = self.search_pattern_planner.state_snapshot()
         self.metrics = SimulationMetrics(detection_under_comms_mode=self.config.coordination_mode)
         self.current_step = 0
         self.done = False
@@ -308,6 +314,7 @@ class SimulationEngine:
         self.rejected_contact_events = 0
         self.contact_index = 0
         self.tracked_contacts = {}
+        self.search_pattern_state = self.search_pattern_planner.state_snapshot() if self.search_pattern_planner else {}
         self.global_objectives = {}
         self.last_objectives = {}
         self.paused = False
@@ -317,6 +324,18 @@ class SimulationEngine:
         self.exclusion_zones = []
         self.logger = EventLogger()
         self.history = []
+        if self.search_pattern_planner is not None:
+            for event in self.search_pattern_planner.drain_events():
+                self.logger.record(
+                    str(event["event_type"]),
+                    self.current_step,
+                    pattern=event.get("pattern"),
+                    pattern_label=event.get("pattern_label"),
+                    base_pattern=event.get("base_pattern"),
+                    base_pattern_label=event.get("base_pattern_label"),
+                    reason=event.get("reason"),
+                    summary=event.get("summary"),
+                )
         self._update_metrics()
         self._record_history()
 
@@ -365,6 +384,34 @@ class SimulationEngine:
             probability_map=self.probability_map,
             step_index=self.current_step,
         )
+        if self.search_pattern_planner is not None and strategic_drones:
+            pattern_goals = self.search_pattern_planner.select_goals(
+                strategic_drones,
+                self.probability_map,
+                [
+                    {
+                        "id": contact.id,
+                        "position": contact.position,
+                        "resolved": contact.resolved,
+                        "status": contact.status,
+                    }
+                    for contact in self.tracked_contacts.values()
+                ],
+                self.coverage_gap_active,
+            )
+            proposed_goals.update(pattern_goals)
+            self.search_pattern_state = self.search_pattern_planner.state_snapshot()
+            for event in self.search_pattern_planner.drain_events():
+                self.logger.record(
+                    str(event["event_type"]),
+                    self.current_step,
+                    pattern=event.get("pattern"),
+                    pattern_label=event.get("pattern_label"),
+                    base_pattern=event.get("base_pattern"),
+                    base_pattern_label=event.get("base_pattern_label"),
+                    reason=event.get("reason"),
+                    summary=event.get("summary"),
+                )
         proposed_goals = self._apply_operator_guidance(proposed_goals)
         proposed_goals = self._seed_redeploy_goals(proposed_goals)
         self.global_objectives = self._derive_global_objectives(proposed_goals)
@@ -518,6 +565,8 @@ class SimulationEngine:
             "paused": self.paused,
             "weather": self.config.weather,
             "strategy": self.config.strategy,
+            "last_known_position": self.config.last_known_position,
+            "last_known_status": self.config.last_known_status,
             "coordination_mode": self.config.coordination_mode,
             "run_phase": self._run_phase_label(),
             "base_position": self.config.base_position,
@@ -536,6 +585,7 @@ class SimulationEngine:
             "communication_links": list(self.communication_links),
             "reserved_paths": {drone_id: list(path) for drone_id, path in self.reserved_paths.items()},
             "global_objectives": dict(self.global_objectives),
+            **self.search_pattern_state,
             "manual_targets": dict(self.manual_targets),
             "forced_return_overrides": sorted(self.forced_return_overrides),
             "priority_zones": list(self.priority_zones),

@@ -10,6 +10,8 @@ const snapshot = {
   paused: false,
   weather: "clear",
   strategy: "information_gain",
+  search_pattern_label: "Broad Area Sweep",
+  search_pattern_summary: "Spreads the fleet across evenly spaced lanes to maximize early area coverage.",
   coordination_mode: "centralized",
   base_position: [0, 0],
   terrain_grid: [
@@ -78,7 +80,7 @@ vi.mock("@/api/hooks", () => ({
           created_at: 1_700_000_000,
           updated_at: 1_700_000_001,
           config_json: {},
-          summary_json: { strategy: "information_gain", scenario_family: "mixed_terrain" },
+          summary_json: { strategy: "information_gain", scenario_family: "mixed_terrain", search_pattern_label: "Broad Area Sweep" },
           latest_snapshot_json: snapshot,
           output_dir: "C:/tmp",
           artifact_paths: {},
@@ -128,5 +130,6 @@ describe("MissionControlPage", () => {
     expect(screen.getByText("Launch mission run")).toBeInTheDocument();
     expect(screen.getByText("Contact workflow")).toBeInTheDocument();
     expect(screen.getByText("Fleet roster")).toBeInTheDocument();
+    expect(screen.getAllByText("Broad Area Sweep").length).toBeGreaterThan(0);
   });
 });

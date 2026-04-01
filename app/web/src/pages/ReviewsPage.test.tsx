@@ -36,6 +36,13 @@ vi.mock("@/api/hooks", () => ({
               inspection_pass_count: 2,
               false_positive_count: 1,
             },
+            search_pattern: {
+              pattern_label: "Broad Area Sweep",
+              summary: "Spreads the fleet across evenly spaced lanes to maximize early area coverage.",
+              reason: "The last known position was uncertain, so early coverage mattered most.",
+              mission_effect_summary: "The mission largely held its planned broad area sweep layout.",
+              change_count: 1,
+            },
           },
           timeline_json: {
             key_events: [
@@ -97,6 +104,7 @@ describe("ReviewsPage", () => {
 
     expect(screen.getByText("After-action review")).toBeInTheDocument();
     expect(screen.getByText("Mission outcome")).toBeInTheDocument();
+    expect(screen.getByText("Search pattern summary")).toBeInTheDocument();
     expect(screen.getByText("Sensing workflow summary")).toBeInTheDocument();
     expect(screen.getByText("Review timeline")).toBeInTheDocument();
     expect(screen.getByText("Open after-action report")).toBeInTheDocument();

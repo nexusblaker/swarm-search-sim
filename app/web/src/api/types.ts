@@ -55,6 +55,22 @@ export interface SensingLifecycleSummary {
   highlights?: LifecycleHighlight[];
 }
 
+export interface SearchPatternSummary {
+  pattern?: string;
+  pattern_label?: string;
+  base_pattern?: string;
+  base_pattern_label?: string;
+  summary?: string;
+  reason?: string;
+  fit_summary?: string;
+  rebalanced?: boolean;
+  rebalance_reason?: string | null;
+  geometry?: Record<string, unknown>;
+  mission_effect_summary?: string;
+  change_count?: number;
+  highlights?: LifecycleHighlight[];
+}
+
 export interface DroneStatusSummary {
   id: number;
   operator_status?: string;
@@ -80,6 +96,16 @@ export interface LifecycleSummaryRecord {
 
 export interface RunSummaryRecord extends SummaryRecord {
   strategy?: string;
+  search_pattern?: string;
+  search_pattern_label?: string;
+  search_pattern_summary?: string;
+  search_pattern_reason?: string;
+  search_pattern_fit_summary?: string;
+  search_pattern_base?: string;
+  search_pattern_base_label?: string;
+  search_pattern_rebalanced?: boolean;
+  search_pattern_rebalance_reason?: string | null;
+  search_pattern_geometry?: Record<string, unknown>;
   scenario_family?: string;
   coordination_mode?: string;
   reserve_preset?: string;
@@ -112,6 +138,7 @@ export interface ReviewSummaryRecord extends SummaryRecord {
   asset_utilization?: Record<string, unknown>;
   battery_lifecycle?: BatteryLifecycleSummary;
   sensing_lifecycle?: SensingLifecycleSummary;
+  search_pattern?: SearchPatternSummary;
   battery_comms_risk_summary?: Record<string, unknown>;
   alternate_plan_summary?: Record<string, unknown>;
   links?: Record<string, unknown>;
@@ -122,6 +149,8 @@ export interface ReportSummaryRecord extends SummaryRecord {
   review_id?: string;
   plan_id?: string | null;
   strategy?: string;
+  search_pattern?: SearchPatternSummary;
+  search_pattern_label?: string;
   status?: string;
   run_phase?: string;
   battery_lifecycle?: BatteryLifecycleSummary;
@@ -406,6 +435,11 @@ export interface ComparePlansResponse {
 
 export interface RecommendationResponse {
   recommended_strategy?: string | null;
+  recommended_search_pattern?: string | null;
+  recommended_search_pattern_label?: string | null;
+  search_pattern_summary?: string | null;
+  search_pattern_reason?: string | null;
+  search_pattern_fit_summary?: string | null;
   recommended_drone_count?: number | null;
   recommended_return_threshold?: number | null;
   risk_summary: Record<string, unknown>;
@@ -464,6 +498,18 @@ export interface Snapshot {
   paused: boolean;
   weather: string;
   strategy: string;
+  last_known_position?: [number, number];
+  last_known_status?: string;
+  search_pattern?: string;
+  search_pattern_label?: string;
+  search_pattern_summary?: string;
+  search_pattern_reason?: string;
+  search_pattern_fit_summary?: string;
+  search_pattern_base?: string;
+  search_pattern_base_label?: string;
+  search_pattern_rebalanced?: boolean;
+  search_pattern_rebalance_reason?: string | null;
+  search_pattern_geometry?: Record<string, unknown>;
   coordination_mode: string;
   run_phase?: string;
   base_position: [number, number];

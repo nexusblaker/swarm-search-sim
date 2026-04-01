@@ -22,6 +22,9 @@ const RESERVE_LABELS: Record<string, string> = {
 };
 
 const EVENT_LABELS: Record<string, string> = {
+  search_pattern_selected: "Search Pattern Selected",
+  search_pattern_rebalanced: "Adaptive Rebalance",
+  search_pattern_restored: "Planned Pattern Restored",
   approaching_reserve_limit: "Approaching Reserve",
   critical_battery_margin: "Critical Battery Margin",
   battery_return_ordered: "Return to Base Ordered",

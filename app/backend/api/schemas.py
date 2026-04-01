@@ -145,6 +145,7 @@ class MissionPlanCreateRequest(BaseModel):
     scenario: dict[str, Any] | None = None
     plan_json: dict[str, Any] | None = None
     strategy: str | None = None
+    search_pattern: str | None = None
     num_drones: int | None = None
     weather: str | None = None
     target_behavior: str | None = None
@@ -274,6 +275,7 @@ class ExperimentListResponse(BaseModel):
 class ComparisonCandidateInput(BaseModel):
     name: str | None = None
     strategy: str | None = None
+    search_pattern: str | None = None
     drone_count: int | None = None
     coordination_mode: str | None = None
     return_threshold: float | None = None
@@ -382,6 +384,7 @@ class RecommendRequest(BaseModel):
     plan_id: str | None = None
     asset_package: AssetPackage | None = None
     mission_intent: str | None = None
+    search_pattern: str | None = None
     strategies: list[str] | None = None
     drone_counts: list[int] | None = None
     coordination_modes: list[str] | None = None
@@ -391,6 +394,11 @@ class RecommendRequest(BaseModel):
 
 class RecommendResponse(BaseModel):
     recommended_strategy: str | None = None
+    recommended_search_pattern: str | None = None
+    recommended_search_pattern_label: str | None = None
+    search_pattern_summary: str | None = None
+    search_pattern_reason: str | None = None
+    search_pattern_fit_summary: str | None = None
     recommended_drone_count: int | None = None
     recommended_return_threshold: float | None = None
     risk_summary: dict[str, Any]

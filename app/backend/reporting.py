@@ -8,7 +8,7 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from app.backend.domain.lifecycle import summarize_battery_lifecycle, summarize_sensing_lifecycle
+from app.backend.domain.lifecycle import summarize_battery_lifecycle, summarize_search_pattern, summarize_sensing_lifecycle
 from app.backend.storage import LocalProductPaths
 
 
@@ -42,6 +42,7 @@ class ReportGenerator:
             metrics=run_record.get("metrics", run_record.get("summary_json", {}).get("metrics", {})),
             battery_lifecycle=summarize_battery_lifecycle(run_record, events),
             sensing_lifecycle=summarize_sensing_lifecycle(run_record, events),
+            search_pattern=summarize_search_pattern(run_record, events),
             artifacts=run_record.get("artifact_paths", {}),
             recommendation=run_record.get("recommendation"),
         )
@@ -71,6 +72,6 @@ class ReportGenerator:
 
         template = self.environment.get_template("after_action_review_report.html.j2")
         output_path = self.paths.reports_dir / f"{review_record['id']}.html"
-        html = template.render(review=review_record)
+        html = template.render(review=review_record, search_pattern=review_record.get("summary_json", {}).get("search_pattern", {}))
         output_path.write_text(html, encoding="utf-8")
         return output_path

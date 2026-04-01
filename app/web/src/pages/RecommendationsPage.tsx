@@ -72,6 +72,11 @@ export function RecommendationsPage() {
         <>
           <RecommendationCard
             strategy={recommendation.data.recommended_strategy}
+            searchPattern={recommendation.data.recommended_search_pattern}
+            searchPatternLabel={recommendation.data.recommended_search_pattern_label}
+            searchPatternSummary={recommendation.data.search_pattern_summary}
+            searchPatternReason={recommendation.data.search_pattern_reason}
+            searchPatternFitSummary={recommendation.data.search_pattern_fit_summary}
             drones={recommendation.data.recommended_drone_count}
             reserveThreshold={recommendation.data.recommended_return_threshold}
             explanation={recommendation.data.explanation}
@@ -109,9 +114,9 @@ export function RecommendationsPage() {
             description="These are the candidate options the recommendation engine evaluated before choosing the lead plan."
           >
             <DataTable
-              columns={["Search style", "Drones", "Team coordination", "Success", "Detection time", "Watch items"]}
+              columns={["Search pattern", "Drones", "Team coordination", "Success", "Detection time", "Watch items"]}
               rows={recommendation.data.candidate_plans.map((candidate) => [
-                String(candidate.strategy ?? "n/a"),
+                String(candidate.search_pattern_label ?? candidate.strategy ?? "n/a"),
                 String(candidate.drone_count ?? "n/a"),
                 String(candidate.team_coordination_label ?? candidate.coordination_mode ?? "n/a"),
                 String(candidate.expected_success_rate ?? "n/a"),

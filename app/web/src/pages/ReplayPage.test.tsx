@@ -9,6 +9,10 @@ const snapshot = {
   paused: false,
   weather: "clear",
   strategy: "information_gain",
+  search_pattern_label: "Adaptive Rebalance",
+  search_pattern_summary: "Begins with structured coverage, then shifts drones toward clues and thinner sectors.",
+  search_pattern_rebalanced: true,
+  search_pattern_rebalance_reason: "possible contact activity",
   coordination_mode: "centralized",
   run_phase: "Battery rotation underway",
   base_position: [0, 0],
@@ -137,5 +141,6 @@ describe("ReplayPage", () => {
     expect(screen.getByText("Fleet roster")).toBeInTheDocument();
     expect(screen.getByText(/Step 4 \| Inspection Started/i)).toBeInTheDocument();
     expect(screen.getByText("Frame summary")).toBeInTheDocument();
+    expect(screen.getAllByText("Adaptive Rebalance").length).toBeGreaterThan(0);
   });
 });

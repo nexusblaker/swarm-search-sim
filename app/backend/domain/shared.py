@@ -11,6 +11,7 @@ import pandas as pd
 
 from src.analytics.metrics import SimulationMetrics
 from src.scenarios.scenario import ScenarioConfig
+from src.simulation.search_patterns import pattern_label
 from src.utils.event_logger import EventLogger
 
 
@@ -50,6 +51,10 @@ def scenario_summary(config: ScenarioConfig) -> dict[str, Any]:
 
     return {
         "strategy": config.strategy,
+        "mission_intent": config.mission_intent,
+        "search_pattern": config.search_pattern,
+        "search_pattern_label": pattern_label(config.search_pattern),
+        "last_known_status": config.last_known_status,
         "scenario_family": config.scenario_family,
         "num_drones": config.num_drones,
         "map_size": list(config.map_size),
@@ -60,6 +65,7 @@ def scenario_summary(config: ScenarioConfig) -> dict[str, Any]:
         "reserve_preset": config.reserve_preset,
         "drone_range_km": config.drone_range_km,
         "turnaround_time_minutes": config.turnaround_time_minutes,
+        "coverage_overlap_margin": config.coverage_overlap_margin,
     }
 
 
