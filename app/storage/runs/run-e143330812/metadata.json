@@ -1,0 +1,3385 @@
+{
+  "id": "run-e143330812",
+  "scenario_id": "plan",
+  "status": "completed",
+  "created_at": 1775018240.5899117,
+  "updated_at": 1775018245.995988,
+  "completed_at": 1775018245.995988,
+  "config_json": {
+    "scenario": {
+      "name": "New search mission",
+      "map_size": [
+        19,
+        16
+      ],
+      "weather": "clear",
+      "num_drones": 8,
+      "last_known_position": [
+        9,
+        9
+      ],
+      "target_assumptions": {
+        "behavior": "terrain_biased",
+        "target_move_probability": 0.34,
+        "target_speed": 1,
+        "drift_sigma": 5
+      },
+      "target_start_radius": 4,
+      "max_steps": 56,
+      "strategy": "sector_search",
+      "search_pattern": "sector_split",
+      "scenario_family": "obstacle_heavy",
+      "last_known_status": "known",
+      "base_position": [
+        8,
+        0
+      ],
+      "mission_area": {
+        "location_display_name": "Katoomba, NSW",
+        "location_source": "local_gazetteer",
+        "location_query": "Katoomba, NSW",
+        "center": {
+          "latitude": -33.7126,
+          "longitude": 150.3119
+        },
+        "preview_span_km": 20,
+        "shape_type": "rectangle",
+        "rectangle": {
+          "north": -33.67153493193435,
+          "south": -33.74132545991175,
+          "east": 150.36154362615264,
+          "west": 150.2587201155461
+        },
+        "polygon": [
+          {
+            "latitude": -33.67153493193435,
+            "longitude": 150.2587201155461
+          },
+          {
+            "latitude": -33.67153493193435,
+            "longitude": 150.36154362615264
+          },
+          {
+            "latitude": -33.74132545991175,
+            "longitude": 150.36154362615264
+          },
+          {
+            "latitude": -33.74132545991175,
+            "longitude": 150.2587201155461
+          }
+        ],
+        "bounds": {
+          "north": -33.67153493193435,
+          "south": -33.74132545991175,
+          "east": 150.36154362615264,
+          "west": 150.2587201155461
+        },
+        "width_km": 9.52,
+        "height_km": 7.77,
+        "area_sq_km": 73.97,
+        "shape_ratio": 1.23,
+        "requested_grid_resolution_m": 500,
+        "grid_resolution_m": 500,
+        "cell_size_m": 500,
+        "grid_size": [
+          19,
+          16
+        ],
+        "max_safe_cells": 4900,
+        "warnings": [],
+        "terrain_hint": "mountain",
+        "last_known_status": "known",
+        "environment_type": "mixed_terrain",
+        "center_grid_position": [
+          9,
+          8
+        ],
+        "shape_summary": "Rectangle AOI",
+        "staging": {
+          "latitude": -33.66864885746912,
+          "longitude": 150.30605157280942,
+          "label": "Primary staging point",
+          "placement": "map",
+          "grid_position": [
+            8,
+            0
+          ]
+        },
+        "staging_distance_to_center_km": 4.92,
+        "last_known_grid_position": [
+          9,
+          9
+        ],
+        "operator_summary": "Katoomba, NSW AOI covers about 74.0 km\u00b2 across 9.5 by 7.8 km at roughly 500 m cells.",
+        "grid_summary": {
+          "map_size": [
+            19,
+            16
+          ],
+          "cell_size_m": 500,
+          "shape_label": "Rectangle AOI",
+          "operator_summary": "The selected area maps to a 19 by 16 planning grid."
+        },
+        "terrain_summary": {
+          "source_mode": "local_first_deterministic",
+          "dominant_terrain": "hill country",
+          "terrain_mix": {
+            "open terrain": 0.105,
+            "forest": 0.076,
+            "hill country": 0.641,
+            "urban edge": 0.026,
+            "water / no-go": 0.151
+          },
+          "elevation_range_m": [
+            0,
+            1242
+          ],
+          "mean_elevation_m": 645.3,
+          "slope_burden": "elevated",
+          "trail_access": "good",
+          "trail_coverage_pct": 0.201,
+          "obstacle_coverage_pct": 0.247,
+          "suggested_scenario_family": "obstacle_heavy",
+          "operator_summary": "The selected area is mostly hill country, with elevated slope burden and good trail access."
+        }
+      },
+      "communication": {
+        "coordination_mode": "centralized"
+      },
+      "battery_policy": {
+        "return_threshold": 28
+      },
+      "render": {
+        "save_frames": false,
+        "frame_stride": 3
+      },
+      "mission_intent": "broad_area_coverage",
+      "asset_package": {
+        "package_name": "New search mission fleet",
+        "uniform_fleet": true,
+        "staging_location": "Primary staging point",
+        "notes": "",
+        "drone_types": [
+          {
+            "display_name": "General purpose drone",
+            "model_name": "General purpose drone",
+            "count": 8,
+            "max_endurance_minutes": 20.0,
+            "estimated_max_range_km": 14.0,
+            "cruise_speed_kph": 30.0,
+            "sensor_capability_level": "standard",
+            "thermal_capability_level": "assisted",
+            "detection_capability_proxy": 1.0,
+            "turnaround_time_minutes": 18.0,
+            "notes": ""
+          }
+        ],
+        "fleet_composition": {
+          "mix_type": "uniform",
+          "total_drones": 8,
+          "drone_type_count": 1,
+          "aggregate_endurance_minutes": 20.0,
+          "aggregate_range_km": 14.0,
+          "aggregate_speed_kph": 30.0,
+          "sensor_score": 1.0,
+          "thermal_score": 1.0,
+          "detection_score": 1.0,
+          "endurance_score": 0.2,
+          "coverage_score": 1.45,
+          "coordination_complexity": "low",
+          "average_turnaround_minutes": 18.0
+        },
+        "operator_summary": "8 General purpose drone staged from Primary staging point available for this mission."
+      },
+      "drone": {
+        "battery": 60.0,
+        "speed": 1,
+        "sensor_range": 5.31,
+        "fov": 130.0,
+        "estimated_max_range_km": 14.0,
+        "cruise_speed_kph": 30.0,
+        "sensor_capability_level": "standard",
+        "thermal_capability_level": "assisted",
+        "turnaround_time_minutes": 18.0,
+        "fleet_composition": {
+          "mix_type": "uniform",
+          "total_drones": 8,
+          "drone_type_count": 1,
+          "aggregate_endurance_minutes": 20.0,
+          "aggregate_range_km": 14.0,
+          "aggregate_speed_kph": 30.0,
+          "sensor_score": 1.0,
+          "thermal_score": 1.0,
+          "detection_score": 1.0,
+          "endurance_score": 0.2,
+          "coverage_score": 1.45,
+          "coordination_complexity": "low",
+          "average_turnaround_minutes": 18.0
+        }
+      }
+    }
+  },
+  "summary_json": {
+    "strategy": "sector_search",
+    "mission_intent": "broad_area_coverage",
+    "search_pattern": "adaptive_rebalance",
+    "search_pattern_label": "Adaptive Rebalance",
+    "last_known_status": "known",
+    "scenario_family": "obstacle_heavy",
+    "num_drones": 8,
+    "map_size": [
+      19,
+      16
+    ],
+    "weather": "clear",
+    "target_behavior": "terrain_biased",
+    "coordination_mode": "centralized",
+    "return_to_base_threshold": 28.0,
+    "reserve_preset": "balanced",
+    "drone_range_km": 14.0,
+    "turnaround_time_minutes": 18.0,
+    "coverage_overlap_margin": 0.18,
+    "mission_area": {
+      "location_display_name": "Katoomba, NSW",
+      "location_source": "local_gazetteer",
+      "location_query": "Katoomba, NSW",
+      "center": {
+        "latitude": -33.7126,
+        "longitude": 150.3119
+      },
+      "preview_span_km": 20,
+      "shape_type": "rectangle",
+      "rectangle": {
+        "north": -33.67153493193435,
+        "south": -33.74132545991175,
+        "east": 150.36154362615264,
+        "west": 150.2587201155461
+      },
+      "polygon": [
+        {
+          "latitude": -33.67153493193435,
+          "longitude": 150.2587201155461
+        },
+        {
+          "latitude": -33.67153493193435,
+          "longitude": 150.36154362615264
+        },
+        {
+          "latitude": -33.74132545991175,
+          "longitude": 150.36154362615264
+        },
+        {
+          "latitude": -33.74132545991175,
+          "longitude": 150.2587201155461
+        }
+      ],
+      "bounds": {
+        "north": -33.67153493193435,
+        "south": -33.74132545991175,
+        "east": 150.36154362615264,
+        "west": 150.2587201155461
+      },
+      "width_km": 9.52,
+      "height_km": 7.77,
+      "area_sq_km": 73.97,
+      "shape_ratio": 1.23,
+      "requested_grid_resolution_m": 500,
+      "grid_resolution_m": 500,
+      "cell_size_m": 500,
+      "grid_size": [
+        19,
+        16
+      ],
+      "max_safe_cells": 4900,
+      "warnings": [],
+      "terrain_hint": "mountain",
+      "last_known_status": "known",
+      "environment_type": "mixed_terrain",
+      "center_grid_position": [
+        9,
+        8
+      ],
+      "shape_summary": "Rectangle AOI",
+      "staging": {
+        "latitude": -33.66864885746912,
+        "longitude": 150.30605157280942,
+        "label": "Primary staging point",
+        "placement": "map",
+        "grid_position": [
+          8,
+          0
+        ]
+      },
+      "staging_distance_to_center_km": 4.92,
+      "last_known_grid_position": [
+        9,
+        9
+      ],
+      "operator_summary": "Katoomba, NSW AOI covers about 74.0 km\u00b2 across 9.5 by 7.8 km at roughly 500 m cells.",
+      "grid_summary": {
+        "map_size": [
+          19,
+          16
+        ],
+        "cell_size_m": 500,
+        "shape_label": "Rectangle AOI",
+        "operator_summary": "The selected area maps to a 19 by 16 planning grid."
+      },
+      "terrain_summary": {
+        "source_mode": "local_first_deterministic",
+        "dominant_terrain": "hill country",
+        "terrain_mix": {
+          "open terrain": 0.105,
+          "forest": 0.076,
+          "hill country": 0.641,
+          "urban edge": 0.026,
+          "water / no-go": 0.151
+        },
+        "elevation_range_m": [
+          0,
+          1242
+        ],
+        "mean_elevation_m": 645.3,
+        "slope_burden": "elevated",
+        "trail_access": "good",
+        "trail_coverage_pct": 0.201,
+        "obstacle_coverage_pct": 0.247,
+        "suggested_scenario_family": "obstacle_heavy",
+        "operator_summary": "The selected area is mostly hill country, with elevated slope burden and good trail access."
+      }
+    },
+    "mission_area_summary": "Katoomba, NSW AOI covers about 74.0 km\u00b2 across 9.5 by 7.8 km at roughly 500 m cells.",
+    "metrics": {
+      "time_to_detection": null,
+      "area_covered_pct": 4.8034934497816595,
+      "probability_mass_covered": 0.02837592570430962,
+      "overlap_ratio": 0.9523809523809523,
+      "battery_used": 209.08736628625647,
+      "successful_returns_to_base": 5,
+      "forced_low_battery_returns": 12,
+      "approaching_reserve_events": 0,
+      "critical_battery_events": 7,
+      "recharge_cycles_started": 5,
+      "recharge_cycles_completed": 5,
+      "redeployments": 5,
+      "rejoined_search_events": 0,
+      "coverage_gap_events": 1,
+      "coverage_gap_steps": 56,
+      "average_active_search_drones": 0.49122807017543857,
+      "battery_margin_min": -232.208,
+      "battery_margin_average": -82.05294736842106,
+      "comms_failures": 12,
+      "stale_information_events": 1,
+      "path_efficiency": 7.05212327517793,
+      "average_overlap_per_step": 0.0,
+      "detection_under_comms_mode": "centralized",
+      "entropy_reduction_over_time": 0.25076425319004425,
+      "information_gain_per_step": 0.004516062837012431,
+      "belief_peak_accuracy": 0.04251085284220196,
+      "time_to_first_candidate_detection": 24,
+      "time_to_confirmed_detection": null,
+      "candidate_detection_count": 1,
+      "inspections_initiated": 4,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "false_alarm_count": 1,
+      "reroute_count": 15,
+      "coordination_efficiency": 0.0,
+      "return_to_base_efficiency": 0.4166666666666667,
+      "mission_success": false
+    },
+    "run_phase": "Mission complete",
+    "search_pattern_summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity.",
+    "search_pattern_reason": "The mission started with sector split, but it has shifted into adaptive rebalance because possible contact activity.",
+    "search_pattern_fit_summary": "Best when several drones can search in parallel without crowding each other. Current spacing is built around an effective swath of about 5.4 cells. Hill Country is the dominant ground type.",
+    "search_pattern_base": "sector_split",
+    "search_pattern_base_label": "Sector Split",
+    "search_pattern_rebalanced": true,
+    "search_pattern_rebalance_reason": "possible contact activity",
+    "search_pattern_geometry": {
+      "weather_factor": 1.0,
+      "visibility_modifier": 0.81,
+      "sensor_mode_factor": 1.08,
+      "fleet_coverage_factor": 1.0,
+      "area_sq_km": 73.97,
+      "shape_ratio": 1.23,
+      "staging_distance_to_center_km": 4.92,
+      "slope_burden": "elevated",
+      "dominant_terrain": "hill country",
+      "area_cells": 304,
+      "effective_swath_cells": 5.41,
+      "lane_spacing_cells": 4.43,
+      "overlap_margin": 0.18,
+      "sector_rows": 3,
+      "sector_cols": 3,
+      "sector_count": 9,
+      "ring_step_cells": 4,
+      "perimeter_spacing_cells": 4,
+      "coverage_depth": "balanced"
+    },
+    "lifecycle_summary": {
+      "run_phase": "Mission complete",
+      "reserve_preset": "balanced",
+      "drone_state_counts": {
+        "unavailable": 5,
+        "redeploying": 1,
+        "returning_to_base": 2
+      },
+      "active_search_drones": 1,
+      "returning_drones": 2,
+      "recharging_drones": 0,
+      "ready_to_redeploy": 0,
+      "coverage_gap_active": true,
+      "coverage_gap_steps": 56
+    },
+    "sensing_summary": {
+      "candidate_detection_count": 1,
+      "inspections_initiated": 4,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "active_candidate_contacts": 1,
+      "contacts_under_inspection": 0,
+      "confirmation_pending": 0,
+      "operator_summary": "A possible contact is awaiting inspection."
+    },
+    "drone_statuses": [
+      {
+        "id": 0,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 23.5,
+        "return_service_eta_steps": 13,
+        "contributing_to_search": false
+      },
+      {
+        "id": 1,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 29.1,
+        "return_service_eta_steps": 11,
+        "contributing_to_search": false
+      },
+      {
+        "id": 2,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 46.8,
+        "return_service_eta_steps": 7,
+        "contributing_to_search": false
+      },
+      {
+        "id": 3,
+        "operator_status": "Redeploying",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 100.0,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      },
+      {
+        "id": 4,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 31.7,
+        "return_service_eta_steps": 7,
+        "contributing_to_search": false
+      },
+      {
+        "id": 5,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 20.4,
+        "return_service_eta_steps": 7,
+        "contributing_to_search": false
+      },
+      {
+        "id": 6,
+        "operator_status": "Returning to Base",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 100.0,
+        "return_service_eta_steps": 6,
+        "contributing_to_search": false
+      },
+      {
+        "id": 7,
+        "operator_status": "Returning to Base",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 100.0,
+        "return_service_eta_steps": 6,
+        "contributing_to_search": false
+      }
+    ],
+    "error": null,
+    "plan_id": "new-search-mission",
+    "comparison_id": null,
+    "candidate_id": null
+  },
+  "latest_snapshot_json": {
+    "step": 56,
+    "done": true,
+    "paused": false,
+    "weather": "clear",
+    "strategy": "sector_search",
+    "mission_area": {
+      "location_display_name": "Katoomba, NSW",
+      "location_source": "local_gazetteer",
+      "location_query": "Katoomba, NSW",
+      "center": {
+        "latitude": -33.7126,
+        "longitude": 150.3119
+      },
+      "preview_span_km": 20,
+      "shape_type": "rectangle",
+      "rectangle": {
+        "north": -33.67153493193435,
+        "south": -33.74132545991175,
+        "east": 150.36154362615264,
+        "west": 150.2587201155461
+      },
+      "polygon": [
+        {
+          "latitude": -33.67153493193435,
+          "longitude": 150.2587201155461
+        },
+        {
+          "latitude": -33.67153493193435,
+          "longitude": 150.36154362615264
+        },
+        {
+          "latitude": -33.74132545991175,
+          "longitude": 150.36154362615264
+        },
+        {
+          "latitude": -33.74132545991175,
+          "longitude": 150.2587201155461
+        }
+      ],
+      "bounds": {
+        "north": -33.67153493193435,
+        "south": -33.74132545991175,
+        "east": 150.36154362615264,
+        "west": 150.2587201155461
+      },
+      "width_km": 9.52,
+      "height_km": 7.77,
+      "area_sq_km": 73.97,
+      "shape_ratio": 1.23,
+      "requested_grid_resolution_m": 500,
+      "grid_resolution_m": 500,
+      "cell_size_m": 500,
+      "grid_size": [
+        19,
+        16
+      ],
+      "max_safe_cells": 4900,
+      "warnings": [],
+      "terrain_hint": "mountain",
+      "last_known_status": "known",
+      "environment_type": "mixed_terrain",
+      "center_grid_position": [
+        9,
+        8
+      ],
+      "shape_summary": "Rectangle AOI",
+      "staging": {
+        "latitude": -33.66864885746912,
+        "longitude": 150.30605157280942,
+        "label": "Primary staging point",
+        "placement": "map",
+        "grid_position": [
+          8,
+          0
+        ]
+      },
+      "staging_distance_to_center_km": 4.92,
+      "last_known_grid_position": [
+        9,
+        9
+      ],
+      "operator_summary": "Katoomba, NSW AOI covers about 74.0 km\u00b2 across 9.5 by 7.8 km at roughly 500 m cells.",
+      "grid_summary": {
+        "map_size": [
+          19,
+          16
+        ],
+        "cell_size_m": 500,
+        "shape_label": "Rectangle AOI",
+        "operator_summary": "The selected area maps to a 19 by 16 planning grid."
+      },
+      "terrain_summary": {
+        "source_mode": "local_first_deterministic",
+        "dominant_terrain": "hill country",
+        "terrain_mix": {
+          "open terrain": 0.105,
+          "forest": 0.076,
+          "hill country": 0.641,
+          "urban edge": 0.026,
+          "water / no-go": 0.151
+        },
+        "elevation_range_m": [
+          0,
+          1242
+        ],
+        "mean_elevation_m": 645.3,
+        "slope_burden": "elevated",
+        "trail_access": "good",
+        "trail_coverage_pct": 0.201,
+        "obstacle_coverage_pct": 0.247,
+        "suggested_scenario_family": "obstacle_heavy",
+        "operator_summary": "The selected area is mostly hill country, with elevated slope burden and good trail access."
+      }
+    },
+    "last_known_position": [
+      9,
+      9
+    ],
+    "last_known_status": "known",
+    "coordination_mode": "centralized",
+    "run_phase": "Mission complete",
+    "base_position": [
+      8,
+      0
+    ],
+    "terrain_grid": [
+      [
+        2,
+        2,
+        2,
+        0,
+        0,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0
+      ],
+      [
+        4,
+        2,
+        2,
+        2,
+        0,
+        0,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0
+      ],
+      [
+        4,
+        4,
+        2,
+        2,
+        2,
+        0,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      [
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1
+      ],
+      [
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        2,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        4,
+        4,
+        4,
+        1,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        4,
+        4,
+        4,
+        1,
+        1,
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        4,
+        2,
+        2
+      ],
+      [
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        4
+      ],
+      [
+        4,
+        4,
+        4,
+        4,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4
+      ],
+      [
+        2,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4,
+        4,
+        2,
+        2,
+        2
+      ]
+    ],
+    "obstacle_mask": [
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      [
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    ],
+    "probability_map": [
+      [
+        0.0004241019915324176,
+        0.000831030097840943,
+        0.0011878648257114737,
+        0.0008044232385433971,
+        0.0016217381404329096,
+        0.006167888574749724,
+        0.0077486809218272855,
+        0.0025858097026240554,
+        2.4002737662845e-06,
+        5.51199793593643e-07,
+        1.921277024164092e-09,
+        0.0,
+        0.0,
+        0.0,
+        0.0002778704243034071,
+        0.000568811955955337,
+        0.0007325509030288664,
+        0.0004097470717552168,
+        0.00025928860997051766
+      ],
+      [
+        0.0,
+        0.0009762029104254374,
+        0.0014760406151974436,
+        0.002094433765085204,
+        0.0016964479805313445,
+        0.0035445221477108505,
+        0.008863605868668845,
+        0.005415268596712774,
+        0.0017833097082757669,
+        1.930012126551033e-06,
+        5.4828552178051855e-09,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0006129422523755685,
+        0.0009589236568745664,
+        0.000880263016514184,
+        0.0009275120714954685
+      ],
+      [
+        0.0,
+        0.0,
+        0.0014439532627996254,
+        0.0021236921518668762,
+        0.0026859215582285996,
+        0.0021719958736416273,
+        0.005300184011729357,
+        0.00588385920501811,
+        0.003723345239878052,
+        3.9853203983194e-06,
+        1.0959646155137416e-06,
+        3.4747679174619355e-09,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0007330444879057488,
+        0.0016829104716070615,
+        0.0028650927208538146
+      ],
+      [
+        0.0,
+        0.0,
+        0.0012656771190022393,
+        0.0021460564240652806,
+        0.002812937082295923,
+        0.0036789073150078856,
+        0.002509562975719631,
+        0.0035885132909642277,
+        0.004047502401224338,
+        0.0022040601441503382,
+        1.9802033277544696e-06,
+        2.6013647253942797e-07,
+        4.552753079938303e-07,
+        0.0,
+        0.0,
+        0.0,
+        0.0006539385560636701,
+        0.001537783245091243,
+        0.0020888439375636725
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0024351959014670154,
+        0.0032811519371426867,
+        0.0035242610611183516,
+        0.0035444998294780765,
+        0.001897164397679811,
+        0.0020463235361349442,
+        0.002517537797117286,
+        0.0,
+        0.0,
+        0.00023826448350269377,
+        0.0002006213536730561,
+        0.0,
+        0.0,
+        0.0009431140191797361,
+        0.0013303856858644686,
+        0.0010928253495369048
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.004198769845475309,
+        0.0037472311679019542,
+        0.002981958996563182,
+        0.0020770808719941707,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0010658838543750311,
+        0.00096684142838169,
+        0.0011804772218631174,
+        0.0009367109187687568
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.004165330772105647,
+        0.0038551618800275176,
+        0.0,
+        0.0,
+        0.0,
+        0.0030241260532303266,
+        0.004021135026169892,
+        0.004882103518426583,
+        0.008024626087619311,
+        0.013473324152817288,
+        0.013133404758597231,
+        0.008561136830053283,
+        0.0,
+        0.0,
+        0.0010549126584406036,
+        0.0006059082651942478
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0029873019573109574,
+        0.003768682169868925,
+        0.004058633479980292,
+        0.004959584730359478,
+        0.0060071776543693675,
+        0.008169802000369035,
+        0.01709854776296604,
+        0.05386250621293881,
+        0.020492775552102466,
+        0.005578759931556114,
+        0.002022417072829216,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.003591931620751488,
+        0.0037302413970137192,
+        0.004775831846158679,
+        0.004398439423416578,
+        0.00386643955725783,
+        0.003886137254498721,
+        0.004391267089363131,
+        0.00544427200080492,
+        0.009688342755518024,
+        0.015282587273745858,
+        0.01622863376689903,
+        0.007186503685024056,
+        0.003207681438906314,
+        0.001563995085557256,
+        0.0
+      ],
+      [
+        0.0009455198531181882,
+        0.0018602708860882419,
+        0.0028552076971057622,
+        0.0034471310602569674,
+        0.004951134561323596,
+        0.005427370354015346,
+        0.004110039262118814,
+        0.00509902131318344,
+        0.003956746274372109,
+        0.00350940938563093,
+        0.0035316616606801544,
+        0.00381671428979442,
+        0.004319437204448412,
+        0.004965049326434707,
+        0.005216586226263381,
+        0.004666473289988854,
+        0.003599857239697597,
+        0.002398120965090631,
+        0.001293948343097807
+      ],
+      [
+        0.0015933365846456154,
+        0.002830125420664329,
+        0.0038727109823703484,
+        0.005363216078059757,
+        0.003444199784793519,
+        0.004742468643600391,
+        0.013093271055009448,
+        0.011643869929187669,
+        0.008268710866454197,
+        0.004734462105688799,
+        0.003991202752453224,
+        0.0033544983242214843,
+        0.002873234887417098,
+        0.0024271854073887877,
+        0.0027202872586077017,
+        0.0031649305890105272,
+        0.003774742939156533,
+        0.003616315177324053,
+        0.0012567739528653564
+      ],
+      [
+        0.0014975991309612773,
+        0.002347582568474249,
+        0.002878892903950308,
+        0.0035359874494557664,
+        0.004189375028745134,
+        0.0035090802761845153,
+        0.017911385533040832,
+        0.02801817236045991,
+        0.017839762079419928,
+        0.008985607920505649,
+        0.004097496707410199,
+        0.0025689078845176454,
+        0.0,
+        0.0,
+        0.0,
+        0.0017915225821741024,
+        0.0028009080995648485,
+        0.0034630238081106305,
+        0.0015144519145750424
+      ],
+      [
+        0.0014832274215000234,
+        0.0020253411523909097,
+        0.002093905101436399,
+        0.002467745629575953,
+        0.002837214669893381,
+        0.00453489918014254,
+        0.013194002625809633,
+        0.046903291747408295,
+        0.04251085284220196,
+        0.012237409223653977,
+        0.004305926601766264,
+        0.001926024490783477,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0019038090858667209,
+        0.002825647177484663,
+        0.001396389044871131
+      ],
+      [
+        0.0019842143135046053,
+        0.002256555454680624,
+        0.0019071224533669406,
+        0.0019647796492591072,
+        0.0022237232612863727,
+        0.0030573019528914894,
+        0.007827520047477799,
+        0.016827907981040887,
+        0.023729706379825896,
+        0.012093636684555742,
+        0.0044633243615297465,
+        0.002347497150452081,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.001305344917309375,
+        0.002299916204737205,
+        0.0010818186868561048
+      ],
+      [
+        0.0035842012309441943,
+        0.0033110334535608405,
+        0.0023261009444829448,
+        0.0020590920840064635,
+        0.002050763794750419,
+        0.002310657040651058,
+        0.0030927644801719907,
+        0.005817028108923136,
+        0.0073966524396164345,
+        0.00689964176827536,
+        0.004147805810560499,
+        0.002573485020905778,
+        0.0017274142910341432,
+        0.000704833259040283,
+        0.0,
+        0.0,
+        0.0011402743203337599,
+        0.0019513763295857089,
+        0.0016206499880735688
+      ],
+      [
+        0.00273570030921131,
+        0.002874758830131762,
+        0.0019384680405526101,
+        0.0015472925186988168,
+        0.001385105728369693,
+        0.0013267387982743982,
+        0.0014372299880430683,
+        0.0016921780542890322,
+        0.002056520771856491,
+        0.002244055522692459,
+        0.0022998285960633903,
+        0.0018488930863209637,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0007197002974882382,
+        0.001234985472329585,
+        0.0009780237810285688
+      ]
+    ],
+    "shared_searched_cells": [
+      [
+        10,
+        0
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        12,
+        3
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        2
+      ]
+    ],
+    "entropy_map": [
+      [
+        0.0037173915788341317,
+        0.006725051992790777,
+        0.009188138798058633,
+        0.006535924889952459,
+        0.012038884653669236,
+        0.037533504176079646,
+        0.04537897409053044,
+        0.017987984972360156,
+        3.345964002037888e-05,
+        8.494632739751365e-06,
+        4.04818367017096e-08,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.0025531336742647265,
+        0.00481879070963689,
+        0.006020551175151195,
+        0.003605678180692697,
+        0.0024003485257040936
+      ],
+      [
+        2.8630998994207924e-11,
+        0.007742608742760023,
+        0.011096362121958159,
+        0.01501169502817996,
+        0.012517020772405909,
+        0.023537674254449425,
+        0.05071185045988444,
+        0.03366033626932098,
+        0.013068792722995612,
+        2.7325079469782714e-05,
+        1.0977575243858587e-07,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.005146835208501403,
+        0.007622694611242857,
+        0.007072780903913799,
+        0.00740390299864933
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.010886899735906352,
+        0.0151919093772328,
+        0.018582245383672227,
+        0.015488550340724706,
+        0.03305915020016198,
+        0.0360833237078237,
+        0.02454156919683542,
+        5.353437393369514e-05,
+        1.6136846120608137e-05,
+        7.115538752799588e-08,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.006024113825304835,
+        0.01243063077824144,
+        0.0196365451439046
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.00970966090530608,
+        0.015329387365227081,
+        0.019330836476841615,
+        0.024292920515653963,
+        0.01753278774029428,
+        0.023785458725452388,
+        0.026339643162028536,
+        0.01568486618133256,
+        2.7984847365399685e-05,
+        4.2043411003125705e-06,
+        7.103370757230484e-06,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.005448727298012699,
+        0.011497457972277024,
+        0.01497721857156137
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.017086575142465376,
+        0.022042510790113684,
+        0.023423367792443056,
+        0.02353754840630334,
+        0.01378564216928684,
+        0.014714471297078566,
+        0.017580505424919072,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.0022258692076308597,
+        0.0019087097375441791,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.007512706381102595,
+        0.010139695350292752,
+        0.008544191896406613
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.0271696575574233,
+        0.024675000522471204,
+        0.02031812138128791,
+        0.014904618338205559,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.008360172377394082,
+        0.007677680514481172,
+        0.009138364602474911,
+        0.007468084548543604
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.02698665335058334,
+        0.02527603045201028,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.020562906626271128,
+        0.026194388532428503,
+        0.030853595934567112,
+        0.046713090728688775,
+        0.0714123422310753,
+        0.06994852257665382,
+        0.04927986798012565,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.008285041032697603,
+        0.005094766890840147
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.020349170877646323,
+        0.02479469960670767,
+        0.026400911070329013,
+        0.03126497100331309,
+        0.03671461208673778,
+        0.04741111371188875,
+        0.08652144427898516,
+        0.2097348047048487,
+        0.09995076182258927,
+        0.03451017646932744,
+        0.014566357889195263,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.023804690059008735,
+        0.024580108188259123,
+        0.0302873483622092,
+        0.028256907698706823,
+        0.025338655537569182,
+        0.025447957949938062,
+        0.028218012728524963,
+        0.0338114560431394,
+        0.05456447514841788,
+        0.07906233586592765,
+        0.08297407533046361,
+        0.042629970542677954,
+        0.021621701797847042,
+        0.01166698007981742,
+        2.8630998994207924e-11
+      ],
+      [
+        0.007529460859381329,
+        0.013554124263453657,
+        0.019578678043038866,
+        0.022987150114637516,
+        0.031220165520147093,
+        0.033723410388609536,
+        0.02668346346175974,
+        0.032002236902030294,
+        0.025838946942333484,
+        0.023339505259929515,
+        0.023465133084041138,
+        0.025062280992051388,
+        0.027827833060841627,
+        0.0312939383237356,
+        0.03262087463310304,
+        0.029702171565257812,
+        0.023849266595939233,
+        0.016863274293708798,
+        0.009897941072496043
+      ],
+      [
+        0.011856221296293986,
+        0.019431691657479006,
+        0.02537346654738111,
+        0.033388728801382814,
+        0.022970538029458018,
+        0.03010909151729048,
+        0.06977510782461092,
+        0.06342568205352812,
+        0.0478851867106035,
+        0.030066278218383605,
+        0.026029284864543346,
+        0.022460962403283113,
+        0.019684183834379605,
+        0.017038376476525983,
+        0.01878536916030935,
+        0.02137606784927785,
+        0.024828497167760956,
+        0.023941776071497452,
+        0.00965023751140826
+      ],
+      [
+        0.011236700224940822,
+        0.016557956374979043,
+        0.019717274475748583,
+        0.02348953846852628,
+        0.0271182690336056,
+        0.02333764617365452,
+        0.08979531134460465,
+        0.12778416480796267,
+        0.08950836748509274,
+        0.051286478429914524,
+        0.026614583038900484,
+        0.017887276989483475,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.013120740760622411,
+        0.01926019198796284,
+        0.023077173793894682,
+        0.0113461890399831
+      ],
+      [
+        0.011143180433341554,
+        0.01458448926855521,
+        0.015008435022788522,
+        0.01728215408936008,
+        0.01947325837249249,
+        0.028994701183944056,
+        0.07021012609796141,
+        0.18929419372576275,
+        0.1758432810658414,
+        0.06604669107277022,
+        0.027754310067195972,
+        0.013966246140466616,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.01382726279146211,
+        0.019405424997029356,
+        0.010575087585003647
+      ],
+      [
+        0.014329082023661698,
+        0.016005266372601,
+        0.013848008188433325,
+        0.01420809212010729,
+        0.015805023366825318,
+        0.02075508209027919,
+        0.04576113445105111,
+        0.08542275253154763,
+        0.11221938914224723,
+        0.06541453543827079,
+        0.02860824178547309,
+        0.016557439421942682,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.009973664077990843,
+        0.016268990276830663,
+        0.008469093945158929
+      ],
+      [
+        0.02376119465359503,
+        0.022213185628079946,
+        0.016427850365486076,
+        0.01479346445820145,
+        0.014741950173631764,
+        0.01633418976319927,
+        0.020960103916592032,
+        0.035740120928000794,
+        0.04366258932294799,
+        0.041210373569897776,
+        0.02689063582151227,
+        0.017914560427855268,
+        0.012714227660398663,
+        0.0058199469280275865,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.008866677399904833,
+        0.014124538052100243,
+        0.012031895483890734
+      ],
+      [
+        0.018876328637666934,
+        0.01969309763966279,
+        0.014043982734203276,
+        0.01155900944727125,
+        0.010500882571775444,
+        0.010115544461534972,
+        0.010842921043126943,
+        0.012489783841895167,
+        0.014777563322848129,
+        0.015929086315299372,
+        0.01626845826447557,
+        0.013482577913997536,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.005927678895188687,
+        0.009504544925502761,
+        0.00775522724940224
+      ]
+    ],
+    "target_position": [
+      8,
+      12
+    ],
+    "target_trail": [
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        7,
+        11
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        7,
+        12
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        8,
+        12
+      ],
+      [
+        8,
+        12
+      ]
+    ],
+    "target_detected": false,
+    "visited_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        15,
+        0
+      ],
+      [
+        18,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ]
+    ],
+    "searched_cells": [
+      [
+        10,
+        0
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        12,
+        3
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        2
+      ]
+    ],
+    "last_searched_cells": [
+      [
+        10,
+        0
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        12,
+        3
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        2
+      ]
+    ],
+    "scan_footprints": {
+      "3": [
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          10,
+          2
+        ],
+        [
+          10,
+          3
+        ],
+        [
+          11,
+          2
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          12,
+          3
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          2
+        ]
+      ]
+    },
+    "communication_links": [
+      [
+        [
+          1,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      [
+        [
+          3,
+          1
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      [
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      [
+        [
+          8,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      [
+        [
+          9,
+          1
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      [
+        [
+          9,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      [
+        [
+          15,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ],
+      [
+        [
+          18,
+          0
+        ],
+        [
+          8,
+          0
+        ]
+      ]
+    ],
+    "reserved_paths": {
+      "6": [
+        [
+          15,
+          0
+        ]
+      ],
+      "7": [
+        [
+          18,
+          0
+        ]
+      ],
+      "0": [
+        [
+          1,
+          0
+        ]
+      ],
+      "1": [
+        [
+          3,
+          1
+        ]
+      ],
+      "2": [
+        [
+          7,
+          1
+        ]
+      ],
+      "3": [
+        [
+          8,
+          0
+        ]
+      ],
+      "4": [
+        [
+          9,
+          1
+        ]
+      ],
+      "5": [
+        [
+          9,
+          0
+        ]
+      ]
+    },
+    "global_objectives": {
+      "0": [
+        13,
+        7
+      ],
+      "1": [
+        7,
+        12
+      ],
+      "2": [
+        8,
+        12
+      ],
+      "3": [
+        14,
+        7
+      ],
+      "4": [
+        7,
+        11
+      ],
+      "5": [
+        8,
+        13
+      ],
+      "6": [
+        15,
+        0
+      ],
+      "7": [
+        18,
+        0
+      ]
+    },
+    "search_pattern": "adaptive_rebalance",
+    "search_pattern_label": "Adaptive Rebalance",
+    "search_pattern_summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity.",
+    "search_pattern_reason": "The mission started with sector split, but it has shifted into adaptive rebalance because possible contact activity.",
+    "search_pattern_fit_summary": "Best when several drones can search in parallel without crowding each other. Current spacing is built around an effective swath of about 5.4 cells. Hill Country is the dominant ground type.",
+    "search_pattern_base": "sector_split",
+    "search_pattern_base_label": "Sector Split",
+    "search_pattern_rebalanced": true,
+    "search_pattern_rebalance_reason": "possible contact activity",
+    "search_pattern_geometry": {
+      "weather_factor": 1.0,
+      "visibility_modifier": 0.81,
+      "sensor_mode_factor": 1.08,
+      "fleet_coverage_factor": 1.0,
+      "area_sq_km": 73.97,
+      "shape_ratio": 1.23,
+      "staging_distance_to_center_km": 4.92,
+      "slope_burden": "elevated",
+      "dominant_terrain": "hill country",
+      "area_cells": 304,
+      "effective_swath_cells": 5.41,
+      "lane_spacing_cells": 4.43,
+      "overlap_margin": 0.18,
+      "sector_rows": 3,
+      "sector_cols": 3,
+      "sector_count": 9,
+      "ring_step_cells": 4,
+      "perimeter_spacing_cells": 4,
+      "coverage_depth": "balanced"
+    },
+    "manual_targets": {},
+    "forced_return_overrides": [],
+    "priority_zones": [],
+    "exclusion_zones": [],
+    "returning_drones": [
+      0,
+      1,
+      2,
+      4,
+      5,
+      6,
+      7
+    ],
+    "active_search_drones": [
+      3
+    ],
+    "lifecycle_summary": {
+      "run_phase": "Mission complete",
+      "reserve_preset": "balanced",
+      "drone_state_counts": {
+        "unavailable": 5,
+        "redeploying": 1,
+        "returning_to_base": 2
+      },
+      "active_search_drones": 1,
+      "returning_drones": 2,
+      "recharging_drones": 0,
+      "ready_to_redeploy": 0,
+      "coverage_gap_active": true,
+      "coverage_gap_steps": 56
+    },
+    "sensing_summary": {
+      "candidate_detection_count": 1,
+      "inspections_initiated": 4,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "active_candidate_contacts": 1,
+      "contacts_under_inspection": 0,
+      "confirmation_pending": 0,
+      "operator_summary": "A possible contact is awaiting inspection."
+    },
+    "candidate_contacts": [
+      {
+        "id": "contact-1",
+        "position": [
+          10,
+          2
+        ],
+        "status": "cue_detected",
+        "status_label": "Possible Contact",
+        "confidence": 0.02,
+        "candidate_score": 0.02,
+        "cue_step": 24,
+        "detecting_drone_id": 3,
+        "assigned_drone_id": null,
+        "inspection_attempts": 0,
+        "resolved": false,
+        "outcome": null,
+        "resolution_step": null,
+        "note": "Low-confidence contact requires inspection."
+      }
+    ],
+    "detection_event": null,
+    "drones": [
+      {
+        "id": 0,
+        "position": [
+          1,
+          0
+        ],
+        "battery": 14.075719732161687,
+        "battery_pct": 23.5,
+        "visited_cells": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "path_history": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "planned_path": [
+          [
+            1,
+            0
+          ]
+        ],
+        "intended_target": [
+          1,
+          0
+        ],
+        "reserved_goal": [
+          1,
+          0
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 183.079,
+        "reserve_required": 50.53,
+        "continue_margin_required": 233.608,
+        "battery_margin": -219.533,
+        "return_eta_steps": 7,
+        "return_service_eta_steps": 13,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 1,
+        "position": [
+          3,
+          1
+        ],
+        "battery": 17.45081251422586,
+        "battery_pct": 29.1,
+        "visited_cells": [
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "path_history": [
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "planned_path": [
+          [
+            3,
+            1
+          ]
+        ],
+        "intended_target": [
+          3,
+          1
+        ],
+        "reserved_goal": [
+          3,
+          1
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 107.66,
+        "reserve_required": 32.2,
+        "continue_margin_required": 139.86,
+        "battery_margin": -122.409,
+        "return_eta_steps": 5,
+        "return_service_eta_steps": 11,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 2,
+        "position": [
+          7,
+          1
+        ],
+        "battery": 28.089366711259636,
+        "battery_pct": 46.8,
+        "visited_cells": [
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            1
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            1
+          ]
+        ],
+        "planned_path": [
+          [
+            7,
+            1
+          ]
+        ],
+        "intended_target": [
+          7,
+          1
+        ],
+        "reserved_goal": [
+          7,
+          1
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 35.621,
+        "reserve_required": 32.2,
+        "continue_margin_required": 67.821,
+        "battery_margin": -39.732,
+        "return_eta_steps": 1,
+        "return_service_eta_steps": 7,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 3,
+        "position": [
+          8,
+          0
+        ],
+        "battery": 60.0,
+        "battery_pct": 100.0,
+        "visited_cells": [
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            0
+          ]
+        ],
+        "path_history": [
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            0
+          ]
+        ],
+        "planned_path": [
+          [
+            8,
+            0
+          ]
+        ],
+        "intended_target": [
+          14,
+          7
+        ],
+        "reserved_goal": [
+          14,
+          7
+        ],
+        "detections": [
+          {
+            "step": 24,
+            "target_position": [
+              10,
+              2
+            ],
+            "confidence": 0.02,
+            "is_true_positive": false,
+            "stage": "cue",
+            "outcome": "candidate",
+            "contact_id": "contact-1"
+          }
+        ],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "redeploying",
+        "operator_status": "Redeploying",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 0.0,
+        "reserve_required": 28.0,
+        "continue_margin_required": 28.0,
+        "battery_margin": 32.0,
+        "return_eta_steps": 0,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 5,
+        "recharge_cycles": 5,
+        "redeployments": 5,
+        "investigations_started": 4,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      },
+      {
+        "id": 4,
+        "position": [
+          9,
+          1
+        ],
+        "battery": 19.04088590562968,
+        "battery_pct": 31.7,
+        "visited_cells": [
+          [
+            10,
+            0
+          ],
+          [
+            9,
+            1
+          ]
+        ],
+        "path_history": [
+          [
+            10,
+            0
+          ],
+          [
+            9,
+            1
+          ]
+        ],
+        "planned_path": [
+          [
+            9,
+            1
+          ]
+        ],
+        "intended_target": [
+          9,
+          1
+        ],
+        "reserved_goal": [
+          9,
+          1
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 35.621,
+        "reserve_required": 32.2,
+        "continue_margin_required": 67.821,
+        "battery_margin": -48.78,
+        "return_eta_steps": 1,
+        "return_service_eta_steps": 7,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 5,
+        "position": [
+          9,
+          0
+        ],
+        "battery": 12.255848850466663,
+        "battery_pct": 20.4,
+        "visited_cells": [
+          [
+            10,
+            0
+          ],
+          [
+            9,
+            0
+          ]
+        ],
+        "path_history": [
+          [
+            10,
+            0
+          ],
+          [
+            9,
+            0
+          ]
+        ],
+        "planned_path": [
+          [
+            9,
+            0
+          ]
+        ],
+        "intended_target": [
+          9,
+          0
+        ],
+        "reserved_goal": [
+          9,
+          0
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 35.621,
+        "reserve_required": 32.2,
+        "continue_margin_required": 67.821,
+        "battery_margin": -55.565,
+        "return_eta_steps": 1,
+        "return_service_eta_steps": 7,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 6,
+        "position": [
+          15,
+          0
+        ],
+        "battery": 60.0,
+        "battery_pct": 100.0,
+        "visited_cells": [
+          [
+            15,
+            0
+          ]
+        ],
+        "path_history": [
+          [
+            15,
+            0
+          ]
+        ],
+        "planned_path": [
+          [
+            15,
+            0
+          ]
+        ],
+        "intended_target": [
+          8,
+          0
+        ],
+        "reserved_goal": [
+          8,
+          0
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "returning_to_base",
+        "operator_status": "Returning to Base",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery margin is critical for a safe return.",
+        "energy_required_to_base": 120.0,
+        "reserve_required": 33.12,
+        "continue_margin_required": 153.12,
+        "battery_margin": -93.12,
+        "return_eta_steps": 0,
+        "return_service_eta_steps": 6,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 7,
+        "position": [
+          18,
+          0
+        ],
+        "battery": 60.0,
+        "battery_pct": 100.0,
+        "visited_cells": [
+          [
+            18,
+            0
+          ]
+        ],
+        "path_history": [
+          [
+            18,
+            0
+          ]
+        ],
+        "planned_path": [
+          [
+            18,
+            0
+          ]
+        ],
+        "intended_target": [
+          8,
+          0
+        ],
+        "reserved_goal": [
+          8,
+          0
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "returning_to_base",
+        "operator_status": "Returning to Base",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery margin is critical for a safe return.",
+        "energy_required_to_base": 120.0,
+        "reserve_required": 33.12,
+        "continue_margin_required": 153.12,
+        "battery_margin": -93.12,
+        "return_eta_steps": 0,
+        "return_service_eta_steps": 6,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      }
+    ],
+    "metrics": {
+      "time_to_detection": null,
+      "area_covered_pct": 4.8034934497816595,
+      "probability_mass_covered": 0.02837592570430962,
+      "overlap_ratio": 0.9523809523809523,
+      "battery_used": 209.08736628625647,
+      "successful_returns_to_base": 5,
+      "forced_low_battery_returns": 12,
+      "approaching_reserve_events": 0,
+      "critical_battery_events": 7,
+      "recharge_cycles_started": 5,
+      "recharge_cycles_completed": 5,
+      "redeployments": 5,
+      "rejoined_search_events": 0,
+      "coverage_gap_events": 1,
+      "coverage_gap_steps": 56,
+      "average_active_search_drones": 0.49122807017543857,
+      "battery_margin_min": -232.208,
+      "battery_margin_average": -82.05294736842106,
+      "comms_failures": 12,
+      "stale_information_events": 1,
+      "path_efficiency": 7.05212327517793,
+      "average_overlap_per_step": 0.0,
+      "detection_under_comms_mode": "centralized",
+      "entropy_reduction_over_time": 0.25076425319004425,
+      "information_gain_per_step": 0.004516062837012431,
+      "belief_peak_accuracy": 0.04251085284220196,
+      "time_to_first_candidate_detection": 24,
+      "time_to_confirmed_detection": null,
+      "candidate_detection_count": 1,
+      "inspections_initiated": 4,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "false_alarm_count": 1,
+      "reroute_count": 15,
+      "coordination_efficiency": 0.0,
+      "return_to_base_efficiency": 0.4166666666666667,
+      "mission_success": false
+    }
+  },
+  "output_dir": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-e143330812",
+  "job_id": "job-run-b640367eba",
+  "plan_id": "new-search-mission",
+  "comparison_id": null,
+  "candidate_id": null,
+  "artifact_paths": {
+    "final_state": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-e143330812\\final_state.png",
+    "events": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-e143330812\\run_events.jsonl",
+    "replay": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-e143330812\\run_replay.json"
+  },
+  "job": {
+    "id": "job-run-b640367eba",
+    "job_type": "mission_run",
+    "owner_type": "run",
+    "owner_id": "run-e143330812",
+    "status": "running",
+    "progress": 0.99,
+    "created_at": 1775018240.6073067,
+    "updated_at": 1775018245.5152946,
+    "completed_at": null,
+    "error": null,
+    "summary_json": {
+      "step": 56
+    }
+  },
+  "interventions": []
+}
