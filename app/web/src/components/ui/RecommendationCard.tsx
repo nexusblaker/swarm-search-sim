@@ -82,6 +82,14 @@ export function RecommendationCard({
     ? keyTradeoffs
     : ["Balances speed, confidence, and reserve without a major compromise."])[0];
   const patternTitle = searchPatternLabel ?? searchPattern ?? strategy ?? "Recommended pattern";
+  const missionAreaSummary =
+    typeof technicalDetails?.mission_area_summary === "string"
+      ? technicalDetails.mission_area_summary
+      : typeof technicalDetails?.mission_area === "object" &&
+          technicalDetails.mission_area !== null &&
+          typeof (technicalDetails.mission_area as Record<string, unknown>).operator_summary === "string"
+        ? ((technicalDetails.mission_area as Record<string, unknown>).operator_summary as string)
+        : null;
 
   return (
     <div className="panel-subtle p-5 md:p-6">
@@ -101,6 +109,9 @@ export function RecommendationCard({
           </p>
           {searchPatternFitSummary ? (
             <p className="mt-3 text-sm leading-7 text-white/90">{searchPatternFitSummary}</p>
+          ) : null}
+          {missionAreaSummary ? (
+            <p className="mt-3 text-sm leading-7 text-white/90">{missionAreaSummary}</p>
           ) : null}
           {assetPackage?.operator_summary ? (
             <p className="mt-3 text-sm leading-7 text-muted">{assetPackage.operator_summary}</p>

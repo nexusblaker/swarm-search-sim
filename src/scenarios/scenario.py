@@ -60,6 +60,7 @@ class ScenarioConfig:
     step_duration_minutes: float = 3.0
     scenario_family: str = "mixed_terrain"
     coverage_overlap_margin: float = 0.18
+    mission_area: dict[str, Any] = field(default_factory=dict)
     layer_paths: dict[str, str] = field(default_factory=dict)
     use_external_layers: bool = False
     belief_motion_strength: float = 0.18
@@ -111,6 +112,7 @@ class ScenarioConfig:
         """Build a scenario config from nested YAML-derived data."""
 
         scenario_data = data.get("scenario", data)
+        mission_area = dict(scenario_data.get("mission_area", {}))
         drone_data = scenario_data.get("drone", {})
         terrain_data = scenario_data.get("terrain", {})
         render_data = scenario_data.get("render", {})
@@ -121,6 +123,25 @@ class ScenarioConfig:
         hierarchical_data = scenario_data.get("hierarchical_planner", {})
         benchmark_data = scenario_data.get("benchmark", {})
 
+        map_size = tuple(
+            scenario_data.get(
+                "map_size",
+                mission_area.get("grid_size", [18, 14]),
+            )
+        )
+        last_known_position = tuple(
+            scenario_data.get(
+                "last_known_position",
+                mission_area.get("last_known_grid_position", [map_size[0] // 2, map_size[1] // 2]),
+            )
+        )
+        base_position_value = scenario_data.get("base_position")
+        if base_position_value is None:
+            base_position_value = mission_area.get("staging", {}).get("grid_position")
+        if base_position_value is None:
+            base_position_value = communication_data.get("base_position", [0, 0])
+        base_position = tuple(base_position_value)
+
         target_assumptions = dict(scenario_data.get("target_assumptions", {}))
         target_move_probability = float(
             target_assumptions.get(
@@ -130,10 +151,10 @@ class ScenarioConfig:
         )
 
         return cls(
-            map_size=tuple(scenario_data["map_size"]),
+            map_size=map_size,
             weather=str(scenario_data.get("weather", "clear")),
             num_drones=int(scenario_data.get("num_drones", 1)),
-            last_known_position=tuple(scenario_data["last_known_position"]),
+            last_known_position=last_known_position,
             target_assumptions=target_assumptions,
             max_steps=int(scenario_data.get("max_steps", 50)),
             strategy=str(scenario_data.get("strategy", "probability_greedy")),
@@ -199,12 +220,7 @@ class ScenarioConfig:
             coordination_mode=str(
                 communication_data.get("coordination_mode", "centralized")
             ),
-            base_position=tuple(
-                scenario_data.get(
-                    "base_position",
-                    communication_data.get("base_position", [0, 0]),
-                )
-            ),
+            base_position=base_position,
             return_to_base_threshold=float(
                 battery_data.get("return_threshold", 28.0)
             ),
@@ -216,6 +232,7 @@ class ScenarioConfig:
             coverage_overlap_margin=float(
                 scenario_data.get("coverage_overlap_margin", 0.18)
             ),
+            mission_area=mission_area,
             layer_paths=dict(scenario_data.get("layer_paths", {})),
             use_external_layers=bool(scenario_data.get("use_external_layers", False)),
             belief_motion_strength=float(belief_data.get("motion_strength", 0.18)),

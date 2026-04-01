@@ -6,6 +6,7 @@ import { useComparisons, useLibraryTemplates, usePlans, useRuns, useScenarios } 
 import type {
   CandidateContact,
   LifecycleSummaryRecord,
+  MissionAreaSummary,
   RunRecord,
   RunSummaryRecord,
   Snapshot,
@@ -172,6 +173,11 @@ export function MissionControlPage() {
   const searchPatternRebalanceReason = String(
     liveSnapshot?.search_pattern_rebalance_reason ?? runSummary.search_pattern_rebalance_reason ?? "",
   );
+  const missionArea = (liveSnapshot?.mission_area ?? runSummary.mission_area ?? {}) as MissionAreaSummary;
+  const missionAreaLabel = String(missionArea.location_display_name ?? "Mission area");
+  const missionAreaSummary = String(
+    missionArea.operator_summary ?? runSummary.mission_area_summary ?? "Mission area summary pending.",
+  );
   const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
   const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
   const confirmedContactCount = Number(sensingSummary.confirmed_contact_count ?? 0);
@@ -334,6 +340,7 @@ export function MissionControlPage() {
                   <span className="pill">{selected.plan_id ? `Plan ${selected.plan_id}` : "Ad hoc run"}</span>
                   <span className="pill">{String(runSummary.scenario_family ?? "mixed terrain").replaceAll("_", " ")}</span>
                   <span className="pill">{searchPatternLabel}</span>
+                  {missionArea.location_display_name ? <span className="pill">{missionAreaLabel}</span> : null}
                   <span className="pill">{String(runSummary.strategy ?? "n/a").replaceAll("_", " ")}</span>
                   <span className="pill">{reservePreset.replaceAll("_", " ")}</span>
                 </div>
@@ -374,6 +381,7 @@ export function MissionControlPage() {
                               ? "The mission is managing temporary coverage loss while assets rotate through return and service."
                               : "The mission remains in broad search with coverage holding steady across the active fleet."}
                       </p>
+                      <p className="mt-3 text-sm leading-6 text-muted">{missionAreaSummary}</p>
                       <p className="mt-3 text-sm leading-6 text-muted">{searchPatternSummary}</p>
                       {searchPatternReason ? (
                         <p className="mt-2 text-sm leading-6 text-muted">{searchPatternReason}</p>
@@ -406,13 +414,24 @@ export function MissionControlPage() {
                       { label: "Plan", value: selected.plan_id ?? "n/a" },
                       { label: "Comparison", value: selected.comparison_id ?? "n/a" },
                       { label: "Scenario family", value: String(runSummary.scenario_family ?? "n/a").replaceAll("_", " ") },
+                      { label: "Mission area", value: missionAreaLabel },
+                      { label: "Area size", value: missionArea.area_sq_km ? `${missionArea.area_sq_km.toFixed(1)} km²` : "n/a" },
                       { label: "Search pattern", value: searchPatternLabel },
                       { label: "Pattern status", value: searchPatternRebalanced ? "Rebalanced" : "Planned layout" },
                       { label: "Team coordination", value: String(runSummary.coordination_mode ?? "n/a").replaceAll("_", " ") },
                       { label: "Reserve policy", value: reservePreset.replaceAll("_", " ") },
+                      { label: "Grid resolution", value: missionArea.grid_resolution_m ? `${missionArea.grid_resolution_m} m` : "n/a" },
+                      { label: "Staging", value: missionArea.staging?.label ?? "n/a" },
                       { label: "Run phase", value: runPhase },
                     ]}
                   />
+                  <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Mission area</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">{missionAreaSummary}</p>
+                    {missionArea.terrain_summary?.operator_summary ? (
+                      <p className="mt-3 text-sm leading-6 text-muted">{missionArea.terrain_summary.operator_summary}</p>
+                    ) : null}
+                  </div>
                   <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Search pattern</p>
                     <p className="mt-3 text-sm leading-6 text-white/90">{searchPatternSummary}</p>

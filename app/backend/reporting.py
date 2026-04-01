@@ -43,6 +43,7 @@ class ReportGenerator:
             battery_lifecycle=summarize_battery_lifecycle(run_record, events),
             sensing_lifecycle=summarize_sensing_lifecycle(run_record, events),
             search_pattern=summarize_search_pattern(run_record, events),
+            mission_area=run_record.get("summary_json", {}).get("mission_area", {}),
             artifacts=run_record.get("artifact_paths", {}),
             recommendation=run_record.get("recommendation"),
         )
@@ -72,6 +73,10 @@ class ReportGenerator:
 
         template = self.environment.get_template("after_action_review_report.html.j2")
         output_path = self.paths.reports_dir / f"{review_record['id']}.html"
-        html = template.render(review=review_record, search_pattern=review_record.get("summary_json", {}).get("search_pattern", {}))
+        html = template.render(
+            review=review_record,
+            search_pattern=review_record.get("summary_json", {}).get("search_pattern", {}),
+            mission_area=review_record.get("summary_json", {}).get("mission_area", {}),
+        )
         output_path.write_text(html, encoding="utf-8")
         return output_path

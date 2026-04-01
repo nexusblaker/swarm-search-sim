@@ -254,6 +254,8 @@ def estimate_search_geometry(
 
     width, height = config.map_size
     area_cells = width * height
+    mission_area = config.mission_area or {}
+    terrain_summary = mission_area.get("terrain_summary", {})
     weather_factor = float(config.weather_modifiers.get(config.weather, 1.0))
     scenario_visibility = {
         "open_terrain": 1.0,
@@ -274,10 +276,28 @@ def estimate_search_geometry(
     fleet = fleet or {}
     sensor_mode_factor = 1.08 if config.sensor_mode == "thermal_visual" else 1.0
     fleet_coverage = float(fleet.get("coverage_score") or 1.0)
+    slope_factor = {
+        "light": 1.0,
+        "moderate": 0.93,
+        "elevated": 0.86,
+    }.get(str(terrain_summary.get("slope_burden")), 1.0)
+    trail_factor = {
+        "good": 1.05,
+        "workable": 1.0,
+        "limited": 0.94,
+    }.get(str(terrain_summary.get("trail_access")), 1.0)
+    obstacle_factor = max(0.82, 1.0 - float(terrain_summary.get("obstacle_coverage_pct", 0.0)) * 0.45)
     base_swath = max(2.0, config.sensor_range * (1.45 if config.fov >= 110.0 else 1.25))
     effective_swath = max(
         1.2,
-        base_swath * weather_factor * ((scenario_visibility + environment_visibility) / 2.0) * sensor_mode_factor * fleet_coverage,
+        base_swath
+        * weather_factor
+        * ((scenario_visibility + environment_visibility) / 2.0)
+        * sensor_mode_factor
+        * fleet_coverage
+        * slope_factor
+        * trail_factor
+        * obstacle_factor,
     )
     overlap_margin = max(0.08, min(0.36, _effective_overlap_margin(config)))
     lane_spacing = max(1.0, effective_swath * (1.0 - overlap_margin))
@@ -309,6 +329,11 @@ def estimate_search_geometry(
             "visibility_modifier": round((scenario_visibility + environment_visibility) / 2.0, 3),
             "sensor_mode_factor": round(sensor_mode_factor, 3),
             "fleet_coverage_factor": round(fleet_coverage, 3),
+            "area_sq_km": round(float(mission_area.get("area_sq_km", 0.0)), 2),
+            "shape_ratio": round(float(mission_area.get("shape_ratio", 1.0)), 2),
+            "staging_distance_to_center_km": round(float(mission_area.get("staging_distance_to_center_km", 0.0)), 2),
+            "slope_burden": terrain_summary.get("slope_burden"),
+            "dominant_terrain": terrain_summary.get("dominant_terrain"),
         },
     )
 
@@ -664,6 +689,15 @@ def _pattern_scores(
     coverage = float(fleet.get("coverage_score") or 1.0)
     endurance = float(fleet.get("endurance_score") or 1.0)
     detection = float(fleet.get("detection_score") or 1.0)
+    mission_area = config.mission_area or {}
+    terrain_summary = mission_area.get("terrain_summary", {})
+    area_sq_km = float(mission_area.get("area_sq_km", 0.0))
+    shape_ratio = float(mission_area.get("shape_ratio", 1.0))
+    staging_distance = float(mission_area.get("staging_distance_to_center_km", 0.0))
+    width_km = float(mission_area.get("width_km", 0.0))
+    height_km = float(mission_area.get("height_km", 0.0))
+    slope_burden = str(terrain_summary.get("slope_burden", ""))
+    dominant_terrain = str(terrain_summary.get("dominant_terrain", ""))
     unknown_lkp = config.last_known_status == "unknown"
     large_area = area_cells >= 300
     very_large_area = area_cells >= 500
@@ -693,6 +727,25 @@ def _pattern_scores(
         scores[SEARCH_PATTERN_PERIMETER] += 1.5
     if very_large_area:
         scores[SEARCH_PATTERN_EXPANDING_RING] -= 2.0
+    if area_sq_km >= 35.0:
+        scores[SEARCH_PATTERN_BROAD_SWEEP] += 3.0
+        scores[SEARCH_PATTERN_SECTOR_SPLIT] += 2.5
+    if shape_ratio >= 1.8:
+        scores[SEARCH_PATTERN_BROAD_SWEEP] += 2.0
+        scores[SEARCH_PATTERN_PERIMETER] += 1.8
+    elif shape_ratio <= 1.2 and known_origin:
+        scores[SEARCH_PATTERN_EXPANDING_RING] += 1.8
+    if staging_distance > max(width_km, height_km, 1.0) * 0.3:
+        scores[SEARCH_PATTERN_ADAPTIVE] += 2.2
+        scores[SEARCH_PATTERN_SECTOR_SPLIT] += 1.4
+    if slope_burden == "elevated":
+        scores[SEARCH_PATTERN_ADAPTIVE] += 2.4
+        scores[SEARCH_PATTERN_EXPANDING_RING] += 1.2
+        scores[SEARCH_PATTERN_BROAD_SWEEP] -= 1.4
+    if dominant_terrain in {"forest", "hill country"}:
+        scores[SEARCH_PATTERN_ADAPTIVE] += 1.4
+    if dominant_terrain == "water / no-go":
+        scores[SEARCH_PATTERN_SECTOR_SPLIT] += 1.2
     if config.num_drones >= 5:
         scores[SEARCH_PATTERN_SECTOR_SPLIT] += 4.0
         scores[SEARCH_PATTERN_ADAPTIVE] += 2.0
@@ -764,29 +817,30 @@ def _pattern_reason(
     if pattern is None:
         return "No alternate pattern summary was generated."
     intent_label = PATTERN_INTENT_LABELS.get(config.mission_intent, config.mission_intent.replace("_", " "))
+    area_context = _area_context_phrase(config.mission_area)
     if pattern == SEARCH_PATTERN_BROAD_SWEEP:
         return (
             "The last known position is uncertain and the search area is wide, so a coverage-first layout is the safest "
-            f"way to support {intent_label} without over-focusing on a single point."
+            f"way to support {intent_label} without over-focusing on a single point. {area_context}"
         )
     if pattern == SEARCH_PATTERN_SECTOR_SPLIT:
         return (
             "Several drones can cover ground in parallel here, so dividing the area into sectors makes the mission easier "
-            "to monitor while reducing redundant overlap."
+            f"to monitor while reducing redundant overlap. {area_context}"
         )
     if pattern == SEARCH_PATTERN_EXPANDING_RING:
         return (
             "A credible last known area is available, so starting tight and expanding outward keeps the search anchored "
-            "around the best early clue."
+            f"around the best early clue. {area_context}"
         )
     if pattern == SEARCH_PATTERN_PERIMETER:
         return (
             "Containment is the stronger priority here, so keeping the boundary under watch reduces the chance of missing "
-            "movement beyond the search box."
+            f"movement beyond the search box. {area_context}"
         )
     return (
         f"The mission is likely to shift around clues, inspections, or rotating assets, so a flexible pattern is a better "
-        f"fit than a fixed layout for {intent_label}."
+        f"fit than a fixed layout for {intent_label}. {area_context}"
     )
 
 
@@ -796,7 +850,15 @@ def _pattern_fit_summary(
     geometry: SearchPatternGeometry,
 ) -> str:
     base = PATTERN_FIT_SUMMARIES.get(pattern, pattern_brief(pattern))
-    return f"{base} Current spacing is built around an effective swath of about {geometry.effective_swath_cells:.1f} cells."
+    area = config.mission_area or {}
+    terrain_summary = area.get("terrain_summary", {})
+    terrain_note = ""
+    if terrain_summary.get("dominant_terrain"):
+        terrain_note = f" {terrain_summary['dominant_terrain'].title()} is the dominant ground type."
+    return (
+        f"{base} Current spacing is built around an effective swath of about {geometry.effective_swath_cells:.1f} cells."
+        f"{terrain_note}"
+    )
 
 
 def _effective_overlap_margin(config: ScenarioConfig) -> float:
@@ -810,3 +872,19 @@ def _effective_overlap_margin(config: ScenarioConfig) -> float:
     if config.reserve_preset == "aggressive":
         overlap -= 0.03
     return overlap
+
+
+def _area_context_phrase(mission_area: dict[str, Any] | None) -> str:
+    if not mission_area:
+        return ""
+    location = str(mission_area.get("location_display_name") or "the selected area")
+    width = float(mission_area.get("width_km", 0.0))
+    height = float(mission_area.get("height_km", 0.0))
+    staging_distance = float(mission_area.get("staging_distance_to_center_km", 0.0))
+    terrain_summary = mission_area.get("terrain_summary", {})
+    terrain = str(terrain_summary.get("dominant_terrain") or "").strip()
+    terrain_text = f" with mostly {terrain}" if terrain else ""
+    staging_text = ""
+    if staging_distance >= 0.5:
+        staging_text = f" Staging sits about {staging_distance:.1f} km from the area centre."
+    return f"{location} spans about {width:.1f} by {height:.1f} km{terrain_text}.{staging_text}".strip()

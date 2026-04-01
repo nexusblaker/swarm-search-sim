@@ -114,6 +114,15 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
       Math.PI * 2,
     );
     ctx.fill();
+
+    const [baseX, baseY] = snapshot.base_position;
+    ctx.fillStyle = "#34d399";
+    ctx.fillRect(
+      baseX * cellSize + cellSize / 2 - Math.max(4, cellSize / 3),
+      baseY * cellSize + cellSize / 2 - Math.max(4, cellSize / 3),
+      Math.max(8, (cellSize / 3) * 2),
+      Math.max(8, (cellSize / 3) * 2),
+    );
   }, [dimensions, snapshot]);
 
   return (
@@ -131,6 +140,11 @@ export function MissionSnapshotMap({ snapshot }: { snapshot: Snapshot }) {
           <span className="pill whitespace-nowrap">
             {snapshot.search_pattern_label}
             {snapshot.search_pattern_rebalanced ? " | Rebalanced" : ""}
+          </span>
+        ) : null}
+        {snapshot.mission_area?.location_display_name ? (
+          <span className="pill whitespace-nowrap">
+            {snapshot.mission_area.location_display_name}
           </span>
         ) : null}
         {snapshot.drones.map((drone) => (

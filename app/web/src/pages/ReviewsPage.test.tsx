@@ -18,6 +18,14 @@ vi.mock("@/api/hooks", () => ({
           summary_json: {
             mission_timeline: "Generated from replay, events, and intervention history.",
             actual_outcome: { status: "completed", metrics: { mission_success: true } },
+            mission_area: {
+              operator_summary: "Katoomba AOI covers about 14.2 km² across 4.8 by 3.1 km at roughly 400 m cells.",
+              area_sq_km: 14.2,
+              grid_size: [12, 10],
+              terrain_summary: {
+                operator_summary: "The selected area is mostly forest, with elevated slope burden and workable trail access.",
+              },
+            },
             battery_lifecycle: {
               reserve_preset: "balanced",
               asset_utilization_summary: "2 return-to-base cycle(s) were recorded.",
@@ -105,6 +113,8 @@ describe("ReviewsPage", () => {
     expect(screen.getByText("After-action review")).toBeInTheDocument();
     expect(screen.getByText("Mission outcome")).toBeInTheDocument();
     expect(screen.getByText("Search pattern summary")).toBeInTheDocument();
+    expect(screen.getByText("Mission area review")).toBeInTheDocument();
+    expect(screen.getByText(/Katoomba AOI covers about 14.2 km²/i)).toBeInTheDocument();
     expect(screen.getByText("Sensing workflow summary")).toBeInTheDocument();
     expect(screen.getByText("Review timeline")).toBeInTheDocument();
     expect(screen.getByText("Open after-action report")).toBeInTheDocument();

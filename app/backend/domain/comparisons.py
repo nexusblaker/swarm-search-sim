@@ -252,6 +252,7 @@ class ComparisonEvaluator:
             asset_package.get("fleet_composition", {}),
             mission_intent,
             candidate_config.scenario_family,
+            candidate_config.mission_area,
         )
         pattern_decision = recommend_search_pattern(
             candidate_config,
@@ -305,6 +306,8 @@ class ComparisonEvaluator:
             "key_tradeoffs": heuristics["key_tradeoffs"],
             "sensing_conditions_summary": heuristics["sensing_summary"],
             "inspection_burden": heuristics["inspection_burden"],
+            "mission_area": candidate_config.mission_area,
+            "mission_area_summary": heuristics["area_summary"],
             "team_coordination_label": ComparisonEvaluator._coordination_label(candidate["coordination_mode"]),
             **pattern_decision.to_record(),
             "score": round(score, 2),
@@ -317,6 +320,7 @@ class ComparisonEvaluator:
         fleet: dict[str, Any],
         mission_intent: str,
         scenario_family: str,
+        mission_area: dict[str, Any] | None,
     ) -> dict[str, Any]:
         strategy = str(candidate["strategy"])
         drone_count = int(candidate["drone_count"])
@@ -327,6 +331,13 @@ class ComparisonEvaluator:
         coverage = float(fleet.get("coverage_score") or 1.0)
         detection = float(fleet.get("detection_score") or 1.0)
         type_count = int(fleet.get("drone_type_count") or 1)
+        mission_area = mission_area or {}
+        terrain_summary = mission_area.get("terrain_summary", {})
+        area_sq_km = float(mission_area.get("area_sq_km", 0.0))
+        shape_ratio = float(mission_area.get("shape_ratio", 1.0))
+        staging_distance = float(mission_area.get("staging_distance_to_center_km", 0.0))
+        dominant_terrain = str(terrain_summary.get("dominant_terrain", ""))
+        slope_burden = str(terrain_summary.get("slope_burden", ""))
 
         score_adjustment = 0.0
         tradeoffs: list[str] = []
@@ -364,6 +375,17 @@ class ComparisonEvaluator:
             score_adjustment += 2.5
         if endurance < 0.95 and threshold < 28.0:
             score_adjustment -= 3.0
+        if area_sq_km >= 30.0 and strategy in {"sector_search", "auction_based"}:
+            score_adjustment += 1.8
+        if shape_ratio >= 1.8 and strategy == "sector_search":
+            score_adjustment += 1.2
+        if staging_distance >= 3.5 and threshold < 28.0:
+            score_adjustment -= 1.6
+            tradeoffs.append("offset staging increases the battery burden on each sortie")
+        if slope_burden == "elevated":
+            tradeoffs.append("steeper ground will slow clean lane coverage and tighten battery pacing")
+        if dominant_terrain in {"forest", "hill country"}:
+            tradeoffs.append("denser ground may force tighter coverage and more deliberate confirmation passes")
         if type_count > 1 and coordination_mode == "decentralized":
             score_adjustment += 1.5
             tradeoffs.append("mixed fleet reduces idle time when coordination is distributed")
@@ -395,6 +417,12 @@ class ComparisonEvaluator:
             if scenario_family == "high_wind"
             else "Conditions support a relatively clean cue-to-confirm workflow."
         )
+        area_summary = (
+            f"{mission_area.get('location_display_name', 'Selected area')} covers about "
+            f"{area_sq_km:.1f} km² at {mission_area.get('grid_resolution_m', 0):.0f} m resolution."
+            if area_sq_km > 0.0
+            else "A standard synthetic planning area is in use."
+        )
         return {
             "score_adjustment": round(score_adjustment, 2),
             "fit_summary": ", ".join(fit_traits),
@@ -404,6 +432,7 @@ class ComparisonEvaluator:
             "inspection_watch": inspection_watch,
             "inspection_burden": inspection_burden,
             "sensing_summary": sensing_summary,
+            "area_summary": area_summary,
         }
 
     @staticmethod

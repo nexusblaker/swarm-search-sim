@@ -10,6 +10,12 @@ import numpy as np
 import pytest
 
 from benchmark import run_benchmarks, run_grouped_experiments
+from src.environment.mission_area import (
+    build_environment_from_mission_area,
+    derive_mission_area_layers,
+    preview_mission_area,
+    resolve_location_input,
+)
 from src.probability.belief import BeliefState
 from src.simulation.engine import SimulationEngine
 from src.simulation.lifecycle import LIFECYCLE_READY, LIFECYCLE_RECHARGING, LIFECYCLE_RETURNING
@@ -99,6 +105,36 @@ def test_search_geometry_lane_spacing_grows_with_sensor_swath() -> None:
 
     assert wide_geometry.effective_swath_cells > base_geometry.effective_swath_cells
     assert wide_geometry.lane_spacing_cells > base_geometry.lane_spacing_cells
+
+
+def test_mission_area_preview_builds_deterministic_real_grid_layers() -> None:
+    location = resolve_location_input(query="Katoomba")
+    mission_area = preview_mission_area(
+        location=location,
+        grid_resolution_m=400.0,
+        environment_type="dense_forest",
+        weather="windy",
+    )
+    layers = derive_mission_area_layers(
+        mission_area,
+        scenario_family="dense_forest",
+        weather="windy",
+    )
+    environment = build_environment_from_mission_area(
+        mission_area,
+        scenario_family="dense_forest",
+        weather="windy",
+    )
+
+    assert mission_area["location_display_name"] == "Katoomba, NSW"
+    assert mission_area["grid_size"][0] >= 12
+    assert mission_area["grid_size"][1] >= 10
+    assert mission_area["terrain_summary"]["dominant_terrain"]
+    assert mission_area["staging"]["grid_position"]
+    assert layers["terrain_grid"].shape == environment.shape
+    assert layers["elevation_layer"].shape == environment.shape
+    assert layers["terrain_summary"]["operator_summary"]
+    assert np.isfinite(layers["wind_layer"]).all()
 
 
 def test_low_battery_drones_eventually_return_to_base() -> None:

@@ -21,6 +21,7 @@ from src.coordination import (
     SectorSearchStrategy,
 )
 from src.environment.grid import GridEnvironment, TerrainType
+from src.environment.mission_area import build_environment_from_mission_area
 from src.probability.belief import BeliefState
 from src.probability.heatmap import ProbabilityMap
 from src.scenarios.scenario import ScenarioConfig
@@ -231,7 +232,13 @@ class SimulationEngine:
         width, height = self.config.map_size
         self.rng = np.random.default_rng(self.config.seed)
         self.environment = (
-            GridEnvironment.load_layers(self.config.layer_paths)
+            build_environment_from_mission_area(
+                self.config.mission_area,
+                scenario_family=self.config.scenario_family,
+                weather=self.config.weather,
+            )
+            if self.config.mission_area and self.config.mission_area.get("bounds")
+            else GridEnvironment.load_layers(self.config.layer_paths)
             if self.config.use_external_layers and self.config.layer_paths
             else GridEnvironment.generate(
                 width=width,
@@ -565,6 +572,7 @@ class SimulationEngine:
             "paused": self.paused,
             "weather": self.config.weather,
             "strategy": self.config.strategy,
+            "mission_area": self.config.mission_area,
             "last_known_position": self.config.last_known_position,
             "last_known_status": self.config.last_known_status,
             "coordination_mode": self.config.coordination_mode,

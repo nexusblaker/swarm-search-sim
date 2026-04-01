@@ -257,6 +257,7 @@ class MissionPlanService:
         if communication_assumptions:
             scenario_block.setdefault("communication", {}).update(communication_assumptions)
         if map_selection:
+            scenario_block["mission_area"] = map_selection
             for key in ("use_external_layers", "layer_paths", "scenario_family"):
                 if key in map_selection:
                     scenario_block[key] = map_selection[key]

@@ -15,6 +15,14 @@ vi.mock("@/api/hooks", () => ({
           created_at: 1_700_000_000,
           summary_json: {
             status: "ready",
+            mission_area: {
+              operator_summary: "Katoomba AOI covers about 14.2 km² across 4.8 by 3.1 km at roughly 400 m cells.",
+              area_sq_km: 14.2,
+              grid_size: [12, 10],
+              terrain_summary: {
+                operator_summary: "The selected area is mostly forest, with elevated slope burden and workable trail access.",
+              },
+            },
             search_pattern: {
               pattern_label: "Sector Split",
               summary: "Divides the search box into independent sectors for parallel coverage.",
@@ -42,6 +50,8 @@ describe("ReportsPage", () => {
     expect(screen.getAllByText("After-action report").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/review:review-1/i).length).toBeGreaterThan(0);
     expect(screen.getByText("Export after-action report")).toBeInTheDocument();
+    expect(screen.getByText("Mission area")).toBeInTheDocument();
+    expect(screen.getByText(/Katoomba AOI covers about 14.2 km²/i)).toBeInTheDocument();
     expect(screen.getByText("Search pattern")).toBeInTheDocument();
     expect(screen.getByText("Sensing workflow")).toBeInTheDocument();
   });

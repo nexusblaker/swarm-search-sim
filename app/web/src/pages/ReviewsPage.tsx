@@ -5,6 +5,7 @@ import { api } from "@/api/client";
 import { useReports, useReviews, useRuns } from "@/api/hooks";
 import type {
   BatteryLifecycleSummary,
+  MissionAreaSummary,
   ReviewSummaryRecord,
   ReviewTimelineRecord,
   SearchPatternSummary,
@@ -58,6 +59,7 @@ export function ReviewsPage() {
   const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
   const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
   const searchPattern = (summary.search_pattern ?? {}) as SearchPatternSummary;
+  const missionArea = (summary.mission_area ?? {}) as MissionAreaSummary;
   const timeline = (selected?.timeline_json ?? {}) as ReviewTimelineRecord;
   const actualOutcome = summary.actual_outcome ?? {};
   const actualMetrics = (actualOutcome.metrics as Record<string, unknown> | undefined) ?? {};
@@ -196,6 +198,27 @@ export function ReviewsPage() {
                   <p className="mt-3 text-sm leading-6 text-white/90">
                     {searchPattern.mission_effect_summary ?? "No pattern-change summary available."}
                   </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Mission area review</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {missionArea.operator_summary ?? "No mission area summary was captured for this review."}
+                  </p>
+                  {missionArea.terrain_summary?.operator_summary ? (
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {missionArea.terrain_summary.operator_summary}
+                    </p>
+                  ) : null}
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <ReviewMetric
+                      label="Area size"
+                      value={missionArea.area_sq_km ? `${missionArea.area_sq_km.toFixed(1)} km²` : "n/a"}
+                    />
+                    <ReviewMetric
+                      label="Grid"
+                      value={missionArea.grid_size ? `${missionArea.grid_size[0]} x ${missionArea.grid_size[1]}` : "n/a"}
+                    />
+                  </div>
                 </div>
                 <div className="panel-subtle p-4">
                   <p className="section-kicker">Main takeaways</p>

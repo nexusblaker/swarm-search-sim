@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import { useRuns } from "@/api/hooks";
-import type { CandidateContact, LifecycleSummaryRecord, Snapshot } from "@/api/types";
+import type { CandidateContact, LifecycleSummaryRecord, MissionAreaSummary, Snapshot } from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { MissionSnapshotMap } from "@/components/mission/MissionSnapshotMap";
 import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
@@ -113,6 +113,11 @@ export function ReplayPage() {
   );
   const searchPatternRebalanceReason = String(
     frame?.search_pattern_rebalance_reason ?? selectedRun?.summary_json.search_pattern_rebalance_reason ?? "",
+  );
+  const missionArea = (frame?.mission_area ?? selectedRun?.summary_json.mission_area ?? {}) as MissionAreaSummary;
+  const missionAreaLabel = String(missionArea.location_display_name ?? "Mission area");
+  const missionAreaSummary = String(
+    missionArea.operator_summary ?? selectedRun?.summary_json.mission_area_summary ?? "Mission area summary pending.",
   );
   const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
   const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
@@ -261,6 +266,8 @@ export function ReplayPage() {
                   items={[
                     { label: "Step", value: frame.step },
                     { label: "Mission phase", value: runPhase },
+                    { label: "Mission area", value: missionAreaLabel },
+                    { label: "Area size", value: missionArea.area_sq_km ? `${missionArea.area_sq_km.toFixed(1)} km²` : "n/a" },
                     { label: "Search pattern", value: searchPatternLabel },
                     { label: "Strategy", value: frame.strategy },
                     { label: "Team coordination", value: frame.coordination_mode },
@@ -270,6 +277,13 @@ export function ReplayPage() {
                   ]}
                 />
                 <div className="mt-4 space-y-4">
+                  <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Mission area</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">{missionAreaSummary}</p>
+                    {missionArea.terrain_summary?.operator_summary ? (
+                      <p className="mt-3 text-sm leading-6 text-muted">{missionArea.terrain_summary.operator_summary}</p>
+                    ) : null}
+                  </div>
                   <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Search pattern</p>
                     <p className="mt-3 text-sm leading-6 text-white/90">{searchPatternSummary}</p>

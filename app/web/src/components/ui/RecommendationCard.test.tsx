@@ -23,7 +23,10 @@ describe("RecommendationCard", () => {
         teamCoordinationLabel="guided from a single mission desk"
         riskSummary={{ battery: "moderate" }}
         uncertaintySummary={{ confidence: 0.78 }}
-        technicalDetails={{ mission_intent: "high_confidence_confirmation" }}
+        technicalDetails={{
+          mission_intent: "high_confidence_confirmation",
+          mission_area_summary: "Katoomba AOI covers about 14.2 km² across 4.8 by 3.1 km at roughly 400 m cells.",
+        }}
       />,
     );
 
@@ -34,5 +37,6 @@ describe("RecommendationCard", () => {
     expect(screen.getByText("28%")).toBeInTheDocument();
     expect(screen.getByText(/balances expected success/i)).toBeInTheDocument();
     expect(screen.getByText(/guided from a single mission desk/i)).toBeInTheDocument();
+    expect(screen.getByText(/Katoomba AOI covers about 14.2 km²/i)).toBeInTheDocument();
   });
 });

@@ -98,6 +98,8 @@ class RecommendationService:
             "asset_package": asset_package,
             "technical_details": {
                 "operator_fit_summary": top.get("operator_fit_summary"),
+                "mission_area_summary": top.get("mission_area_summary"),
+                "mission_area": top.get("mission_area"),
                 "search_pattern_geometry": top.get("search_pattern_geometry"),
                 "sensing_conditions_summary": top.get("sensing_conditions_summary"),
                 "inspection_burden": top.get("inspection_burden"),
@@ -124,10 +126,12 @@ class RecommendationService:
         strategy_label = self.STRATEGY_LABELS.get(str(top.get("strategy")), str(top.get("strategy") or "this search style"))
         pattern_label = str(top.get("search_pattern_label") or "this search pattern")
         intent_label = self.INTENT_LABELS.get(mission_intent, mission_intent.replace("_", " "))
+        area_summary = str(top.get("mission_area_summary") or "").strip()
         return (
             f"{pattern_label} is the best fit for the requested {intent_label}. "
             f"It uses {strategy_label} underneath with {top.get('drone_count')} drones and a "
             f"{top.get('return_threshold')}% return reserve so coverage geometry, battery margin, and confirmation tempo stay aligned."
+            f"{f' {area_summary}' if area_summary else ''}"
         )
 
     def _build_concise_summary(
@@ -140,6 +144,7 @@ class RecommendationService:
         pattern_label = str(top.get("search_pattern_label") or "a recommended search pattern")
         staging = asset_package.get("staging_location")
         staging_text = f" from the {staging}" if staging else ""
+        area_summary = str(top.get("mission_area_summary") or "").strip()
         fleet = asset_package.get("fleet_composition", {})
         fleet_text = f"{int(fleet.get('total_drones') or top.get('drone_count') or 0)} mixed-range drones"
         if fleet.get("drone_type_count", 1) <= 1:
@@ -159,7 +164,8 @@ class RecommendationService:
             sensing_note = " It favors deliberate cue-to-confirm inspection over the fastest possible sweep."
         return (
             f"Recommended: use {pattern_label} with {fleet_text}{staging_text}. "
-            f"{reason or f'This gives the best balance for {intent_label}.'}{tradeoff}{sensing_note}"
+            f"{reason or f'This gives the best balance for {intent_label}.'}"
+            f"{f' {area_summary}' if area_summary else ''}{tradeoff}{sensing_note}"
         )
 
     def _build_alternative_summary(self, alternative: dict[str, Any]) -> str:

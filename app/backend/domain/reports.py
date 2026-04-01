@@ -42,6 +42,7 @@ class ReportService:
                 "run_id": run_record["id"],
                 "strategy": run_record["summary_json"].get("strategy"),
                 "search_pattern": search_pattern,
+                "mission_area": run_record["summary_json"].get("mission_area", {}),
                 "status": run_record["status"],
                 "run_phase": battery_lifecycle.get("run_phase"),
                 "battery_lifecycle": battery_lifecycle,
@@ -63,6 +64,7 @@ class ReportService:
                 "approval_state": plan_record["approval_state"],
                 "search_pattern": plan_record.get("summary_json", {}).get("search_pattern"),
                 "search_pattern_label": plan_record.get("summary_json", {}).get("search_pattern_label"),
+                "mission_area": plan_record.get("summary_json", {}).get("mission_area", {}),
             },
             run_id=plan_record["id"],
         )
@@ -100,6 +102,7 @@ class ReportService:
                 "battery_lifecycle": battery_lifecycle,
                 "sensing_lifecycle": sensing_lifecycle,
                 "search_pattern": search_pattern,
+                "mission_area": review_record.get("summary_json", {}).get("mission_area", {}),
             },
             run_id=review_record["run_id"],
         )

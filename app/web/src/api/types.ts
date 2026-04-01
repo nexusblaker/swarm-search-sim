@@ -71,6 +71,69 @@ export interface SearchPatternSummary {
   highlights?: LifecycleHighlight[];
 }
 
+export interface TerrainAreaSummary {
+  source_mode?: string;
+  dominant_terrain?: string;
+  terrain_mix?: Record<string, number>;
+  elevation_range_m?: [number, number];
+  mean_elevation_m?: number;
+  slope_burden?: string;
+  trail_access?: string;
+  trail_coverage_pct?: number;
+  obstacle_coverage_pct?: number;
+  suggested_scenario_family?: string;
+  operator_summary?: string;
+}
+
+export interface MissionAreaSummary {
+  location_display_name?: string;
+  location_source?: string;
+  location_query?: string;
+  center?: { latitude: number; longitude: number };
+  preview_span_km?: number;
+  shape_type?: string;
+  shape_summary?: string;
+  rectangle?: Record<string, number>;
+  polygon?: Array<Record<string, number>>;
+  bounds?: Record<string, number>;
+  width_km?: number;
+  height_km?: number;
+  area_sq_km?: number;
+  shape_ratio?: number;
+  requested_grid_resolution_m?: number;
+  grid_resolution_m?: number;
+  cell_size_m?: number;
+  grid_size?: [number, number];
+  max_safe_cells?: number;
+  warnings?: string[];
+  terrain_hint?: string;
+  last_known_status?: string;
+  environment_type?: string;
+  staging?: {
+    latitude?: number;
+    longitude?: number;
+    label?: string;
+    placement?: string;
+    grid_position?: [number, number];
+  };
+  staging_distance_to_center_km?: number;
+  last_known_grid_position?: [number, number];
+  center_grid_position?: [number, number];
+  operator_summary?: string;
+  grid_summary?: Record<string, unknown>;
+  terrain_summary?: TerrainAreaSummary;
+}
+
+export interface ResolvedLocation {
+  display_name: string;
+  latitude: number;
+  longitude: number;
+  source: string;
+  preview_span_km: number;
+  terrain_hint?: string;
+  fallback_note?: string | null;
+}
+
 export interface DroneStatusSummary {
   id: number;
   operator_status?: string;
@@ -106,6 +169,8 @@ export interface RunSummaryRecord extends SummaryRecord {
   search_pattern_rebalanced?: boolean;
   search_pattern_rebalance_reason?: string | null;
   search_pattern_geometry?: Record<string, unknown>;
+  mission_area?: MissionAreaSummary;
+  mission_area_summary?: string;
   scenario_family?: string;
   coordination_mode?: string;
   reserve_preset?: string;
@@ -139,6 +204,7 @@ export interface ReviewSummaryRecord extends SummaryRecord {
   battery_lifecycle?: BatteryLifecycleSummary;
   sensing_lifecycle?: SensingLifecycleSummary;
   search_pattern?: SearchPatternSummary;
+  mission_area?: MissionAreaSummary;
   battery_comms_risk_summary?: Record<string, unknown>;
   alternate_plan_summary?: Record<string, unknown>;
   links?: Record<string, unknown>;
@@ -151,6 +217,7 @@ export interface ReportSummaryRecord extends SummaryRecord {
   strategy?: string;
   search_pattern?: SearchPatternSummary;
   search_pattern_label?: string;
+  mission_area?: MissionAreaSummary;
   status?: string;
   run_phase?: string;
   battery_lifecycle?: BatteryLifecycleSummary;
@@ -456,6 +523,10 @@ export interface RecommendationResponse {
   candidate_plans: Record<string, unknown>[];
 }
 
+export interface MissionAreaPreviewResponse {
+  mission_area: MissionAreaSummary;
+}
+
 export interface SnapshotDrone {
   id: number;
   position: [number, number];
@@ -498,6 +569,7 @@ export interface Snapshot {
   paused: boolean;
   weather: string;
   strategy: string;
+  mission_area?: MissionAreaSummary;
   last_known_position?: [number, number];
   last_known_status?: string;
   search_pattern?: string;

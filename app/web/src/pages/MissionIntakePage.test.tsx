@@ -31,6 +31,7 @@ describe("MissionIntakePage", () => {
 
     expect(screen.getByText("Build a new mission in five guided steps")).toBeInTheDocument();
     expect(screen.getByText("Describe the situation")).toBeInTheDocument();
+    expect(screen.getByText("Set the real search area")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /step 2 assets/i }));
     fireEvent.click(screen.getByRole("button", { name: /mixed fleet/i }));

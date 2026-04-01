@@ -26,8 +26,26 @@
     <p><strong>Plan ID:</strong> {{ run.plan_id or "Ad hoc run" }}</p>
     <p><strong>Strategy:</strong> {{ run.summary_json.strategy }}</p>
     <p><strong>Search pattern:</strong> {{ search_pattern.pattern_label or "Not recorded" }}</p>
+    <p><strong>Mission area:</strong> {{ mission_area.location_display_name or "Synthetic planning area" }}</p>
     <p><strong>Run phase:</strong> {{ battery_lifecycle.run_phase }}</p>
     <p><strong>Reserve policy:</strong> {{ battery_lifecycle.reserve_preset|replace("_", " ")|title }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Mission Area Summary</h2>
+    <p>{{ mission_area.operator_summary or "Mission area summary not recorded." }}</p>
+    {% if mission_area.terrain_summary %}
+    <p>{{ mission_area.terrain_summary.operator_summary }}</p>
+    {% endif %}
+    <table>
+      <tbody>
+      <tr><th>Area size</th><td>{{ mission_area.area_sq_km or "n/a" }} km²</td></tr>
+      <tr><th>Area shape</th><td>{{ mission_area.shape_summary or "n/a" }}</td></tr>
+      <tr><th>Grid resolution</th><td>{{ mission_area.grid_resolution_m or "n/a" }} m</td></tr>
+      <tr><th>Grid size</th><td>{% if mission_area.grid_size %}{{ mission_area.grid_size[0] }} x {{ mission_area.grid_size[1] }}{% else %}n/a{% endif %}</td></tr>
+      <tr><th>Staging</th><td>{{ mission_area.staging.label if mission_area.staging else "n/a" }}</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="card">

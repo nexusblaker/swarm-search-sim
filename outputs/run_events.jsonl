@@ -1,73 +1,55 @@
+{"event_type": "search_pattern_selected", "step": 0, "pattern": "expanding_ring", "pattern_label": "Expanding Ring", "base_pattern": null, "base_pattern_label": null, "reason": "A credible last known area is available, so starting tight and expanding outward keeps the search anchored around the best early clue. ", "summary": "Starts near the most likely origin area and grows outward over time."}
 {"event_type": "scan_event", "step": 1, "drone_id": 0, "scanned_cell_count": 19, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 1, "drone_id": 1, "scanned_cell_count": 29, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 1, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 1, "drone_id": 3, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 2, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 3, "scanned_cell_count": 24, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 1, "drone_id": 4, "scanned_cell_count": 22, "candidate_scores": {}}
 {"event_type": "comms_failure", "step": 1, "drone_id": 1, "mode": "packet_loss"}
 {"event_type": "comms_failure", "step": 1, "drone_id": 4, "mode": "out_of_range"}
 {"event_type": "stale_info_use", "step": 2, "drone_id": 1, "stale_steps": 1}
 {"event_type": "stale_info_use", "step": 2, "drone_id": 4, "stale_steps": 1}
-{"event_type": "task_reassignment", "step": 2, "drone_id": 0, "previous_goal": [7, 5], "new_goal": [12, 8]}
-{"event_type": "task_reassignment", "step": 2, "drone_id": 1, "previous_goal": [9, 5], "new_goal": [12, 10]}
-{"event_type": "task_reassignment", "step": 2, "drone_id": 2, "previous_goal": [8, 5], "new_goal": [11, 9]}
-{"event_type": "task_reassignment", "step": 2, "drone_id": 3, "previous_goal": [8, 4], "new_goal": [12, 9]}
-{"event_type": "task_reassignment", "step": 2, "drone_id": 4, "previous_goal": [12, 8], "new_goal": [10, 6]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 1, "previous_goal": [5, 3], "new_goal": [9, 11]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 2, "previous_goal": [9, 3], "new_goal": [5, 11]}
 {"event_type": "scan_event", "step": 2, "drone_id": 0, "scanned_cell_count": 17, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 2, "drone_id": 1, "scanned_cell_count": 29, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 2, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 2, "drone_id": 3, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 2, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 3, "scanned_cell_count": 25, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 2, "drone_id": 4, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 2, "drone_id": 3, "mode": "out_of_range"}
 {"event_type": "comms_failure", "step": 2, "drone_id": 4, "mode": "out_of_range"}
 {"event_type": "stale_info_use", "step": 3, "drone_id": 4, "stale_steps": 2}
-{"event_type": "task_reassignment", "step": 3, "drone_id": 0, "previous_goal": [12, 8], "new_goal": [12, 10]}
-{"event_type": "task_reassignment", "step": 3, "drone_id": 1, "previous_goal": [12, 10], "new_goal": [13, 9]}
-{"event_type": "task_reassignment", "step": 3, "drone_id": 2, "previous_goal": [11, 9], "new_goal": [12, 8]}
-{"event_type": "task_reassignment", "step": 3, "drone_id": 4, "previous_goal": [10, 6], "new_goal": [11, 9]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 3, "previous_goal": [13, 3], "new_goal": [5, 6]}
 {"event_type": "scan_event", "step": 3, "drone_id": 0, "scanned_cell_count": 18, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 3, "drone_id": 1, "scanned_cell_count": 30, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 3, "drone_id": 2, "scanned_cell_count": 28, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 3, "drone_id": 3, "scanned_cell_count": 23, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 2, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 3, "drone_id": 4, "scanned_cell_count": 19, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 3, "drone_id": 1, "mode": "packet_loss"}
 {"event_type": "comms_failure", "step": 3, "drone_id": 4, "mode": "out_of_range"}
 {"event_type": "stale_info_use", "step": 4, "drone_id": 4, "stale_steps": 3}
-{"event_type": "task_reassignment", "step": 4, "drone_id": 1, "previous_goal": [13, 9], "new_goal": [11, 10]}
-{"event_type": "task_reassignment", "step": 4, "drone_id": 2, "previous_goal": [12, 8], "new_goal": [11, 11]}
-{"event_type": "task_reassignment", "step": 4, "drone_id": 3, "previous_goal": [12, 9], "new_goal": [12, 11]}
 {"event_type": "scan_event", "step": 4, "drone_id": 0, "scanned_cell_count": 25, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 4, "drone_id": 1, "scanned_cell_count": 27, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 4, "drone_id": 2, "scanned_cell_count": 29, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 1, "scanned_cell_count": 27, "candidate_scores": {"9,9": 0.12519155746979604}}
+{"event_type": "detection_candidate", "step": 4, "drone_id": 1, "position": [9, 9], "score": 0.12519155746979604, "channels": {"thermal": 0.1926023961073785, "visual": 0.0}}
+{"event_type": "possible_contact_detected", "step": 4, "drone_id": 1, "contact_id": "contact-1", "position": [9, 9], "confidence": 0.125, "candidate_score": 0.125, "requires_inspection": true, "note": "Possible thermal contact detected at long range."}
+{"event_type": "scan_event", "step": 4, "drone_id": 2, "scanned_cell_count": 25, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 4, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
 {"event_type": "scan_event", "step": 4, "drone_id": 4, "scanned_cell_count": 29, "candidate_scores": {}}
 {"event_type": "comms_failure", "step": 4, "drone_id": 4, "mode": "out_of_range"}
 {"event_type": "stale_info_use", "step": 5, "drone_id": 4, "stale_steps": 4}
-{"event_type": "task_reassignment", "step": 5, "drone_id": 0, "previous_goal": [12, 10], "new_goal": [11, 11]}
-{"event_type": "task_reassignment", "step": 5, "drone_id": 1, "previous_goal": [11, 10], "new_goal": [12, 11]}
-{"event_type": "task_reassignment", "step": 5, "drone_id": 2, "previous_goal": [11, 11], "new_goal": [11, 10]}
-{"event_type": "task_reassignment", "step": 5, "drone_id": 3, "previous_goal": [12, 11], "new_goal": [12, 10]}
-{"event_type": "task_reassignment", "step": 5, "drone_id": 4, "previous_goal": [11, 9], "new_goal": [10, 11]}
+{"event_type": "search_pattern_rebalanced", "step": 5, "pattern": "adaptive_rebalance", "pattern_label": "Adaptive Rebalance", "base_pattern": "expanding_ring", "base_pattern_label": "Expanding Ring", "reason": "possible contact activity", "summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity."}
+{"event_type": "inspection_initiated", "step": 5, "drone_id": 1, "contact_id": "contact-1", "position": [9, 9], "confidence": 0.125, "detecting_drone_id": 1}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 0, "previous_goal": [9, 7], "new_goal": [9, 9]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 1, "previous_goal": [9, 11], "new_goal": [9, 9]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 2, "previous_goal": [5, 11], "new_goal": [6, 9]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 3, "previous_goal": [5, 6], "new_goal": [9, 12]}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 4, "previous_goal": [13, 7], "new_goal": [9, 6]}
 {"event_type": "scan_event", "step": 5, "drone_id": 0, "scanned_cell_count": 22, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 5, "drone_id": 1, "scanned_cell_count": 25, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 5, "drone_id": 2, "scanned_cell_count": 24, "candidate_scores": {"8,7": 0.12}}
-{"event_type": "detection_candidate", "step": 5, "drone_id": 2, "position": [8, 7], "score": 0.12, "channels": {"thermal": 0.3436200000000001, "visual": 0.32670000000000005}}
-{"event_type": "possible_contact_detected", "step": 5, "drone_id": 2, "contact_id": "contact-1", "position": [8, 7], "confidence": 0.114, "candidate_score": 0.12, "requires_inspection": true, "note": "Possible thermal contact detected at long range."}
-{"event_type": "scan_event", "step": 5, "drone_id": 3, "scanned_cell_count": 28, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 5, "drone_id": 4, "scanned_cell_count": 31, "candidate_scores": {}}
-{"event_type": "comms_failure", "step": 5, "drone_id": 4, "mode": "out_of_range"}
-{"event_type": "stale_info_use", "step": 6, "drone_id": 4, "stale_steps": 5}
-{"event_type": "inspection_initiated", "step": 6, "drone_id": 2, "contact_id": "contact-1", "position": [8, 7], "confidence": 0.114, "detecting_drone_id": 2}
-{"event_type": "task_reassignment", "step": 6, "drone_id": 0, "previous_goal": [11, 11], "new_goal": [11, 12]}
-{"event_type": "task_reassignment", "step": 6, "drone_id": 1, "previous_goal": [12, 11], "new_goal": [11, 11]}
-{"event_type": "task_reassignment", "step": 6, "drone_id": 2, "previous_goal": [11, 10], "new_goal": [8, 7]}
-{"event_type": "task_reassignment", "step": 6, "drone_id": 3, "previous_goal": [12, 10], "new_goal": [10, 11]}
-{"event_type": "task_reassignment", "step": 6, "drone_id": 4, "previous_goal": [10, 11], "new_goal": [11, 10]}
-{"event_type": "scan_event", "step": 6, "drone_id": 0, "scanned_cell_count": 30, "candidate_scores": {"8,6": 0.12}}
-{"event_type": "detection_candidate", "step": 6, "drone_id": 0, "position": [8, 6], "score": 0.12, "channels": {"thermal": 0.36064, "visual": 0.17820000000000003}}
-{"event_type": "scan_event", "step": 6, "drone_id": 1, "scanned_cell_count": 20, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 6, "drone_id": 2, "scanned_cell_count": 22, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 6, "drone_id": 3, "scanned_cell_count": 28, "candidate_scores": {}}
-{"event_type": "scan_event", "step": 6, "drone_id": 4, "scanned_cell_count": 30, "candidate_scores": {}}
-{"event_type": "inspection_pass_complete", "step": 6, "drone_id": 2, "contact_id": "contact-1", "position": [8, 6], "confidence": 0.974, "outcome": "confirmed", "note": "Target confirmed after close inspection."}
-{"event_type": "contact_confirmed", "step": 6, "drone_id": 2, "contact_id": "contact-1", "position": [8, 6], "confidence": 0.974, "note": "Target confirmed after close inspection."}
-{"event_type": "confirmed_detection", "step": 6, "drone_id": 2, "contact_id": "contact-1", "position": [8, 6], "confidence": 0.974}
-{"event_type": "comms_failure", "step": 6, "drone_id": 3, "mode": "out_of_range"}
-{"event_type": "comms_failure", "step": 6, "drone_id": 4, "mode": "out_of_range"}
+{"event_type": "scan_event", "step": 5, "drone_id": 1, "scanned_cell_count": 25, "candidate_scores": {"9,8": 0.12474}}
+{"event_type": "detection_candidate", "step": 5, "drone_id": 1, "position": [9, 8], "score": 0.12474, "channels": {"thermal": 0.48576, "visual": 0.35640000000000005}}
+{"event_type": "scan_event", "step": 5, "drone_id": 2, "scanned_cell_count": 20, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 3, "scanned_cell_count": 30, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 4, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "inspection_pass_complete", "step": 5, "drone_id": 1, "contact_id": "contact-1", "position": [9, 8], "confidence": 0.876, "outcome": "confirmed", "note": "Target confirmed after close inspection."}
+{"event_type": "contact_confirmed", "step": 5, "drone_id": 1, "contact_id": "contact-1", "position": [9, 8], "confidence": 0.876, "note": "Target confirmed after close inspection."}
+{"event_type": "confirmed_detection", "step": 5, "drone_id": 1, "contact_id": "contact-1", "position": [9, 8], "confidence": 0.876}
+{"event_type": "comms_failure", "step": 5, "drone_id": 1, "mode": "packet_loss"}

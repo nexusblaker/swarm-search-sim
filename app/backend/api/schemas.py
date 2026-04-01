@@ -138,6 +138,38 @@ class AssetPackage(BaseModel):
     operator_summary: str = ""
 
 
+class LocationResolveRequest(BaseModel):
+    query: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+
+
+class LocationResolveResponse(BaseModel):
+    display_name: str
+    latitude: float
+    longitude: float
+    source: str
+    preview_span_km: float
+    terrain_hint: str = "mixed"
+    fallback_note: str | None = None
+
+
+class MissionAreaPreviewRequest(BaseModel):
+    location: LocationResolveResponse
+    shape_type: str = "rectangle"
+    rectangle: dict[str, float] | None = None
+    polygon: list[dict[str, float]] = Field(default_factory=list)
+    grid_resolution_m: float = 500.0
+    staging: dict[str, Any] | None = None
+    last_known_status: str = "unknown"
+    environment_type: str = "mixed_terrain"
+    weather: str = "clear"
+
+
+class MissionAreaPreviewResponse(BaseModel):
+    mission_area: dict[str, Any]
+
+
 class MissionPlanCreateRequest(BaseModel):
     name: str
     scenario_id: str | None = None

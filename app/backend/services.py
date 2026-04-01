@@ -10,6 +10,7 @@ from app.backend.core.settings import BackendSettings
 from app.backend.db.sqlite import MetadataStore
 from app.backend.domain.comparisons import ComparisonEvaluator, PlanComparisonService
 from app.backend.domain.experiments import ExperimentService
+from app.backend.domain.geospatial import GeospatialService
 from app.backend.domain.plans import MissionPlanService
 from app.backend.domain.recommendations import RecommendationService
 from app.backend.domain.reports import ReportService
@@ -35,6 +36,7 @@ class ProductBackend:
         self.templates = TemplateService(self.paths, self.store)
         self.reporting = ReportGenerator(self.paths)
         self.reports = ReportService(self.store, self.reporting)
+        self.geospatial = GeospatialService()
         self.comparison_evaluator = ComparisonEvaluator(self.scenarios, self.settings)
         self.comparison = self.comparison_evaluator
         self.recommendations = RecommendationService(

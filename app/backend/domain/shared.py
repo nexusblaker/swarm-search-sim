@@ -10,6 +10,7 @@ from typing import Any
 import pandas as pd
 
 from src.analytics.metrics import SimulationMetrics
+from src.environment.mission_area import mission_area_operator_text
 from src.scenarios.scenario import ScenarioConfig
 from src.simulation.search_patterns import pattern_label
 from src.utils.event_logger import EventLogger
@@ -66,6 +67,8 @@ def scenario_summary(config: ScenarioConfig) -> dict[str, Any]:
         "drone_range_km": config.drone_range_km,
         "turnaround_time_minutes": config.turnaround_time_minutes,
         "coverage_overlap_margin": config.coverage_overlap_margin,
+        "mission_area": config.mission_area,
+        "mission_area_summary": mission_area_operator_text(config.mission_area),
     }
 
 

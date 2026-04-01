@@ -104,6 +104,7 @@ class AfterActionReviewService:
         search_pattern = summarize_search_pattern(run_record, events)
         summary = {
             "mission_timeline": (
+                f"{run_record['summary_json'].get('mission_area_summary', 'Mission area configured.')} "
                 f"{search_pattern['summary']} {sensing_lifecycle['operator_summary']} {battery_lifecycle['mission_continuity_impact']}"
             ),
             "actual_outcome": {
@@ -120,6 +121,7 @@ class AfterActionReviewService:
             "battery_lifecycle": battery_lifecycle,
             "sensing_lifecycle": sensing_lifecycle,
             "search_pattern": search_pattern,
+            "mission_area": run_record["summary_json"].get("mission_area", {}),
             "battery_comms_risk_summary": {
                 "battery_risk": run_record["summary_json"].get("metrics", {}).get("return_to_base_efficiency"),
                 "communications_fragility": run_record["summary_json"].get("metrics", {}).get("comms_failures"),

@@ -237,6 +237,104 @@ def test_asset_package_persistence_and_concise_recommendation_summary(tmp_path: 
     assert recommendation.json()["key_tradeoffs"]
 
 
+def test_geospatial_resolution_preview_and_plan_persistence(tmp_path: Path) -> None:
+    client = _make_client(tmp_path)
+
+    resolved = client.post("/geo/resolve-location", json={"query": "Katoomba"})
+    assert resolved.status_code == 200
+    location = resolved.json()
+
+    preview = client.post(
+        "/geo/preview-area",
+        json={
+            "location": location,
+            "grid_resolution_m": 400.0,
+            "last_known_status": "unknown",
+            "environment_type": "dense_forest",
+            "weather": "windy",
+        },
+    )
+    assert preview.status_code == 200
+    mission_area = preview.json()["mission_area"]
+
+    scenario_payload = _scenario_payload("AOI-backed plan", max_steps=10)
+    created = client.post(
+        "/plans",
+        json={
+            "name": "AOI-backed plan",
+            "scenario": scenario_payload,
+            "map_selection": mission_area,
+            "mission_intent": "broad_area_coverage",
+            "intake_summary": {
+                "location_display_name": mission_area["location_display_name"],
+                "mission_area_summary": mission_area["operator_summary"],
+            },
+            "recommendation_num_seeds": 1,
+        },
+    )
+    assert created.status_code == 200
+    plan = created.json()
+
+    assert location["display_name"] == "Katoomba, NSW"
+    assert mission_area["grid_size"][0] >= 12
+    assert mission_area["grid_size"][1] >= 10
+    assert mission_area["terrain_summary"]["dominant_terrain"]
+    assert mission_area["staging"]["grid_position"]
+    assert plan["summary_json"]["mission_area"]["location_display_name"] == "Katoomba, NSW"
+    assert plan["summary_json"]["mission_area_summary"]
+    assert plan["summary_json"]["map_selection"]["grid_size"] == mission_area["grid_size"]
+    assert plan["plan_json"]["scenario"]["mission_area"]["grid_size"] == mission_area["grid_size"]
+
+
+def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_path: Path) -> None:
+    client = _make_client(tmp_path)
+    location = client.post("/geo/resolve-location", json={"query": "-33.7126, 150.3119"}).json()
+    mission_area = client.post(
+        "/geo/preview-area",
+        json={
+            "location": location,
+            "grid_resolution_m": 400.0,
+            "last_known_status": "unknown",
+            "environment_type": "dense_forest",
+            "weather": "clear",
+        },
+    ).json()["mission_area"]
+
+    scenario_payload = _scenario_payload("AOI-backed run", max_steps=10)
+    plan = client.post(
+        "/plans",
+        json={
+            "name": "AOI-backed run",
+            "scenario": scenario_payload,
+            "map_selection": mission_area,
+            "mission_intent": "broad_area_coverage",
+            "intake_summary": {
+                "location_display_name": mission_area["location_display_name"],
+                "mission_area_summary": mission_area["operator_summary"],
+            },
+            "recommendation_num_seeds": 1,
+        },
+    ).json()
+
+    run = client.post("/runs", json={"plan_id": plan["id"], "seed": 5})
+    assert run.status_code == 200
+    completed = _wait_for_status(client, f"/runs/{run.json()['id']}", {"completed", "failed"})
+    replay = client.get(f"/runs/{run.json()['id']}/replay")
+    report = client.post(f"/reports/{run.json()['id']}", json={})
+    review = client.post(f"/reviews/from-run/{run.json()['id']}")
+
+    assert completed["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
+    assert completed["summary_json"]["mission_area_summary"]
+    assert completed["latest_snapshot_json"]["mission_area"]["staging"]["grid_position"] == mission_area["staging"]["grid_position"]
+    assert replay.status_code == 200
+    assert replay.json()["replay"][-1]["mission_area"]["grid_size"] == mission_area["grid_size"]
+    assert report.status_code == 200
+    assert report.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
+    assert review.status_code == 200
+    assert review.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
+    assert mission_area["location_display_name"] in review.json()["summary_json"]["mission_timeline"]
+
+
 def test_run_review_and_report_expose_battery_lifecycle_fields(tmp_path: Path) -> None:
     client = _make_client(tmp_path)
     scenario_payload = _scenario_payload("Battery Lifecycle Product", max_steps=10)

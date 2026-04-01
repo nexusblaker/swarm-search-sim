@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import type { MissionIntent } from "@/api/types";
+import { MissionAreaPlanner } from "@/components/mission/MissionAreaPlanner";
 import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { InlineHint } from "@/components/ui/InlineHint";
@@ -95,6 +96,12 @@ export function MissionIntakePage() {
   const recommendation = useMutation({
     mutationFn: (payload: Record<string, unknown>) => api.recommend(payload),
   });
+  const resolveLocation = useMutation({
+    mutationFn: (payload: Record<string, unknown>) => api.resolveLocation(payload),
+  });
+  const areaPreview = useMutation({
+    mutationFn: (payload: Record<string, unknown>) => api.previewMissionArea(payload),
+  });
 
   const assetPackage = useMemo(() => buildAssetPackage(draft), [draft]);
   const intakeSummary = useMemo(() => buildIntakeSummary(draft), [draft]);
@@ -108,6 +115,49 @@ export function MissionIntakePage() {
     });
     setSaveError(null);
     recommendation.reset();
+  }
+
+  async function refreshMissionArea(
+    nextDraft: MissionIntakeDraft,
+    overrides?: {
+      resolvedLocation?: MissionIntakeDraft["resolvedLocation"];
+      rectangle?: Record<string, number>;
+      staging?: Record<string, unknown>;
+    },
+  ) {
+    const resolvedLocation = overrides?.resolvedLocation ?? nextDraft.resolvedLocation;
+    if (!resolvedLocation) {
+      return;
+    }
+    const preview = await areaPreview.mutateAsync({
+      location: resolvedLocation,
+      rectangle: overrides?.rectangle ?? nextDraft.missionArea?.rectangle ?? undefined,
+      grid_resolution_m: Number(nextDraft.gridResolutionMeters) || 500,
+      staging: overrides?.staging ?? nextDraft.missionArea?.staging ?? undefined,
+      last_known_status: nextDraft.lastKnownStatus,
+      environment_type: nextDraft.environmentType,
+      weather: nextDraft.weather,
+    });
+    setDraft((current) => ({
+      ...current,
+      resolvedLocation,
+      missionArea: preview.mission_area,
+      gridResolutionMeters: String(Math.round(Number(preview.mission_area.grid_resolution_m ?? nextDraft.gridResolutionMeters))),
+    }));
+    recommendation.reset();
+  }
+
+  async function handleResolveLocation() {
+    setSaveError(null);
+    try {
+      const resolved = await resolveLocation.mutateAsync({ query: draft.locationQuery });
+      const nextDraft = { ...draft, resolvedLocation: resolved };
+      setDraft((current) => ({ ...current, resolvedLocation: resolved }));
+      recommendation.reset();
+      await refreshMissionArea(nextDraft, { resolvedLocation: resolved });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Unable to resolve the selected location.");
+    }
   }
 
   function updateAsset(id: string, field: keyof DroneTypeDraft, value: string) {
@@ -196,7 +246,7 @@ export function MissionIntakePage() {
             <Panel
               eyebrow="Step 1"
               title="Describe the situation"
-              description="Keep the first brief high level. The product will translate this into a practical search setup behind the scenes."
+              description="Start with the mission location and search area, then keep the rest of the brief high level. The product will translate this into a practical search setup behind the scenes."
             >
               <div className="grid gap-6">
                 <div>
@@ -212,18 +262,135 @@ export function MissionIntakePage() {
                   />
                 </div>
 
+                <div className="rounded-[26px] border border-border bg-surfaceAlt/45 p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <p className="section-kicker">Mission location</p>
+                      <h3 className="mt-1 text-lg font-semibold text-white">Set the real search area</h3>
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
+                        Enter a city, suburb, landmark, or direct coordinates. The planner will center a local-first map view there, then let you define the search area and base location.
+                      </p>
+                    </div>
+                    {draft.resolvedLocation ? <span className="pill">{draft.resolvedLocation.source.replaceAll("_", " ")}</span> : null}
+                  </div>
+                  <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
+                    <label>
+                      <span className="field-label">Place name or coordinates</span>
+                      <input
+                        className="field-input"
+                        value={draft.locationQuery}
+                        onChange={(event) => updateDraft((current) => ({ ...current, locationQuery: event.target.value }))}
+                        placeholder="Katoomba, NSW or -33.7126, 150.3119"
+                      />
+                    </label>
+                    <div className="flex items-end">
+                      <button type="button" className="primary-button w-full" onClick={() => void handleResolveLocation()}>
+                        {resolveLocation.isPending || areaPreview.isPending ? "Updating area..." : "Resolve location"}
+                      </button>
+                    </div>
+                  </div>
+                  {draft.resolvedLocation?.fallback_note ? (
+                    <p className="mt-3 text-sm leading-6 text-muted">{draft.resolvedLocation.fallback_note}</p>
+                  ) : null}
+                  {draft.resolvedLocation ? (
+                    <div className="mt-5 space-y-4">
+                      <MissionAreaPlanner
+                        location={draft.resolvedLocation}
+                        missionArea={draft.missionArea}
+                        isUpdating={areaPreview.isPending}
+                        onRectangleChange={(rectangle) => {
+                          const nextDraft = { ...draft };
+                          void refreshMissionArea(nextDraft, { rectangle });
+                        }}
+                        onStagingChange={(point) => {
+                          const nextDraft = { ...draft };
+                          void refreshMissionArea(nextDraft, { staging: point });
+                        }}
+                      />
+
+                      {draft.missionArea ? (
+                        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+                          <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/45 p-5">
+                            <p className="section-kicker">Area summary</p>
+                            <p className="mt-3 text-base leading-7 text-white">{draft.missionArea.operator_summary}</p>
+                            {draft.missionArea.terrain_summary?.operator_summary ? (
+                              <p className="mt-3 text-sm leading-6 text-muted">{draft.missionArea.terrain_summary.operator_summary}</p>
+                            ) : null}
+                            {draft.missionArea.warnings?.length ? (
+                              <div className="mt-4 space-y-2">
+                                {draft.missionArea.warnings.map((warning) => (
+                                  <p key={warning} className="text-sm leading-6 text-[#ffcf99]">
+                                    {warning}
+                                  </p>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                          <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/45 p-5">
+                            <p className="section-kicker">Grid settings</p>
+                            <label className="mt-4 block">
+                              <span className="field-label">Cell resolution</span>
+                              <select
+                                className="field-input"
+                                value={draft.gridResolutionMeters}
+                                onChange={(event) => {
+                                  const nextDraft = { ...draft, gridResolutionMeters: event.target.value };
+                                  updateDraft(nextDraft);
+                                  if (nextDraft.resolvedLocation) {
+                                    void refreshMissionArea(nextDraft);
+                                  }
+                                }}
+                              >
+                                {["250", "400", "500", "750", "1000"].map((option) => (
+                                  <option key={option} value={option}>
+                                    {option} m cells
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <div className="mt-4 space-y-2 text-sm leading-6 text-muted">
+                              <p>
+                                Grid: {draft.missionArea.grid_size?.[0] ?? "n/a"} x {draft.missionArea.grid_size?.[1] ?? "n/a"} cells
+                              </p>
+                              <p>
+                                Area: {draft.missionArea.area_sq_km?.toFixed(1) ?? "n/a"} km²
+                              </p>
+                              <p>
+                                Staging: {draft.missionArea.staging?.label ?? "Primary staging point"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                  {saveError ? <p className="mt-4 text-sm text-[#ffb4a2]">{saveError}</p> : null}
+                </div>
+
                 <div className="grid gap-3 md:grid-cols-2">
                   <ChoiceCard
                     label="Last known location available"
                     description="Use a tighter starting search area around the known contact point."
                     selected={draft.lastKnownStatus === "known"}
-                    onClick={() => updateDraft((current) => ({ ...current, lastKnownStatus: "known" }))}
+                    onClick={() => {
+                      const nextDraft = { ...draft, lastKnownStatus: "known" as const };
+                      updateDraft(nextDraft);
+                      if (nextDraft.resolvedLocation) {
+                        void refreshMissionArea(nextDraft);
+                      }
+                    }}
                   />
                   <ChoiceCard
                     label="Last known location unknown"
                     description="Start with a broader uncertainty model and wider sweep assumptions."
                     selected={draft.lastKnownStatus === "unknown"}
-                    onClick={() => updateDraft((current) => ({ ...current, lastKnownStatus: "unknown" }))}
+                    onClick={() => {
+                      const nextDraft = { ...draft, lastKnownStatus: "unknown" as const };
+                      updateDraft(nextDraft);
+                      if (nextDraft.resolvedLocation) {
+                        void refreshMissionArea(nextDraft);
+                      }
+                    }}
                   />
                 </div>
 
@@ -236,12 +403,13 @@ export function MissionIntakePage() {
                         label={option.label}
                         description={option.description}
                         selected={draft.searchAreaSize === option.value}
-                        onClick={() =>
-                          updateDraft((current) => ({ ...current, searchAreaSize: option.value as SearchAreaSize }))
-                        }
+                        onClick={() => updateDraft((current) => ({ ...current, searchAreaSize: option.value as SearchAreaSize }))}
                       />
                     ))}
                   </div>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    When a real AOI is set on the map, the drawn area drives the grid. This size choice still helps the planner pace time horizons and mission tempo.
+                  </p>
                 </div>
 
                 <div>
@@ -253,9 +421,13 @@ export function MissionIntakePage() {
                         label={option.label}
                         description={option.description}
                         selected={draft.environmentType === option.value}
-                        onClick={() =>
-                          updateDraft((current) => ({ ...current, environmentType: option.value as EnvironmentType }))
-                        }
+                        onClick={() => {
+                          const nextDraft = { ...draft, environmentType: option.value as EnvironmentType };
+                          updateDraft(nextDraft);
+                          if (nextDraft.resolvedLocation) {
+                            void refreshMissionArea(nextDraft);
+                          }
+                        }}
                       />
                     ))}
                   </div>
@@ -267,9 +439,13 @@ export function MissionIntakePage() {
                     <select
                       className="field-input"
                       value={draft.weather}
-                      onChange={(event) =>
-                        updateDraft((current) => ({ ...current, weather: event.target.value as WeatherType }))
-                      }
+                      onChange={(event) => {
+                        const nextDraft = { ...draft, weather: event.target.value as WeatherType };
+                        updateDraft(nextDraft);
+                        if (nextDraft.resolvedLocation) {
+                          void refreshMissionArea(nextDraft);
+                        }
+                      }}
                     >
                       {weatherOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -300,15 +476,18 @@ export function MissionIntakePage() {
                 </div>
 
                 <CollapsiblePanel
-                  title="Technical details"
-                  description="Open the hidden setup assumptions behind this simplified situation brief."
+                  title="Advanced area details"
+                  description="Open coordinates and grid assumptions only when you need them."
                   defaultOpen={false}
                   className="border-none bg-transparent shadow-none"
                   headerClassName="rounded-[24px] border border-border bg-surfaceAlt/45"
                 >
-                  <p className="text-sm leading-6 text-muted">
-                    The intake keeps map size, uncertainty radius, and default reserve assumptions behind the scenes so the first brief stays focused on operator language.
-                  </p>
+                  <div className="space-y-2 text-sm leading-6 text-muted">
+                    <p>Resolved location: {draft.resolvedLocation?.display_name ?? "Not set"}</p>
+                    <p>Center: {draft.resolvedLocation ? `${draft.resolvedLocation.latitude.toFixed(4)}, ${draft.resolvedLocation.longitude.toFixed(4)}` : "Not set"}</p>
+                    <p>Grid resolution: {draft.missionArea?.grid_resolution_m ?? draft.gridResolutionMeters} m</p>
+                    <p>Map size: {draft.missionArea?.grid_size?.[0] ?? "n/a"} x {draft.missionArea?.grid_size?.[1] ?? "n/a"} cells</p>
+                  </div>
                 </CollapsiblePanel>
               </div>
             </Panel>
@@ -363,25 +542,37 @@ export function MissionIntakePage() {
                   />
                 </div>
 
-                <label className="max-w-md">
-                  <span className="field-label">Staging location</span>
-                  <select
-                    className="field-input"
-                    value={draft.stagingLocation}
-                    onChange={(event) =>
-                      updateDraft((current) => ({
-                        ...current,
-                        stagingLocation: event.target.value as StagingLocation,
-                      }))
-                    }
-                  >
-                    {stagingLocationOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                {draft.missionArea ? (
+                  <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/45 p-4">
+                    <p className="section-kicker">Staging point</p>
+                    <p className="mt-2 text-sm font-medium text-white">
+                      {draft.missionArea.staging?.label ?? "Primary staging point"}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      Base position is tied to the selected mission area and will drive return-to-base and redeploy behaviour.
+                    </p>
+                  </div>
+                ) : (
+                  <label className="max-w-md">
+                    <span className="field-label">Fallback staging location</span>
+                    <select
+                      className="field-input"
+                      value={draft.stagingLocation}
+                      onChange={(event) =>
+                        updateDraft((current) => ({
+                          ...current,
+                          stagingLocation: event.target.value as StagingLocation,
+                        }))
+                      }
+                    >
+                      {stagingLocationOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
 
                 <div className="space-y-4">
                   {draft.assets.map((asset, index) => (
@@ -707,7 +898,9 @@ export function MissionIntakePage() {
             <p className="section-kicker">Mission summary</p>
             <p className="mt-3 text-lg font-semibold text-white">{draft.missionName}</p>
             <div className="mt-4 divide-y divide-border/60">
+              <SummaryRow label="Location" value={draft.missionArea?.location_display_name ?? draft.resolvedLocation?.display_name ?? "Not set"} />
               <SummaryRow label="Situation" value={`${intakeSummary.search_area_size} search`} />
+              <SummaryRow label="Mission area" value={draft.missionArea?.area_sq_km ? `${draft.missionArea.area_sq_km.toFixed(1)} km²` : "Draw on map"} />
               <SummaryRow label="Environment" value={`${draft.environmentType.replace("_", " ")}, ${draft.weather}`} />
               <SummaryRow
                 label="Last known position"
@@ -723,6 +916,7 @@ export function MissionIntakePage() {
                 label="Pattern"
                 value={searchPatternOptions.find((option) => option.value === draft.searchPattern)?.label ?? "Let the system recommend"}
               />
+              <SummaryRow label="Grid" value={draft.missionArea?.grid_size ? `${draft.missionArea.grid_size[0]} x ${draft.missionArea.grid_size[1]}` : "Pending"} />
             </div>
           </div>
 

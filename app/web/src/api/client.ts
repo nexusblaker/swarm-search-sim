@@ -7,8 +7,10 @@ import type {
   JobRecord,
   LibraryTemplateRecord,
   MissionPlanRecord,
+  MissionAreaPreviewResponse,
   PlanComparisonRecord,
   RecommendationResponse,
+  ResolvedLocation,
   ReportRecord,
   RunRecord,
   ScenarioRecord,
@@ -48,6 +50,10 @@ export const api = {
   baseUrl: API_BASE_URL,
   health: () => request<HealthResponse>("/health"),
   dashboardSummary: () => request<DashboardSummaryResponse>("/dashboard/summary"),
+  resolveLocation: (payload: Record<string, unknown>) =>
+    request<ResolvedLocation>("/geo/resolve-location", { method: "POST", body: JSON.stringify(payload) }),
+  previewMissionArea: (payload: Record<string, unknown>) =>
+    request<MissionAreaPreviewResponse>("/geo/preview-area", { method: "POST", body: JSON.stringify(payload) }),
   scenarios: () => request<{ items: ScenarioRecord[] }>("/scenarios"),
   scenario: (id: string) => request<ScenarioRecord>(`/scenarios/${id}`),
   createScenario: (payload: Record<string, unknown>) =>

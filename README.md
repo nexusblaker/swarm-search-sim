@@ -218,6 +218,26 @@ Pattern selection is deterministic and explainable. At a high level it considers
 
 Unknown-location wide-area missions now bias toward coverage-first layouts instead of acting like a point search. Lane spacing and sector partitioning are derived from effective sensor coverage rather than a fixed arbitrary distance.
 
+### Real Mission Areas And AOI Planning
+
+Slice 5 adds a local-first real-area workflow so operators can plan against a believable mission area instead of a generic synthetic grid. The intake now supports:
+
+- rough location input by place name or direct latitude/longitude
+- local-first location resolution through a built-in gazetteer, with direct coordinate fallback for exact areas
+- a map-style mission-area planner centered on the selected location
+- AOI definition by drawing and reshaping a rectangle
+- staging/base placement on the selected area
+- grid resolution controls that map the AOI into the existing simulator grid
+- deterministic terrain, elevation, trail, and obstacle summaries derived from the selected area
+
+The current Slice 5 model stays intentionally practical:
+
+- no live external GIS dependency is required for local use
+- no heavy image classification pipeline is used
+- no 3D terrain or 3D replay is added
+
+Instead, the product resolves a real place or coordinate pair, converts the AOI into a sim grid, and derives explainable terrain layers and summaries that the preserved simulation core can use.
+
 ### Scenarios
 
 Operators can:
@@ -284,6 +304,7 @@ Recommendation outputs include:
 - human-readable rationale
 - risk summary
 - uncertainty summary
+- mission-area summary and area-aware reasoning
 - candidate support table
 - technical details under a collapsible section in the UI
 
@@ -372,6 +393,7 @@ Mission Control is the live operator view. It supports:
 - a dominant mission visual with collapsible event, roster, intervention, and contact modules
 - subtle live refresh behavior while the run is active
 - active search-pattern visibility with plain-language pattern status
+- real mission-area context, including AOI label, area size, grid resolution, and staging point
 - readable rebalance context when coverage shifts because of candidate contacts, confirmations, returns to base, or redeploys
 
 Supported interventions include:
@@ -399,6 +421,7 @@ Replay supports:
 - readable fleet state at each replay step
 - a fixed playback workstation layout with collapsible event and roster panels
 - search-pattern change markers and rebalance summaries when the mission shifts coverage
+- AOI-backed mission context so replay reflects the selected real mission area instead of only a generic grid
 
 ### Experiments
 
@@ -420,6 +443,7 @@ Reports and review workflows support:
 - battery lifecycle summaries
 - sensing workflow summaries
 - search-pattern summaries and pattern-change highlights
+- mission-area summaries with area size, grid, staging, and terrain context
 - asset rotation counts
 - possible contact, inspection, confirmation, and false-alarm counts
 - mission continuity impact notes
@@ -480,6 +504,8 @@ Main route groups:
 
 - `/health`
 - `/dashboard/summary`
+- `/geo/resolve-location`
+- `/geo/preview-area`
 - `/scenarios`
 - `/templates`
 - `/library/templates`
@@ -562,6 +588,28 @@ Important Slice 4 payload additions include:
   - `search_pattern_rebalanced`
   - `search_pattern_restored`
 
+Important Slice 5 payload additions include:
+
+- mission plan and scenario payloads:
+  - `mission_area`
+  - `map_selection`
+  - resolved location metadata
+  - AOI bounds and rectangle geometry
+  - grid size and grid resolution
+  - staging/base coordinates and grid position
+  - terrain/elevation summary metadata
+- run snapshots:
+  - `mission_area`
+- run, review, and report summaries:
+  - `mission_area`
+  - `mission_area_summary`
+
+Slice 5 currently uses a local-first fallback for map data:
+
+- place names resolve through a built-in gazetteer
+- direct coordinates are supported for exact placement anywhere
+- terrain and elevation are derived deterministically from the selected AOI when live external layers are not available
+
 ## Docker
 
 Local container flow:
@@ -602,6 +650,15 @@ npm run build
 ```
 
 Full local validation used for Slice 4:
+
+```bash
+pytest tests/test_phase4.py tests/test_phase7_product.py -q
+cd app/web
+npm run test
+npm run build
+```
+
+Full local validation used for Slice 5:
 
 ```bash
 pytest tests/test_phase4.py tests/test_phase7_product.py -q

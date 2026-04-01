@@ -29,6 +29,23 @@
   </div>
 
   <div class="card">
+    <h2>Mission Area Review</h2>
+    <p>{{ mission_area.operator_summary or "Mission area summary not recorded." }}</p>
+    {% if mission_area.terrain_summary %}
+    <p>{{ mission_area.terrain_summary.operator_summary }}</p>
+    {% endif %}
+    <table>
+      <tbody>
+        <tr><th>Location</th><td>{{ mission_area.location_display_name or "n/a" }}</td></tr>
+        <tr><th>Area size</th><td>{{ mission_area.area_sq_km or "n/a" }} km²</td></tr>
+        <tr><th>Grid resolution</th><td>{{ mission_area.grid_resolution_m or "n/a" }} m</td></tr>
+        <tr><th>Grid size</th><td>{% if mission_area.grid_size %}{{ mission_area.grid_size[0] }} x {{ mission_area.grid_size[1] }}{% else %}n/a{% endif %}</td></tr>
+        <tr><th>Staging</th><td>{{ mission_area.staging.label if mission_area.staging else "n/a" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
     <h2>Search Pattern Review</h2>
     <p><strong>Pattern:</strong> {{ search_pattern.pattern_label or "Not recorded" }}</p>
     <p>{{ search_pattern.summary or "Pattern summary not recorded." }}</p>

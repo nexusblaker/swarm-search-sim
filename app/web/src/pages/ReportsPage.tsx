@@ -2,7 +2,13 @@ import { useMemo, useState } from "react";
 
 import { api } from "@/api/client";
 import { useReports } from "@/api/hooks";
-import type { BatteryLifecycleSummary, ReportSummaryRecord, SearchPatternSummary, SensingLifecycleSummary } from "@/api/types";
+import type {
+  BatteryLifecycleSummary,
+  MissionAreaSummary,
+  ReportSummaryRecord,
+  SearchPatternSummary,
+  SensingLifecycleSummary,
+} from "@/api/types";
 import { ArtifactLink } from "@/components/ui/ArtifactLink";
 import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { DataTable } from "@/components/ui/DataTable";
@@ -41,6 +47,7 @@ export function ReportsPage() {
   const batteryLifecycle = (summary.battery_lifecycle ?? {}) as BatteryLifecycleSummary;
   const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
   const searchPattern = (summary.search_pattern ?? {}) as SearchPatternSummary;
+  const missionArea = (summary.mission_area ?? {}) as MissionAreaSummary;
   const reportTitle =
     selected.owner_type === "review"
       ? "After-action report"
@@ -146,6 +153,27 @@ export function ReportsPage() {
                 <p className="mt-3 text-sm leading-6 text-white/90">
                   {searchPattern.mission_effect_summary ?? "No pattern-change note available."}
                 </p>
+              </div>
+              <div className="panel-subtle p-4">
+                <p className="section-kicker">Mission area</p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {missionArea.operator_summary ?? "No mission area summary is attached to this export."}
+                </p>
+                {missionArea.terrain_summary?.operator_summary ? (
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {missionArea.terrain_summary.operator_summary}
+                  </p>
+                ) : null}
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <ReportMetric
+                    label="Area size"
+                    value={missionArea.area_sq_km ? `${missionArea.area_sq_km.toFixed(1)} km²` : "n/a"}
+                  />
+                  <ReportMetric
+                    label="Grid"
+                    value={missionArea.grid_size ? `${missionArea.grid_size[0]} x ${missionArea.grid_size[1]}` : "n/a"}
+                  />
+                </div>
               </div>
               <div className="panel-subtle p-4">
                 <p className="section-kicker">Reserve policy</p>

@@ -1,4 +1,10 @@
-import type { AssetPackage, MissionIntent, RecommendationResponse } from "@/api/types";
+import type {
+  AssetPackage,
+  MissionAreaSummary,
+  MissionIntent,
+  RecommendationResponse,
+  ResolvedLocation,
+} from "@/api/types";
 
 export type LastKnownStatus = "known" | "unknown";
 export type SearchAreaSize = "small" | "medium" | "large" | "very_large";
@@ -46,6 +52,10 @@ export interface DroneTypeDraft {
 
 export interface MissionIntakeDraft {
   missionName: string;
+  locationQuery: string;
+  resolvedLocation: ResolvedLocation | null;
+  missionArea: MissionAreaSummary | null;
+  gridResolutionMeters: string;
   lastKnownStatus: LastKnownStatus;
   searchAreaSize: SearchAreaSize;
   environmentType: EnvironmentType;
@@ -208,6 +218,10 @@ export function createDroneTypeDraft(id: string, overrides?: Partial<DroneTypeDr
 export function createDefaultMissionIntakeDraft(): MissionIntakeDraft {
   return {
     missionName: "New search mission",
+    locationQuery: "",
+    resolvedLocation: null,
+    missionArea: null,
+    gridResolutionMeters: "500",
     lastKnownStatus: "unknown",
     searchAreaSize: "medium",
     environmentType: "mixed_terrain",
@@ -265,7 +279,7 @@ export function buildAssetPackage(draft: MissionIntakeDraft): AssetPackage {
   return {
     package_name: `${draft.missionName} fleet`,
     uniform_fleet: draft.allDronesSame,
-    staging_location: stagingLocationLabel(draft.stagingLocation),
+    staging_location: draft.missionArea?.staging?.label ?? stagingLocationLabel(draft.stagingLocation),
     notes: "",
     operator_summary: "",
     fleet_composition: {
@@ -303,17 +317,29 @@ export function buildMissionScenario(draft: MissionIntakeDraft) {
   const areaPreset = AREA_PRESETS[draft.searchAreaSize];
   const timePreset = TIME_PRESETS[draft.timeSinceContact];
   const environmentPreset = ENVIRONMENT_PRESETS[draft.environmentType];
-  const basePosition = stagingPosition(draft.stagingLocation, areaPreset.mapSize);
-  const center: [number, number] = [Math.floor(areaPreset.mapSize[0] / 2), Math.floor(areaPreset.mapSize[1] / 2)];
+  const missionArea = draft.missionArea ?? undefined;
+  const mapSize = (missionArea?.grid_size as [number, number] | undefined) ?? areaPreset.mapSize;
+  const basePosition =
+    (missionArea?.staging?.grid_position as [number, number] | undefined) ?? stagingPosition(draft.stagingLocation, mapSize);
+  const center: [number, number] =
+    (missionArea?.center_grid_position as [number, number] | undefined) ??
+    [Math.floor(mapSize[0] / 2), Math.floor(mapSize[1] / 2)];
+  const lastKnownPosition: [number, number] =
+    (missionArea?.last_known_grid_position as [number, number] | undefined) ?? center;
   const uncertaintyOffset = draft.lastKnownStatus === "unknown" ? 2 : 0;
+  const scenarioFamily =
+    (missionArea?.terrain_summary?.suggested_scenario_family as string | undefined) ?? draft.environmentType;
+  const maxSteps = missionArea
+    ? Math.max(areaPreset.maxSteps, Math.round((mapSize[0] + mapSize[1]) * 1.6))
+    : areaPreset.maxSteps;
 
   return {
     scenario: {
       name: draft.missionName,
-      map_size: areaPreset.mapSize,
+      map_size: mapSize,
       weather: draft.weather,
       num_drones: totalDroneCount(draft.assets),
-      last_known_position: center,
+      last_known_position: draft.lastKnownStatus === "known" ? lastKnownPosition : center,
       target_assumptions: {
         behavior: environmentPreset.targetBehavior,
         target_move_probability: Number((timePreset.moveProbability + (uncertaintyOffset * 0.04)).toFixed(2)),
@@ -321,12 +347,13 @@ export function buildMissionScenario(draft: MissionIntakeDraft) {
         drift_sigma: Number((timePreset.driftSigma + uncertaintyOffset).toFixed(1)),
       },
       target_start_radius: timePreset.targetStartRadius + uncertaintyOffset,
-      max_steps: areaPreset.maxSteps,
+      max_steps: maxSteps,
       strategy: DEFAULT_STRATEGY_BY_INTENT[draft.missionIntent],
       search_pattern: draft.searchPattern,
-      scenario_family: draft.environmentType,
+      scenario_family: scenarioFamily,
       last_known_status: draft.lastKnownStatus,
       base_position: basePosition,
+      mission_area: missionArea,
       communication: {
         coordination_mode: environmentPreset.coordinationMode,
       },
@@ -355,6 +382,7 @@ export function buildRecommendationRequest(draft: MissionIntakeDraft) {
 export function buildIntakeSummary(draft: MissionIntakeDraft) {
   return {
     mission_name: draft.missionName,
+    location_display_name: draft.missionArea?.location_display_name ?? draft.resolvedLocation?.display_name ?? "",
     last_known_status: draft.lastKnownStatus,
     search_area_size: draft.searchAreaSize,
     environment_type: draft.environmentType,
@@ -362,7 +390,10 @@ export function buildIntakeSummary(draft: MissionIntakeDraft) {
     time_since_contact: draft.timeSinceContact,
     mission_intent: draft.missionIntent,
     search_pattern_preference: draft.searchPattern,
-    staging_location: stagingLocationLabel(draft.stagingLocation),
+    staging_location: draft.missionArea?.staging?.label ?? stagingLocationLabel(draft.stagingLocation),
+    area_sq_km: draft.missionArea?.area_sq_km,
+    grid_resolution_m: draft.missionArea?.grid_resolution_m ?? Number(draft.gridResolutionMeters),
+    mission_area_summary: draft.missionArea?.operator_summary,
     total_drones: totalDroneCount(draft.assets),
     mixed_fleet: !draft.allDronesSame,
   };
@@ -382,6 +413,7 @@ export function buildPlanPayload(draft: MissionIntakeDraft, recommendation?: Rec
     name: draft.missionName,
     scenario,
     asset_package: buildAssetPackage(draft),
+    map_selection: draft.missionArea ?? undefined,
     mission_intent: draft.missionIntent,
     search_pattern: selectedPattern,
     intake_summary: buildIntakeSummary(draft),
