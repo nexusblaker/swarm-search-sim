@@ -124,6 +124,18 @@ export function MissionIntakePage() {
     draft.missionArea?.environment_summary?.label ??
     environmentOptions.find((option) => option.value === draft.environmentType)?.label ??
     "Pending";
+  const terrainBurdenLabel =
+    draft.missionArea?.terrain_summary?.terrain_burden_label ??
+    draft.missionArea?.environment_summary?.label ??
+    "Pending";
+  const terrainBurdenSummary =
+    draft.missionArea?.terrain_burden_summary ??
+    draft.missionArea?.terrain_summary?.operator_summary ??
+    "Terrain burden will derive from the mission area once the search box is set.";
+  const slopeLabel =
+    draft.missionArea?.slope_summary?.label ??
+    draft.missionArea?.slope_elevation_summary ??
+    "Pending";
   const weatherLabel =
     draft.weatherSummary?.condition_label ??
     weatherOptions.find((option) => option.value === draft.weather)?.label ??
@@ -134,6 +146,16 @@ export function MissionIntakePage() {
         ? "Placed on map"
         : "Placement needed"
       : "Unknown";
+  const missionContextSummary =
+    draft.missionArea?.context_summary ??
+    draft.missionArea?.operator_summary ??
+    "Draw the mission area to let the system derive the search context automatically.";
+  const plannerStatusLabel =
+    draft.missionArea?.planner_status_summary ??
+    "Planning context will show up here once the mission area, staging point, and weather are set.";
+  const gridSummaryLabel = String(
+    draft.missionArea?.grid_summary?.operator_summary ?? "Grid summary will appear after the search area is drawn.",
+  );
   const canAdvance = step < 4;
   const hasRecommendation = Boolean(recommendation.data);
 
@@ -444,15 +466,31 @@ export function MissionIntakePage() {
                       {draft.missionArea ? (
                         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
                           <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/45 p-5">
-                            <p className="section-kicker">Area summary</p>
-                            <p className="mt-3 text-base leading-7 text-white">{draft.missionArea.operator_summary}</p>
-                            {draft.missionArea.environment_summary?.operator_summary ? (
-                              <p className="mt-3 text-sm leading-6 text-white/90">
-                                {draft.missionArea.environment_summary.operator_summary}
-                              </p>
-                            ) : null}
-                            {draft.missionArea.terrain_summary?.operator_summary ? (
-                              <p className="mt-3 text-sm leading-6 text-muted">{draft.missionArea.terrain_summary.operator_summary}</p>
+                            <p className="section-kicker">Mission area briefing</p>
+                            <p className="mt-3 text-base leading-7 text-white">{missionContextSummary}</p>
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                              <div className="rounded-[18px] border border-border/60 bg-black/10 p-3">
+                                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Environment</p>
+                                <p className="mt-2 text-sm font-medium text-white">{environmentLabel}</p>
+                              </div>
+                              <div className="rounded-[18px] border border-border/60 bg-black/10 p-3">
+                                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Terrain burden</p>
+                                <p className="mt-2 text-sm font-medium text-white">{terrainBurdenLabel}</p>
+                              </div>
+                              <div className="rounded-[18px] border border-border/60 bg-black/10 p-3">
+                                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Slope burden</p>
+                                <p className="mt-2 text-sm font-medium text-white">{slopeLabel}</p>
+                              </div>
+                              <div className="rounded-[18px] border border-border/60 bg-black/10 p-3">
+                                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Planner status</p>
+                                <p className="mt-2 text-sm font-medium text-white">
+                                  {draft.missionArea.planner_ready ? "Ready to plan" : "Needs attention"}
+                                </p>
+                              </div>
+                            </div>
+                            <p className="mt-4 text-sm leading-6 text-muted">{terrainBurdenSummary}</p>
+                            {draft.missionArea.slope_elevation_summary ? (
+                              <p className="mt-3 text-sm leading-6 text-muted">{draft.missionArea.slope_elevation_summary}</p>
                             ) : null}
                             {draft.missionArea.warnings?.length ? (
                               <div className="mt-4 space-y-2">
@@ -465,7 +503,7 @@ export function MissionIntakePage() {
                             ) : null}
                           </div>
                           <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/45 p-5">
-                            <p className="section-kicker">Mission context</p>
+                            <p className="section-kicker">Grid and placement</p>
                             <label className="mt-4 block">
                               <span className="field-label">Cell resolution</span>
                               <select
@@ -487,24 +525,15 @@ export function MissionIntakePage() {
                               </select>
                             </label>
                             <div className="mt-4 space-y-2 text-sm leading-6 text-muted">
+                              <p>{draft.missionArea.area_metrics_summary ?? missionAreaLabel}</p>
+                              <p>{gridSummaryLabel}</p>
+                              <p>{draft.missionArea.staging_summary ?? "Base summary pending."}</p>
+                              <p>{draft.missionArea.last_known_summary ?? "No last known point is being used for this mission."}</p>
                               <p>
-                                Grid: {draft.missionArea.grid_size?.[0] ?? "n/a"} x {draft.missionArea.grid_size?.[1] ?? "n/a"} cells
+                                {draft.weatherSummary?.operator_summary ??
+                                  "Current weather becomes the starting mission condition and can still be overridden."}
                               </p>
-                              <p>
-                                Environment: {draft.missionArea.environment_summary?.label ?? "Derived from map"}
-                              </p>
-                              <p>
-                                Weather: {draft.weatherSummary?.condition_label ?? "Pending"}
-                              </p>
-                              <p>
-                                Area: {draft.missionArea.area_sq_km?.toFixed(1) ?? "n/a"} km²
-                              </p>
-                              <p>
-                                Staging: {draft.missionArea.staging?.label ?? "Primary staging point"}
-                              </p>
-                              <p>
-                                Last known: {draft.missionArea.last_known_summary ?? "Unknown"}
-                              </p>
+                              <p>{plannerStatusLabel}</p>
                             </div>
                           </div>
                         </div>
@@ -547,32 +576,14 @@ export function MissionIntakePage() {
                 ) : null}
 
                 {draft.missionArea ? (
-                  <div className="grid gap-4 lg:grid-cols-3">
-                    <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
-                      <p className="section-kicker">Area size</p>
-                      <p className="mt-3 text-sm leading-6 text-white">
-                        {draft.missionArea.area_sq_km?.toFixed(1) ?? "n/a"} km² across{" "}
-                        {draft.missionArea.width_km?.toFixed(1) ?? "n/a"} x {draft.missionArea.height_km?.toFixed(1) ?? "n/a"} km
-                      </p>
-                    </div>
-                    <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
-                      <p className="section-kicker">Derived environment</p>
-                      <p className="mt-3 text-sm leading-6 text-white">
-                        {draft.missionArea.environment_summary?.label ?? "Mixed terrain"}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-muted">
-                        {draft.missionArea.terrain_summary?.operator_summary ?? "Derived from the selected map area."}
-                      </p>
-                    </div>
-                    <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
-                      <p className="section-kicker">Current weather</p>
-                      <p className="mt-3 text-sm leading-6 text-white">
-                        {draft.weatherSummary?.condition_label ?? "Pending weather lookup"}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-muted">
-                        {draft.weatherSummary?.operator_summary ?? "Weather becomes the starting mission condition and can still be overridden."}
-                      </p>
-                    </div>
+                  <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
+                    <p className="section-kicker">Auto-derived mission context</p>
+                    <p className="mt-3 text-sm leading-6 text-white">{missionContextSummary}</p>
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      {draft.weatherSummary?.operator_summary ??
+                        "Area size, terrain character, and weather are being derived from the selected map area."}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-muted">{plannerStatusLabel}</p>
                   </div>
                 ) : (
                   <InlineHint>
@@ -580,40 +591,29 @@ export function MissionIntakePage() {
                   </InlineHint>
                 )}
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <label>
-                    <span className="field-label">Time since last contact</span>
-                    <select
-                      className="field-input"
-                      value={draft.timeSinceContact}
-                      onChange={(event) =>
-                        updateDraft((current) => ({
-                          ...current,
-                          timeSinceContact: event.target.value as TimeSinceContact,
-                        }))
-                      }
-                    >
-                      {timeSinceContactOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
-                    <p className="section-kicker">Mission weather</p>
-                    <p className="mt-3 text-sm leading-6 text-white">
-                      {draft.weatherSummary?.condition_label ?? draft.weather}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-muted">
-                      {draft.weatherSummary?.fallback_note ?? "This value feeds the starting simulation weather and can be adjusted below if needed."}
-                    </p>
-                  </div>
-                </div>
+                <label>
+                  <span className="field-label">Time since last contact</span>
+                  <select
+                    className="field-input"
+                    value={draft.timeSinceContact}
+                    onChange={(event) =>
+                      updateDraft((current) => ({
+                        ...current,
+                        timeSinceContact: event.target.value as TimeSinceContact,
+                      }))
+                    }
+                  >
+                    {timeSinceContactOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
                 <CollapsiblePanel
-                  title="Adjust derived area context"
-                  description="Override the weather or environment only when the imported area needs a manual correction."
+                  title="Override derived mission context"
+                  description="Adjust weather or environment only when the imported area needs a manual correction."
                   defaultOpen={false}
                   className="border-none bg-transparent shadow-none"
                   headerClassName="rounded-[24px] border border-border bg-surfaceAlt/45"
@@ -681,6 +681,8 @@ export function MissionIntakePage() {
                     <p>Center: {draft.resolvedLocation ? `${draft.resolvedLocation.latitude.toFixed(4)}, ${draft.resolvedLocation.longitude.toFixed(4)}` : "Not set"}</p>
                     <p>Grid resolution: {draft.missionArea?.grid_resolution_m ?? draft.gridResolutionMeters} m</p>
                     <p>Map size: {draft.missionArea?.grid_size?.[0] ?? "n/a"} x {draft.missionArea?.grid_size?.[1] ?? "n/a"} cells</p>
+                    <p>Terrain burden: {terrainBurdenLabel}</p>
+                    <p>Slope burden: {slopeLabel}</p>
                   </div>
                 </CollapsiblePanel>
               </div>
@@ -1093,9 +1095,9 @@ export function MissionIntakePage() {
             <p className="mt-3 text-lg font-semibold text-white">{draft.missionName}</p>
             <div className="mt-4 divide-y divide-border/60">
               <SummaryRow label="Location" value={draft.missionArea?.location_display_name ?? draft.resolvedLocation?.display_name ?? "Not set"} />
-              <SummaryRow label="Situation" value={`${intakeSummary.search_area_size} search`} />
+              <SummaryRow label="Area profile" value={environmentLabel} />
               <SummaryRow label="Mission area" value={missionAreaLabel} />
-              <SummaryRow label="Environment" value={environmentLabel} />
+              <SummaryRow label="Terrain" value={terrainBurdenLabel} />
               <SummaryRow label="Weather" value={weatherLabel} />
               <SummaryRow label="Last known position" value={lastKnownLabel} />
               <SummaryRow label="Fleet" value={assetPackage.drone_types.length > 1 ? "Mixed fleet" : "Uniform fleet"} />
@@ -1109,6 +1111,7 @@ export function MissionIntakePage() {
                 value={searchPatternOptions.find((option) => option.value === draft.searchPattern)?.label ?? "Let the system recommend"}
               />
               <SummaryRow label="Grid" value={draft.missionArea?.grid_size ? `${draft.missionArea.grid_size[0]} x ${draft.missionArea.grid_size[1]}` : "Pending"} />
+              <SummaryRow label="Planner" value={draft.missionArea?.planner_ready ? "Ready" : "In progress"} />
             </div>
           </div>
 

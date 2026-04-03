@@ -117,8 +117,14 @@ export function ReplayPage() {
   const missionArea = (frame?.mission_area ?? selectedRun?.summary_json.mission_area ?? {}) as MissionAreaSummary;
   const missionAreaLabel = String(missionArea.location_display_name ?? "Mission area");
   const missionAreaSummary = String(
-    missionArea.operator_summary ?? selectedRun?.summary_json.mission_area_summary ?? "Mission area summary pending.",
+    missionArea.context_summary ?? missionArea.operator_summary ?? selectedRun?.summary_json.mission_area_summary ?? "Mission area summary pending.",
   );
+  const missionAreaEnvironment = String(missionArea.environment_summary?.label ?? "Derived from map");
+  const missionAreaTerrain = String(
+    missionArea.terrain_summary?.terrain_burden_label ?? missionArea.environment_summary?.label ?? "Pending",
+  );
+  const missionAreaSlope = String(missionArea.slope_summary?.label ?? "Pending");
+  const missionAreaWeather = String(missionArea.weather_summary?.condition_label ?? "Pending");
   const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
   const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
   const sensingNarrative = String(
@@ -268,6 +274,9 @@ export function ReplayPage() {
                     { label: "Mission phase", value: runPhase },
                     { label: "Mission area", value: missionAreaLabel },
                     { label: "Area size", value: missionArea.area_sq_km ? `${missionArea.area_sq_km.toFixed(1)} km²` : "n/a" },
+                    { label: "Environment", value: missionAreaEnvironment },
+                    { label: "Terrain burden", value: missionAreaTerrain },
+                    { label: "Slope burden", value: missionAreaSlope },
                     { label: "Search pattern", value: searchPatternLabel },
                     { label: "Strategy", value: frame.strategy },
                     { label: "Team coordination", value: frame.coordination_mode },
@@ -280,9 +289,12 @@ export function ReplayPage() {
                   <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Mission area</p>
                     <p className="mt-3 text-sm leading-6 text-white/90">{missionAreaSummary}</p>
-                    {missionArea.terrain_summary?.operator_summary ? (
-                      <p className="mt-3 text-sm leading-6 text-muted">{missionArea.terrain_summary.operator_summary}</p>
-                    ) : null}
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <p className="text-sm leading-6 text-muted">Environment: {missionAreaEnvironment}</p>
+                      <p className="text-sm leading-6 text-muted">Terrain burden: {missionAreaTerrain}</p>
+                      <p className="text-sm leading-6 text-muted">Slope burden: {missionAreaSlope}</p>
+                      <p className="text-sm leading-6 text-muted">Weather: {missionAreaWeather}</p>
+                    </div>
                   </div>
                   <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Search pattern</p>

@@ -201,7 +201,7 @@ The guided intake keeps the first pass operator-friendly and hides advanced deta
 - whether the last known location is known or unknown
 - place search or coordinate fallback
 - map-defined search area and grid resolution
-- auto-derived environment and area summary
+- auto-derived area metrics, environment summary, terrain burden, and slope burden
 - current weather as the starting mission condition
 - time since last contact
 - fleet package details
@@ -211,6 +211,7 @@ The guided intake keeps the first pass operator-friendly and hides advanced deta
 
 The intake produces a standard `MissionPlan`, so the rest of the workflow remains compatible.
 Fleet fields now include inline help for endurance, range, cruise speed, turnaround, and sensing capability so mixed-fleet setup reads more clearly during planning.
+Area size and environment are now derived from the selected mission area by default, with overrides kept as a secondary control instead of a primary manual step.
 
 ### Search Patterns And Formations
 
@@ -254,6 +255,21 @@ This connected slice stays intentionally practical:
 - the simulator still receives an explainable rasterized grid instead of opaque geospatial processing
 
 The selected AOI still drives mission-area bounds, terrain and elevation summaries, staging/base context, last known context, pattern recommendation, and downstream run/replay/review/report visibility.
+
+### Auto-Derived Mission Context
+
+The mission-area planner now produces a shared derived-context layer so the operator does not need to re-enter information the map already provides. Once the AOI, base, and optional last known point are set, the product automatically derives:
+
+- AOI area in square kilometers
+- approximate width x height
+- grid resolution and resulting grid rows x columns
+- staging offset and last-known placement relationship to the AOI
+- terrain burden in plain language
+- slope and elevation burden in plain language
+- a concise derived environment type
+- a planner-ready mission area summary that combines location, area, terrain, slope, staging, last known status, and weather
+
+These derived summaries now feed the New Mission briefing, recommendation rationale, Mission Control, Replay, Reviews, and Reports. Weather and environment remain overrideable when field conditions differ from the imported context, but those controls are no longer the primary path.
 
 ### Scenarios
 
@@ -623,6 +639,17 @@ Important Slice 5 payload additions include:
   - `mission_area`
   - `mission_area_summary`
 
+Auto-derived mission-context payloads now also expose:
+
+- `mission_area.area_metrics`
+- `mission_area.area_metrics_summary`
+- `mission_area.terrain_burden_summary`
+- `mission_area.slope_summary`
+- `mission_area.slope_elevation_summary`
+- `mission_area.environment_summary`
+- `mission_area.planner_status_summary`
+- `mission_area.context_summary`
+
 Connected geospatial behavior now layers on top of the Slice 5 fallback:
 
 - `/geo/search-locations` returns local-first autocomplete suggestions and can augment them with live geocoder matches
@@ -684,7 +711,7 @@ npm run test
 npm run build
 ```
 
-Full local validation used for Slice 5:
+Full local validation used for the latest geospatial and derived-context slices:
 
 ```bash
 pytest tests/test_phase4.py tests/test_phase7_product.py -q

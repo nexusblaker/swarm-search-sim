@@ -35,6 +35,8 @@ describe("MissionIntakePage", () => {
     expect(screen.getByText("Set the real search area")).toBeInTheDocument();
     expect(screen.getByText("Search by place name or coordinates")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Center map" })).toBeInTheDocument();
+    expect(screen.getByText("Override derived mission context")).toBeInTheDocument();
+    expect(screen.getByText("Time since last contact")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /step 2 assets/i }));
     fireEvent.click(screen.getByRole("button", { name: /mixed fleet/i }));

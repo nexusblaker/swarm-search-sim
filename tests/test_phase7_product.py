@@ -285,7 +285,7 @@ def test_geospatial_resolution_preview_and_plan_persistence(tmp_path: Path) -> N
             "mission_intent": "broad_area_coverage",
             "intake_summary": {
                 "location_display_name": mission_area["location_display_name"],
-                "mission_area_summary": mission_area["operator_summary"],
+                "mission_area_summary": mission_area["context_summary"],
             },
             "recommendation_num_seeds": 1,
         },
@@ -298,12 +298,17 @@ def test_geospatial_resolution_preview_and_plan_persistence(tmp_path: Path) -> N
     assert mission_area["grid_size"][1] >= 10
     assert mission_area["terrain_summary"]["dominant_terrain"]
     assert mission_area["environment_summary"]["label"]
+    assert mission_area["terrain_burden_summary"]
+    assert mission_area["slope_summary"]["label"]
+    assert mission_area["planner_status_summary"]
+    assert "Location:" in mission_area["context_summary"]
     assert mission_area["weather_summary"]["condition_label"]
     assert mission_area["staging"]["grid_position"]
     assert mission_area["last_known_location"]["placement"] == "map"
-    assert "Last known location placed" in mission_area["last_known_summary"]
+    assert "Last known point" in mission_area["last_known_summary"]
     assert plan["summary_json"]["mission_area"]["location_display_name"] == "Katoomba, NSW"
     assert plan["summary_json"]["mission_area_summary"]
+    assert "Location:" in plan["summary_json"]["mission_area_summary"]
     assert plan["summary_json"]["map_selection"]["grid_size"] == mission_area["grid_size"]
     assert plan["plan_json"]["scenario"]["mission_area"]["grid_size"] == mission_area["grid_size"]
     assert plan["plan_json"]["scenario"]["mission_area"]["weather_summary"]["condition_label"]
@@ -315,6 +320,7 @@ def test_geospatial_resolution_preview_and_plan_persistence(tmp_path: Path) -> N
     assert recommendation.status_code == 200
     assert recommendation.json()["technical_details"]["mission_area"]["weather_summary"]["condition_label"]
     assert recommendation.json()["technical_details"]["mission_area"]["last_known_location"]["placement"] == "map"
+    assert recommendation.json()["technical_details"]["mission_area"]["terrain_burden_summary"]
     assert recommendation.json()["concise_summary"].startswith("Recommended:")
 
 
@@ -353,7 +359,7 @@ def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_p
             "mission_intent": "broad_area_coverage",
             "intake_summary": {
                 "location_display_name": mission_area["location_display_name"],
-                "mission_area_summary": mission_area["operator_summary"],
+                "mission_area_summary": mission_area["context_summary"],
             },
             "recommendation_num_seeds": 1,
         },
@@ -368,13 +374,16 @@ def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_p
 
     assert completed["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert completed["summary_json"]["mission_area_summary"]
+    assert completed["summary_json"]["mission_area"]["terrain_burden_summary"]
     assert completed["latest_snapshot_json"]["mission_area"]["staging"]["grid_position"] == mission_area["staging"]["grid_position"]
     assert completed["latest_snapshot_json"]["mission_area"]["last_known_location"]["placement"] == "map"
     assert replay.status_code == 200
     assert replay.json()["replay"][-1]["mission_area"]["grid_size"] == mission_area["grid_size"]
+    assert replay.json()["replay"][-1]["mission_area"]["context_summary"]
     assert report.status_code == 200
     assert report.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert report.json()["summary_json"]["mission_area"]["weather_summary"]["condition_label"]
+    assert report.json()["summary_json"]["mission_area"]["slope_summary"]["label"]
     assert review.status_code == 200
     assert review.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert review.json()["summary_json"]["mission_area"]["last_known_location"]["placement"] == "map"

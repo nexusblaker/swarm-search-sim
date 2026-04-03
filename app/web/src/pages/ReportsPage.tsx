@@ -157,13 +157,14 @@ export function ReportsPage() {
               <div className="panel-subtle p-4">
                 <p className="section-kicker">Mission area</p>
                 <p className="mt-3 text-sm leading-6 text-white/90">
-                  {missionArea.operator_summary ?? "No mission area summary is attached to this export."}
+                  {missionArea.context_summary ?? missionArea.operator_summary ?? "No mission area summary is attached to this export."}
                 </p>
-                {missionArea.terrain_summary?.operator_summary ? (
-                  <p className="mt-3 text-sm leading-6 text-muted">
-                    {missionArea.terrain_summary.operator_summary}
-                  </p>
-                ) : null}
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {missionArea.terrain_burden_summary ?? missionArea.terrain_summary?.operator_summary ?? "No terrain burden summary is attached to this export."}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {missionArea.slope_elevation_summary ?? missionArea.slope_summary?.operator_summary ?? "No slope burden summary is attached to this export."}
+                </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   <ReportMetric
                     label="Area size"
@@ -172,6 +173,14 @@ export function ReportsPage() {
                   <ReportMetric
                     label="Grid"
                     value={missionArea.grid_size ? `${missionArea.grid_size[0]} x ${missionArea.grid_size[1]}` : "n/a"}
+                  />
+                  <ReportMetric
+                    label="Environment"
+                    value={missionArea.environment_summary?.label ?? "n/a"}
+                  />
+                  <ReportMetric
+                    label="Weather"
+                    value={missionArea.weather_summary?.condition_label ?? "n/a"}
                   />
                 </div>
               </div>

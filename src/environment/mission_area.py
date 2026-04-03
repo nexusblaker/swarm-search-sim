@@ -314,6 +314,8 @@ def preview_mission_area(
         "grid_resolution_m": round(resolution_m, 1),
         "cell_size_m": round(resolution_m, 1),
         "grid_size": [grid_width, grid_height],
+        "grid_cols": grid_width,
+        "grid_rows": grid_height,
         "max_safe_cells": MAX_SAFE_CELLS,
         "warnings": warnings,
         "terrain_hint": resolved["terrain_hint"],
@@ -333,8 +335,10 @@ def preview_mission_area(
         _distance_km(staging_point, center),
         2,
     )
+    mission_area["staging_summary"] = _staging_summary(staging_point, mission_area)
     known_point = _normalize_last_known_point(last_known_location, mission_area)
     mission_area["last_known_location"] = known_point
+    mission_area["last_known_inside_aoi"] = _point_inside_aoi(known_point, mission_area) if known_point else None
     mission_area["last_known_grid_position"] = list(
         _point_to_grid(
             known_point or center,
@@ -342,22 +346,38 @@ def preview_mission_area(
         )
     )
     mission_area["last_known_summary"] = (
-        f"Last known location placed near {known_point['latitude']:.4f}, {known_point['longitude']:.4f}."
+        "Last known point is placed inside the search area."
+        if known_point and mission_area["last_known_inside_aoi"]
+        else "Last known point is set just outside the current search area."
         if known_point
-        else "Last known location not placed."
+        else "Last known point still needs placement on the map."
         if last_known_status == "known"
-        else "Last known location unknown."
+        else "No last known point is being used for this mission."
     )
-    mission_area["operator_summary"] = (
-        f"{resolved['display_name']} AOI covers about {area_sq_km:.1f} km² across "
+    mission_area["area_metrics_summary"] = (
+        f"AOI covers about {area_sq_km:.1f} km^2 across "
         f"{width_km:.1f} by {height_km:.1f} km at roughly {resolution_m:.0f} m cells."
     )
+    mission_area["operator_summary"] = mission_area["area_metrics_summary"]
     mission_area["grid_summary"] = {
         "map_size": [grid_width, grid_height],
         "cell_size_m": round(resolution_m, 1),
         "shape_label": mission_area["shape_summary"],
         "operator_summary": (
-            f"The selected area maps to a {grid_width} by {grid_height} planning grid."
+            f"Grid resolves to {grid_width} by {grid_height} cells."
+        ),
+    }
+    mission_area["area_metrics"] = {
+        "area_sq_km": round(area_sq_km, 2),
+        "width_km": round(width_km, 2),
+        "height_km": round(height_km, 2),
+        "grid_cols": grid_width,
+        "grid_rows": grid_height,
+        "grid_resolution_m": round(resolution_m, 1),
+        "staging_offset_km": mission_area["staging_distance_to_center_km"],
+        "last_known_inside_aoi": mission_area["last_known_inside_aoi"],
+        "operator_summary": (
+            f"{mission_area['area_metrics_summary']} {mission_area['grid_summary']['operator_summary']}"
         ),
     }
 
@@ -367,10 +387,18 @@ def preview_mission_area(
         weather=weather,
     )
     mission_area["terrain_summary"] = terrain_preview["terrain_summary"]
+    mission_area["terrain_burden_summary"] = terrain_preview["terrain_summary"]["terrain_burden_summary"]
+    mission_area["slope_summary"] = terrain_preview["terrain_summary"]["slope_summary"]
+    mission_area["slope_elevation_summary"] = terrain_preview["terrain_summary"]["slope_summary"]["operator_summary"]
     environment_summary = _environment_summary(terrain_preview["terrain_summary"])
     mission_area["environment_summary"] = environment_summary
     mission_area["environment_type"] = environment_summary["value"]
     mission_area["environment_label"] = environment_summary["label"]
+    mission_area["planner_ready"] = bool(
+        not warnings and (last_known_status != "known" or known_point is not None)
+    )
+    mission_area["planner_status_summary"] = _planner_status_summary(mission_area)
+    mission_area["context_summary"] = _context_summary(mission_area)
     return mission_area
 
 
@@ -533,7 +561,8 @@ def mission_area_operator_text(mission_area: dict[str, Any] | None) -> str:
     if not mission_area:
         return "Synthetic search area"
     return str(
-        mission_area.get("operator_summary")
+        mission_area.get("context_summary")
+        or mission_area.get("operator_summary")
         or mission_area.get("grid_summary", {}).get("operator_summary")
         or "Mission area configured"
     )
@@ -674,6 +703,41 @@ def _normalize_last_known_point(
     return normalized
 
 
+def _point_inside_aoi(point: dict[str, Any] | None, mission_area: dict[str, Any]) -> bool:
+    if not point:
+        return False
+    bounds = mission_area["bounds"]
+    latitude = float(point["latitude"])
+    longitude = float(point["longitude"])
+    return (
+        bounds["south"] <= latitude <= bounds["north"]
+        and bounds["west"] <= longitude <= bounds["east"]
+    )
+
+
+def _staging_summary(staging_point: dict[str, Any], mission_area: dict[str, Any]) -> str:
+    bounds = mission_area["bounds"]
+    latitude = float(staging_point["latitude"])
+    longitude = float(staging_point["longitude"])
+    vertical = ""
+    horizontal = ""
+    if latitude > bounds["north"]:
+        vertical = "north of"
+    elif latitude < bounds["south"]:
+        vertical = "south of"
+    if longitude > bounds["east"]:
+        horizontal = "east of"
+    elif longitude < bounds["west"]:
+        horizontal = "west of"
+    if vertical and horizontal:
+        return f"Base is positioned {vertical} and {horizontal} the search area."
+    if vertical:
+        return f"Base is positioned just {vertical} the search area."
+    if horizontal:
+        return f"Base is positioned just {horizontal} the search area."
+    return "Base is positioned inside the selected search area."
+
+
 def _point_to_grid(point: dict[str, Any], mission_area: dict[str, Any]) -> tuple[int, int]:
     bounds = mission_area["bounds"]
     width, height = [int(value) for value in mission_area.get("grid_size", [18, 14])]
@@ -793,8 +857,21 @@ def _terrain_summary(
     elif slope_burden == "elevated":
         suggested_family = "mixed_terrain"
 
+    terrain_burden = _terrain_burden_summary(
+        dominant=dominant,
+        terrain_mix=mix,
+        slope_burden=slope_burden,
+        trail_access=trail_access,
+        obstacle_pct=obstacle_pct,
+    )
+    slope_summary = _slope_elevation_summary(
+        slope_burden=slope_burden,
+        elevation_min=float(np.min(elevation_values)) if elevation_values.size else 0.0,
+        elevation_max=float(np.max(elevation_values)) if elevation_values.size else 0.0,
+    )
     operator_summary = (
-        f"The selected area is mostly {dominant}, with {slope_burden} slope burden and {trail_access} trail access."
+        f"The selected area reads as {terrain_burden['label'].lower()}, with "
+        f"{slope_summary['label'].lower()} and {trail_access} access."
     )
     return {
         "source_mode": source_mode,
@@ -809,7 +886,11 @@ def _terrain_summary(
         "trail_access": trail_access,
         "trail_coverage_pct": round(trail_pct, 3),
         "obstacle_coverage_pct": round(obstacle_pct, 3),
+        "water_coverage_pct": round(mix.get("water / no-go", 0.0), 3),
         "suggested_scenario_family": suggested_family,
+        "terrain_burden_label": terrain_burden["label"],
+        "terrain_burden_summary": terrain_burden["operator_summary"],
+        "slope_summary": slope_summary,
         "operator_summary": operator_summary,
     }
 
@@ -818,6 +899,7 @@ def _environment_summary(terrain_summary: dict[str, Any]) -> dict[str, str]:
     dominant = str(terrain_summary.get("dominant_terrain") or "")
     slope_burden = str(terrain_summary.get("slope_burden") or "light")
     obstacle_pct = float(terrain_summary.get("obstacle_coverage_pct", 0.0) or 0.0)
+    terrain_burden_label = str(terrain_summary.get("terrain_burden_label") or "")
 
     value = "mixed_terrain"
     label = "Mixed terrain"
@@ -841,14 +923,158 @@ def _environment_summary(terrain_summary: dict[str, Any]) -> dict[str, str]:
         operator_summary = "Open terrain is the dominant character of the selected area."
     elif slope_burden == "elevated":
         value = "mixed_terrain"
-        label = "Elevated / hill country"
+        label = "Elevated mixed terrain"
         operator_summary = "Elevated ground is a defining feature of the selected area."
+    elif slope_burden == "moderate":
+        value = "mixed_terrain"
+        label = "Mixed terrain with moderate slope"
+        operator_summary = "Mixed terrain with moderate slope best describes the selected area."
+
+    if terrain_burden_label == "Water-constrained terrain":
+        value = "mixed_terrain"
+        label = "Water-constrained mixed terrain"
+        operator_summary = "Water and no-go terrain are a defining planning constraint in the selected area."
 
     return {
         "value": value,
         "label": label,
         "operator_summary": operator_summary,
     }
+
+
+def _terrain_burden_summary(
+    *,
+    dominant: str,
+    terrain_mix: dict[str, float],
+    slope_burden: str,
+    trail_access: str,
+    obstacle_pct: float,
+) -> dict[str, str]:
+    forest_pct = float(terrain_mix.get("forest", 0.0) or 0.0)
+    open_pct = float(terrain_mix.get("open terrain", 0.0) or 0.0)
+    water_pct = float(terrain_mix.get("water / no-go", 0.0) or 0.0)
+
+    if water_pct >= 0.18:
+        return {
+            "label": "Water-constrained terrain",
+            "operator_summary": "Water and no-go areas carve up the search box and constrain clean coverage lines.",
+        }
+    if dominant == "forest" and trail_access == "good":
+        return {
+            "label": "Forested with access corridors",
+            "operator_summary": "Forested ground dominates, but access corridors should help staging and repositioning.",
+        }
+    if dominant == "forest":
+        return {
+            "label": "Forested / dense vegetation",
+            "operator_summary": "Dense vegetation will slow broad coverage and create a heavier inspect-and-confirm burden.",
+        }
+    if dominant == "hill country" and trail_access == "good":
+        return {
+            "label": "Trail-accessible hill country",
+            "operator_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+        }
+    if dominant == "hill country":
+        return {
+            "label": "Elevated hill country",
+            "operator_summary": "Elevated ground is a strong planning constraint and will stretch coverage pacing.",
+        }
+    if dominant == "urban edge" or obstacle_pct >= 0.22:
+        return {
+            "label": "Obstacle-heavy terrain",
+            "operator_summary": "Obstacle-heavy ground will break up clean lane coverage and make sectoring more useful.",
+        }
+    if dominant == "open terrain" and forest_pct >= 0.18:
+        return {
+            "label": "Open with moderate cover",
+            "operator_summary": "Most of the area is open, with enough cover to interrupt visibility in parts of the search box.",
+        }
+    if trail_access == "good":
+        return {
+            "label": "Mixed terrain with clear access corridors",
+            "operator_summary": "Mixed terrain dominates, but access corridors should help staging and search recovery.",
+        }
+    if dominant == "open terrain" and slope_burden == "light":
+        return {
+            "label": "Open terrain",
+            "operator_summary": "Open ground should support cleaner lanes, simpler monitoring, and steadier returns to base.",
+        }
+    if open_pct >= 0.45:
+        return {
+            "label": "Open terrain with moderate cover",
+            "operator_summary": "The area is mostly open, but enough cover remains to justify a balanced search layout.",
+        }
+    return {
+        "label": "Mixed terrain",
+        "operator_summary": "Mixed terrain will require a balanced search layout rather than a highly specialized one.",
+    }
+
+
+def _slope_elevation_summary(
+    *,
+    slope_burden: str,
+    elevation_min: float,
+    elevation_max: float,
+) -> dict[str, str]:
+    elevation_range = max(0.0, elevation_max - elevation_min)
+    if slope_burden == "elevated" and elevation_range >= 420.0:
+        return {
+            "value": "steep",
+            "label": "Steep terrain",
+            "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.",
+        }
+    if slope_burden == "elevated":
+        return {
+            "value": "elevated",
+            "label": "Elevated hill country",
+            "operator_summary": "Hillier ground will tighten battery pacing and slow systematic coverage.",
+        }
+    if slope_burden == "moderate" and elevation_range >= 240.0:
+        return {
+            "value": "mixed",
+            "label": "Mixed elevation profile",
+            "operator_summary": "The area has a mixed elevation profile, so some sectors will search more slowly than others.",
+        }
+    if slope_burden == "moderate":
+        return {
+            "value": "moderate",
+            "label": "Moderate slope burden",
+            "operator_summary": "Moderate slope should be manageable, but it will still soften ideal lane coverage.",
+        }
+    return {
+        "value": "low",
+        "label": "Low slope burden",
+        "operator_summary": "Relatively gentle ground should support cleaner coverage and simpler returns to base.",
+    }
+
+
+def _planner_status_summary(mission_area: dict[str, Any]) -> str:
+    if mission_area.get("last_known_status") == "known" and not mission_area.get("last_known_location"):
+        return "Planning context is almost ready. Place the last known point to tighten the opening search."
+    warnings = list(mission_area.get("warnings") or [])
+    if warnings:
+        return "Planning context is ready, but review the grid warning before launch."
+    return "Planning context is ready for recommendation and simulation."
+
+
+def _context_summary(mission_area: dict[str, Any]) -> str:
+    environment = mission_area.get("environment_summary", {})
+    slope_summary = mission_area.get("slope_summary", {})
+    weather_summary = mission_area.get("weather_summary", {})
+    location_name = str(mission_area.get("location_display_name") or "Selected mission area").strip()
+    parts = [
+        f"Location: {location_name}.",
+        str(mission_area.get("area_metrics_summary") or mission_area.get("operator_summary") or "").strip(),
+        str(mission_area.get("grid_summary", {}).get("operator_summary") or "").strip(),
+        f"Environment reads as {str(environment.get('label') or 'mixed terrain').lower()}.".strip(),
+        str(mission_area.get("terrain_burden_summary") or "").strip(),
+        str(slope_summary.get("operator_summary") or "").strip(),
+        str(mission_area.get("staging_summary") or "").strip(),
+        str(mission_area.get("last_known_summary") or "").strip(),
+        str(weather_summary.get("operator_summary") or "").strip(),
+        str(mission_area.get("planner_status_summary") or "").strip(),
+    ]
+    return " ".join(part for part in parts if part)
 
 
 def _normalize_array(values: np.ndarray) -> np.ndarray:

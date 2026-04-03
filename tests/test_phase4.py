@@ -129,7 +129,16 @@ def test_mission_area_preview_builds_deterministic_real_grid_layers() -> None:
     assert mission_area["location_display_name"] == "Katoomba, NSW"
     assert mission_area["grid_size"][0] >= 12
     assert mission_area["grid_size"][1] >= 10
+    assert mission_area["grid_cols"] == mission_area["grid_size"][0]
+    assert mission_area["grid_rows"] == mission_area["grid_size"][1]
     assert mission_area["terrain_summary"]["dominant_terrain"]
+    assert mission_area["terrain_burden_summary"]
+    assert mission_area["terrain_summary"]["terrain_burden_label"]
+    assert mission_area["slope_summary"]["label"]
+    assert mission_area["slope_elevation_summary"]
+    assert mission_area["area_metrics_summary"]
+    assert "Location:" in mission_area["context_summary"]
+    assert mission_area["planner_status_summary"]
     assert mission_area["staging"]["grid_position"]
     assert layers["terrain_grid"].shape == environment.shape
     assert layers["elevation_layer"].shape == environment.shape

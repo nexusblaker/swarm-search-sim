@@ -81,13 +81,35 @@ export interface TerrainAreaSummary {
   trail_access?: string;
   trail_coverage_pct?: number;
   obstacle_coverage_pct?: number;
+  water_coverage_pct?: number;
   suggested_scenario_family?: string;
+  terrain_burden_label?: string;
+  terrain_burden_summary?: string;
+  slope_summary?: SlopeSummary;
   operator_summary?: string;
 }
 
 export interface EnvironmentSummary {
   value?: string;
   label?: string;
+  operator_summary?: string;
+}
+
+export interface SlopeSummary {
+  value?: string;
+  label?: string;
+  operator_summary?: string;
+}
+
+export interface AreaMetricsSummary {
+  area_sq_km?: number;
+  width_km?: number;
+  height_km?: number;
+  grid_rows?: number;
+  grid_cols?: number;
+  grid_resolution_m?: number;
+  staging_offset_km?: number;
+  last_known_inside_aoi?: boolean | null;
   operator_summary?: string;
 }
 
@@ -125,6 +147,8 @@ export interface MissionAreaSummary {
   grid_resolution_m?: number;
   cell_size_m?: number;
   grid_size?: [number, number];
+  grid_cols?: number;
+  grid_rows?: number;
   max_safe_cells?: number;
   warnings?: string[];
   terrain_hint?: string;
@@ -147,9 +171,19 @@ export interface MissionAreaSummary {
     placement?: string;
     grid_position?: [number, number];
   };
+  staging_summary?: string;
   staging_distance_to_center_km?: number;
+  last_known_inside_aoi?: boolean | null;
   last_known_grid_position?: [number, number];
   center_grid_position?: [number, number];
+  area_metrics?: AreaMetricsSummary;
+  area_metrics_summary?: string;
+  terrain_burden_summary?: string;
+  slope_summary?: SlopeSummary;
+  slope_elevation_summary?: string;
+  planner_ready?: boolean;
+  planner_status_summary?: string;
+  context_summary?: string;
   operator_summary?: string;
   grid_summary?: Record<string, unknown>;
   terrain_summary?: TerrainAreaSummary;

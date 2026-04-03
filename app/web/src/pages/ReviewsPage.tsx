@@ -202,13 +202,14 @@ export function ReviewsPage() {
                 <div className="panel-subtle p-4">
                   <p className="section-kicker">Mission area review</p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
-                    {missionArea.operator_summary ?? "No mission area summary was captured for this review."}
+                    {missionArea.context_summary ?? missionArea.operator_summary ?? "No mission area summary was captured for this review."}
                   </p>
-                  {missionArea.terrain_summary?.operator_summary ? (
-                    <p className="mt-3 text-sm leading-6 text-muted">
-                      {missionArea.terrain_summary.operator_summary}
-                    </p>
-                  ) : null}
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {missionArea.terrain_burden_summary ?? missionArea.terrain_summary?.operator_summary ?? "No terrain burden summary was captured."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {missionArea.slope_elevation_summary ?? missionArea.slope_summary?.operator_summary ?? "No slope burden summary was captured."}
+                  </p>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <ReviewMetric
                       label="Area size"
@@ -217,6 +218,14 @@ export function ReviewsPage() {
                     <ReviewMetric
                       label="Grid"
                       value={missionArea.grid_size ? `${missionArea.grid_size[0]} x ${missionArea.grid_size[1]}` : "n/a"}
+                    />
+                    <ReviewMetric
+                      label="Environment"
+                      value={missionArea.environment_summary?.label ?? "n/a"}
+                    />
+                    <ReviewMetric
+                      label="Weather"
+                      value={missionArea.weather_summary?.condition_label ?? "n/a"}
                     />
                   </div>
                 </div>

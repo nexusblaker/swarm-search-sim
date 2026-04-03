@@ -176,8 +176,14 @@ export function MissionControlPage() {
   const missionArea = (liveSnapshot?.mission_area ?? runSummary.mission_area ?? {}) as MissionAreaSummary;
   const missionAreaLabel = String(missionArea.location_display_name ?? "Mission area");
   const missionAreaSummary = String(
-    missionArea.operator_summary ?? runSummary.mission_area_summary ?? "Mission area summary pending.",
+    missionArea.context_summary ?? missionArea.operator_summary ?? runSummary.mission_area_summary ?? "Mission area summary pending.",
   );
+  const missionAreaEnvironment = String(missionArea.environment_summary?.label ?? "Derived from map");
+  const missionAreaTerrain = String(
+    missionArea.terrain_summary?.terrain_burden_label ?? missionArea.environment_summary?.label ?? "Pending",
+  );
+  const missionAreaSlope = String(missionArea.slope_summary?.label ?? "Pending");
+  const missionAreaWeather = String(missionArea.weather_summary?.condition_label ?? "Pending");
   const contactsUnderInspection = Number(sensingSummary.contacts_under_inspection ?? 0);
   const candidateContactCount = Number(sensingSummary.active_candidate_contacts ?? candidateContacts.length);
   const confirmedContactCount = Number(sensingSummary.confirmed_contact_count ?? 0);
@@ -416,21 +422,28 @@ export function MissionControlPage() {
                       { label: "Scenario family", value: String(runSummary.scenario_family ?? "n/a").replaceAll("_", " ") },
                       { label: "Mission area", value: missionAreaLabel },
                       { label: "Area size", value: missionArea.area_sq_km ? `${missionArea.area_sq_km.toFixed(1)} km²` : "n/a" },
+                      { label: "Environment", value: missionAreaEnvironment },
+                      { label: "Terrain burden", value: missionAreaTerrain },
+                      { label: "Slope burden", value: missionAreaSlope },
                       { label: "Search pattern", value: searchPatternLabel },
                       { label: "Pattern status", value: searchPatternRebalanced ? "Rebalanced" : "Planned layout" },
                       { label: "Team coordination", value: String(runSummary.coordination_mode ?? "n/a").replaceAll("_", " ") },
                       { label: "Reserve policy", value: reservePreset.replaceAll("_", " ") },
                       { label: "Grid resolution", value: missionArea.grid_resolution_m ? `${missionArea.grid_resolution_m} m` : "n/a" },
                       { label: "Staging", value: missionArea.staging?.label ?? "n/a" },
+                      { label: "Weather", value: missionAreaWeather },
                       { label: "Run phase", value: runPhase },
                     ]}
                   />
                   <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Mission area</p>
                     <p className="mt-3 text-sm leading-6 text-white/90">{missionAreaSummary}</p>
-                    {missionArea.terrain_summary?.operator_summary ? (
-                      <p className="mt-3 text-sm leading-6 text-muted">{missionArea.terrain_summary.operator_summary}</p>
-                    ) : null}
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <RotationStat label="Environment" value={missionAreaEnvironment} />
+                      <RotationStat label="Terrain burden" value={missionAreaTerrain} />
+                      <RotationStat label="Slope burden" value={missionAreaSlope} />
+                      <RotationStat label="Weather" value={missionAreaWeather} />
+                    </div>
                   </div>
                   <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
                     <p className="section-kicker">Search pattern</p>

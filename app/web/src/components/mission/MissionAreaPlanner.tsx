@@ -321,6 +321,7 @@ export function MissionAreaPlanner({
     : null;
   const basemapUnavailable = tileErrors >= 4;
   const weatherSummary = missionArea?.weather_summary;
+  const plannerStatusSummary = missionArea?.planner_status_summary;
 
   return (
     <div className="rounded-[28px] border border-border bg-[#08111b] p-4 shadow-soft">
@@ -484,7 +485,7 @@ export function MissionAreaPlanner({
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs leading-6 text-muted">
         <p>{basemapUnavailable ? "Live basemap unavailable. Local fallback surface remains active." : BASEMAP_ATTRIBUTION}</p>
-        <p>{weatherSummary?.fallback_note ?? missionArea?.last_known_summary ?? "Map-centered setup ready."}</p>
+        <p>{plannerStatusSummary ?? weatherSummary?.fallback_note ?? missionArea?.last_known_summary ?? "Map-centered setup ready."}</p>
       </div>
     </div>
   );
