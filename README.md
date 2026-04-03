@@ -20,6 +20,8 @@ The platform is built around a practical SAR workflow:
 - `src/coordination/`: search strategies and coordination logic
 - `src/simulation/planning.py`: terrain-aware A* routing
 - `src/simulation/engine.py`: run loop, sensing, comms, battery, interventions, replay
+- `src/simulation/calibration.py`: documented model versions, units, assumptions, and calibration baselines
+- `src/simulation/validation.py`: benchmark library loading, feasibility checks, validation runs, and run manifests
 - `src/visualisation/renderer.py`: mission renders and artifacts
 
 ### Backend
@@ -212,6 +214,73 @@ The guided intake keeps the first pass operator-friendly and hides advanced deta
 The intake produces a standard `MissionPlan`, so the rest of the workflow remains compatible.
 Fleet fields now include inline help for endurance, range, cruise speed, turnaround, and sensing capability so mixed-fleet setup reads more clearly during planning.
 Area size and environment are now derived from the selected mission area by default, with overrides kept as a secondary control instead of a primary manual step.
+Mission readiness, feasibility, confidence, and expected timing bands now surface in the recommendation briefing before launch so operators can see when the planner thinks the mission is workable versus high-risk.
+
+### Validation, Calibration, And Trust Layer
+
+Slice 6 adds a formal trust layer so the simulator is easier to defend and easier to reproduce. The platform now distinguishes between:
+
+- modeled assumptions
+- calibrated estimates
+- known limitations
+
+The simulator stores and surfaces:
+
+- model version
+- calibration version
+- explicit unit definitions
+- benchmark context
+- run provenance manifest
+- pre-run feasibility summary
+- confidence and uncertainty summaries for recommendations
+
+The current unit model is:
+
+- battery: sortie energy units internally
+- battery display: percent of initial sortie energy
+- movement cost: energy units per grid-to-grid move
+- time: minutes per simulation step
+- area: square kilometres
+- grid resolution: metres per cell
+
+What is validated:
+
+- battery burn reasonableness across terrain and weather burdens
+- route and reserve behavior
+- cue, inspect, and confirm timing bands
+- coverage and overlap behavior
+- search-pattern suitability under benchmark geometry
+- RTB, service, and redeploy cycle reasonableness
+
+What is still approximated:
+
+- route-energy multipliers for terrain, wind, and slope
+- cue and confirmation visibility factors
+- turnaround realism and inspection burden under different conditions
+
+Known limitations remain visible in recommendation details, Mission Control, Replay, Reviews, Reports, and run manifests.
+
+### Benchmark Library
+
+The benchmark library now lives under `configs/benchmarks/` and starts with a small set of repeatable SAR-style cases:
+
+- small known-LKP open terrain
+- medium wind and slope burden
+- wide-area unknown-location coverage mission
+- dense vegetation cue-heavy mission
+- base offset stress case
+
+Each benchmark definition stores:
+
+- scenario overrides
+- seed
+- purpose
+- expected pattern where relevant
+- expected feasibility status where relevant
+- tolerance bands for selected metrics
+- assumptions
+
+The validation runner writes structured results to `validation_results.json` when executed with an output directory.
 
 ### Search Patterns And Formations
 
@@ -390,6 +459,7 @@ The current Slice 2 model stays intentionally lightweight:
 - no large coordination rewrite
 
 The product layer uses Slice 1 asset package data to influence endurance, return margin, turnaround time, and redeploy sustainability.
+Drones now start at the configured base by default. The earlier launch-line spread remains available only as an explicit deployment mode for future experimentation.
 
 ### Cue -> Inspect -> Confirm Sensing
 
@@ -491,6 +561,10 @@ Reports and review workflows support:
 - lifecycle event highlights for return, service, redeploy, and rejoin moments
 - sensing highlights for cue, inspect, confirm, reject, and search-resume moments
 - search-pattern highlights for initial layout, rebalance, and restored coverage moments
+- launch-feasibility summary
+- recommendation confidence and uncertainty summary
+- model assumptions and known limitations
+- provenance details such as model version, calibration version, scenario version, and deployment mode
 - links back to replay and run artifacts
 - clearer artifact linkage and cleaner export browsing
 - human-readable report actions such as mission brief, run summary, and after-action report exports
@@ -537,6 +611,8 @@ Run artifacts now include lifecycle-rich replay and event outputs that preserve:
 - candidate contact summaries and cue-to-confirm event history
 - active search-pattern state and search-geometry summary
 - search-pattern selection, rebalance, and restoration events
+- run manifest and provenance summary in `run_manifest.json`
+- feasibility summary, assumptions summary, and known limitations summary attached to run metadata
 
 ## API Coverage
 
@@ -670,6 +746,27 @@ Local-first fallback behavior remains available:
 - direct coordinates still work everywhere
 - terrain and elevation are still derived deterministically from the selected AOI when live external layers are not available
 
+Important Slice 6 payload additions include:
+
+- recommendation payloads:
+  - `confidence_summary`
+  - `feasibility_summary`
+  - expected first-candidate and confirmed-contact timing bands in `technical_details`
+  - assumptions and known-limitations summaries in `technical_details`
+- run summaries:
+  - `confidence_summary`
+  - `feasibility_summary`
+  - `provenance_manifest`
+  - `assumptions_summary`
+  - `known_limitations_summary`
+  - `benchmark_context`
+- review and report summaries:
+  - feasibility summary
+  - confidence summary
+  - provenance manifest
+  - assumptions summary
+  - known limitations summary
+
 ## Docker
 
 Local container flow:
@@ -726,6 +823,14 @@ cd app/web
 npm run test
 npm run build
 ```
+
+Validation and benchmark smoke run:
+
+```bash
+python -c "from pathlib import Path; from src.simulation.validation import run_validation_suite; run_validation_suite(Path('outputs') / 'validation')"
+```
+
+This writes a structured validation result bundle under `outputs/validation/validation_results.json`.
 
 Optional backend smoke check:
 

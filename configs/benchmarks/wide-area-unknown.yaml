@@ -1,0 +1,32 @@
+id: wide-area-unknown
+name: Large unknown-location wide-area mission
+description: Larger mission box without a precise last known point.
+purpose: Validate coverage-first pattern selection and feasibility warnings for uncertain wide-area search.
+seed: 7
+expected_pattern: broad_area_sweep
+expected_feasibility: high_risk
+scenario_overrides:
+  name: Large unknown-location wide-area mission
+  scenario_family: mixed_terrain
+  weather: clear
+  num_drones: 4
+  max_steps: 32
+  mission_intent: broad_area_coverage
+  search_pattern: auto
+  last_known_status: unknown
+  map_size: [30, 24]
+  drone:
+    battery: 110.0
+    estimated_max_range_km: 12.0
+    turnaround_time_minutes: 14.0
+  battery_policy:
+    reserve_preset: balanced
+    return_threshold: 28.0
+tolerances:
+  time_to_first_candidate_detection: [4, 32]
+  overlap_ratio: [0.0, 0.42]
+  average_active_search_drones: [1.5, 4.2]
+assumptions:
+  - A wide unknown-location mission should prefer a coverage-first opening pattern.
+  - The mission should remain searchable, but with noticeable pressure on sustained coverage.
+

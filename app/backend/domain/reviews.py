@@ -102,32 +102,39 @@ class AfterActionReviewService:
         battery_lifecycle = summarize_battery_lifecycle(run_record, events)
         sensing_lifecycle = summarize_sensing_lifecycle(run_record, events)
         search_pattern = summarize_search_pattern(run_record, events)
+        run_summary = run_record.get("summary_json", {})
         summary = {
             "mission_timeline": (
-                f"{run_record['summary_json'].get('mission_area_summary', 'Mission area configured.')} "
+                f"{run_summary.get('mission_area_summary', 'Mission area configured.')} "
                 f"{search_pattern['summary']} {sensing_lifecycle['operator_summary']} {battery_lifecycle['mission_continuity_impact']}"
             ),
             "actual_outcome": {
                 "status": run_record["status"],
-                "metrics": run_record["summary_json"].get("metrics", {}),
+                "metrics": run_summary.get("metrics", {}),
             },
             "deviation_from_recommendation": deviation,
             "asset_utilization": {
                 "drone_count": actual["num_drones"],
-                "battery_used": run_record["summary_json"].get("metrics", {}).get("battery_used"),
-                "successful_returns_to_base": run_record["summary_json"].get("metrics", {}).get("successful_returns_to_base"),
-                "path_efficiency": run_record["summary_json"].get("metrics", {}).get("path_efficiency"),
+                "battery_used": run_summary.get("metrics", {}).get("battery_used"),
+                "successful_returns_to_base": run_summary.get("metrics", {}).get("successful_returns_to_base"),
+                "path_efficiency": run_summary.get("metrics", {}).get("path_efficiency"),
             },
             "battery_lifecycle": battery_lifecycle,
             "sensing_lifecycle": sensing_lifecycle,
             "search_pattern": search_pattern,
-            "mission_area": run_record["summary_json"].get("mission_area", {}),
+            "mission_area": run_summary.get("mission_area", {}),
             "battery_comms_risk_summary": {
-                "battery_risk": run_record["summary_json"].get("metrics", {}).get("return_to_base_efficiency"),
-                "communications_fragility": run_record["summary_json"].get("metrics", {}).get("comms_failures"),
-                "stale_information_events": run_record["summary_json"].get("metrics", {}).get("stale_information_events"),
+                "battery_risk": run_summary.get("metrics", {}).get("return_to_base_efficiency"),
+                "communications_fragility": run_summary.get("metrics", {}).get("comms_failures"),
+                "stale_information_events": run_summary.get("metrics", {}).get("stale_information_events"),
             },
             "alternate_plan_summary": self._alternate_plan_summary(comparison, actual),
+            "confidence_summary": recommendation.get("confidence_summary", {}) or run_summary.get("confidence_summary", {}),
+            "feasibility_summary": run_summary.get("feasibility_summary", {}),
+            "provenance_manifest": run_summary.get("provenance_manifest", {}),
+            "assumptions_summary": run_summary.get("assumptions_summary"),
+            "known_limitations_summary": run_summary.get("known_limitations_summary"),
+            "benchmark_context": run_summary.get("benchmark_context", []),
             "links": {
                 "run_id": run_id,
                 "plan_id": plan_id,

@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>After Action Review review-9641f23b37</title>
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 2rem; color: #1f2933; background: #f7fafc; }
+    h1, h2 { color: #102a43; }
+    .card { background: white; border: 1px solid #d9e2ec; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #e6edf3; padding: 0.55rem; text-align: left; }
+    th { background: #f0f4f8; }
+    code { background: #eef2f7; padding: 0.1rem 0.3rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>After Action Review</h1>
+  <div class="card">
+    <p><strong>Review ID:</strong> review-9641f23b37</p>
+    <p><strong>Run ID:</strong> run-f437db1fd5</p>
+    <p><strong>Plan ID:</strong> new-search-mission</p>
+    <p><strong>Comparison ID:</strong> None</p>
+  </div>
+
+  <div class="card">
+    <h2>Outcome Summary</h2>
+    <p><strong>Status:</strong> completed</p>
+    <p><strong>Mission timeline:</strong> Location: Donvale, City of Manningham, Victoria, 3111, Australia. AOI covers about 3.9 km^2 across 2.4 by 1.7 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as elevated mixed terrain. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 17 kph. Planning context is ready for recommendation and simulation. Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity. The mission progressed from a possible contact to a confirmed target after inspection. Coverage stayed mostly stable during asset rotation.</p>
+  </div>
+
+  <div class="card">
+    <h2>Mission Area Review</h2>
+    <p>AOI covers about 3.9 km^2 across 2.4 by 1.7 km at roughly 500 m cells.</p>
+    
+    <p>The selected area reads as trail-accessible hill country, with steep terrain and good access.</p>
+    
+    <table>
+      <tbody>
+        <tr><th>Location</th><td>Donvale, City of Manningham, Victoria, 3111, Australia</td></tr>
+        <tr><th>Area size</th><td>3.9 km²</td></tr>
+        <tr><th>Grid resolution</th><td>500 m</td></tr>
+        <tr><th>Grid size</th><td>12 x 10</td></tr>
+        <tr><th>Staging</th><td>Primary staging point</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Search Pattern Review</h2>
+    <p><strong>Pattern:</strong> Adaptive Rebalance</p>
+    <p>Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity.</p>
+    <p>The mission started with adaptive rebalance, but it has shifted into adaptive rebalance because possible contact activity.</p>
+    <p>The mission temporarily shifted away from adaptive rebalance because possible contact activity.</p>
+  </div>
+
+  <div class="card">
+    <h2>Deviation From Recommendation</h2>
+    <table>
+      <tbody>
+        
+        <tr><th>Strategy Differs</th><td>True</td></tr>
+        
+        <tr><th>Drone Count Differs</th><td>True</td></tr>
+        
+        <tr><th>Coordination Differs</th><td>True</td></tr>
+        
+        <tr><th>Reserve Differs</th><td>True</td></tr>
+        
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Battery Lifecycle Review</h2>
+    <p><strong>Run phase:</strong> Target confirmed</p>
+    <p><strong>Reserve policy:</strong> Balanced</p>
+    <p>0 return-to-base cycle(s), 0 completed service cycle(s), and 0 redeployment(s) were recorded.</p>
+    <p>Coverage stayed mostly stable during asset rotation.</p>
+    <table>
+      <thead><tr><th>Measure</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Returns to base</td><td>0</td></tr>
+        <tr><td>Recharge or swap started</td><td>0</td></tr>
+        <tr><td>Recharge or swap completed</td><td>0</td></tr>
+        <tr><td>Redeployments</td><td>0</td></tr>
+        <tr><td>Rejoins</td><td>0</td></tr>
+        <tr><td>Coverage gaps</td><td>0</td></tr>
+      </tbody>
+    </table>
+    <p>
+      <strong>Battery margin:</strong>
+      Min 10.37
+      / Avg 32.14
+    </p>
+    <p>Battery margins remained healthy for sustained coverage.</p>
+  </div>
+
+  <div class="card">
+    <h2>Sensing Workflow Review</h2>
+    <p>The mission progressed from a possible contact to a confirmed target after inspection.</p>
+    <p>A limited number of inspection passes were needed to resolve possible contacts.</p>
+    <p>Confirmation activity focused the mission on a credible target contact.</p>
+    <table>
+      <thead><tr><th>Measure</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Possible contacts</td><td>2</td></tr>
+        <tr><td>Inspections started</td><td>2</td></tr>
+        <tr><td>Inspection passes</td><td>2</td></tr>
+        <tr><td>Confirmed contacts</td><td>1</td></tr>
+        <tr><td>Rejected false alarms</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Alternate Plan Analysis</h2>
+    <p>No saved comparison available for alternate-plan analysis.</p>
+  </div>
+
+  <div class="card">
+    <h2>Timeline</h2>
+    <table>
+      <thead><tr><th>Step</th><th>Event</th><th>Summary</th></tr></thead>
+      <tbody>
+      
+        <tr><td>0</td><td>search_pattern_selected</td><td>Adaptive Rebalance selected for the mission.</td></tr>
+      
+        <tr><td>1</td><td>reroute</td><td>Drone 5: reroute</td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td>Drone 0: scan event</td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td>Drone 1: scan event</td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td>Drone 2: scan event</td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td>Drone 3: scan event</td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td>Drone 4: scan event</td></tr>
+      
+        <tr><td>1</td><td>detection_candidate</td><td>Drone 4: detection candidate</td></tr>
+      
+        <tr><td>1</td><td>possible_contact_detected</td><td>Drone 4 flagged a possible contact that requires inspection.</td></tr>
+      
+        <tr><td>1</td><td>scan_event</td><td>Drone 5: scan event</td></tr>
+      
+        <tr><td>1</td><td>comms_failure</td><td>Drone 3: comms failure</td></tr>
+      
+        <tr><td>1</td><td>comms_failure</td><td>Drone 1: comms failure</td></tr>
+      
+        <tr><td>1</td><td>comms_failure</td><td>Drone 2: comms failure</td></tr>
+      
+        <tr><td>1</td><td>comms_failure</td><td>Drone 5: comms failure</td></tr>
+      
+        <tr><td>2</td><td>search_pattern_rebalanced</td><td>Adaptive Rebalance engaged because possible contact activity.</td></tr>
+      
+        <tr><td>2</td><td>inspection_initiated</td><td>Drone 4 moved to inspect the possible contact.</td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td>Drone 0: task reassignment</td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td>Drone 1: task reassignment</td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td>Drone 2: task reassignment</td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td>Drone 3: task reassignment</td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td>Drone 4: task reassignment</td></tr>
+      
+        <tr><td>2</td><td>reroute</td><td>Drone 4: reroute</td></tr>
+      
+        <tr><td>2</td><td>task_reassignment</td><td>Drone 5: task reassignment</td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td>Drone 0: scan event</td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td>Drone 1: scan event</td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td>Drone 2: scan event</td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td>Drone 3: scan event</td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td>Drone 4: scan event</td></tr>
+      
+        <tr><td>2</td><td>scan_event</td><td>Drone 5: scan event</td></tr>
+      
+        <tr><td>2</td><td>inspection_pass_complete</td><td>Drone 4 completed an inspection pass and rejected the contact.</td></tr>
+      
+        <tr><td>2</td><td>false_positive_rejected</td><td>Drone 4 rejected the contact as a false alarm.</td></tr>
+      
+        <tr><td>2</td><td>search_resumed_after_reject</td><td>Drone 4 resumed the wider search after rejecting the contact.</td></tr>
+      
+        <tr><td>3</td><td>search_pattern_restored</td><td>The mission returned to Adaptive Rebalance after the temporary rebalance.</td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td>Drone 0: task reassignment</td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td>Drone 1: task reassignment</td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td>Drone 2: task reassignment</td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td>Drone 3: task reassignment</td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td>Drone 4: task reassignment</td></tr>
+      
+        <tr><td>3</td><td>task_reassignment</td><td>Drone 5: task reassignment</td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td>Drone 0: scan event</td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td>Drone 1: scan event</td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td>Drone 2: scan event</td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td>Drone 3: scan event</td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td>Drone 4: scan event</td></tr>
+      
+        <tr><td>3</td><td>scan_event</td><td>Drone 5: scan event</td></tr>
+      
+        <tr><td>3</td><td>comms_failure</td><td>Drone 2: comms failure</td></tr>
+      
+        <tr><td>3</td><td>comms_failure</td><td>Drone 3: comms failure</td></tr>
+      
+        <tr><td>3</td><td>comms_failure</td><td>Drone 4: comms failure</td></tr>
+      
+        <tr><td>3</td><td>comms_failure</td><td>Drone 5: comms failure</td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td>Drone 0: scan event</td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td>Drone 1: scan event</td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td>Drone 2: scan event</td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td>Drone 3: scan event</td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td>Drone 4: scan event</td></tr>
+      
+        <tr><td>4</td><td>scan_event</td><td>Drone 5: scan event</td></tr>
+      
+        <tr><td>5</td><td>task_reassignment</td><td>Drone 0: task reassignment</td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td>Drone 0: scan event</td></tr>
+      
+        <tr><td>5</td><td>detection_candidate</td><td>Drone 0: detection candidate</td></tr>
+      
+        <tr><td>5</td><td>possible_contact_detected</td><td>Drone 0 flagged a possible contact that requires inspection.</td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td>Drone 1: scan event</td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td>Drone 2: scan event</td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td>Drone 3: scan event</td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td>Drone 4: scan event</td></tr>
+      
+        <tr><td>5</td><td>scan_event</td><td>Drone 5: scan event</td></tr>
+      
+        <tr><td>5</td><td>comms_failure</td><td>Drone 1: comms failure</td></tr>
+      
+        <tr><td>5</td><td>comms_failure</td><td>Drone 5: comms failure</td></tr>
+      
+        <tr><td>5</td><td>comms_failure</td><td>Drone 2: comms failure</td></tr>
+      
+        <tr><td>5</td><td>comms_failure</td><td>Drone 5: comms failure</td></tr>
+      
+        <tr><td>5</td><td>comms_failure</td><td>Drone 5: comms failure</td></tr>
+      
+        <tr><td>6</td><td>search_pattern_rebalanced</td><td>Adaptive Rebalance engaged because possible contact activity.</td></tr>
+      
+        <tr><td>6</td><td>inspection_initiated</td><td>Drone 0 moved to inspect the possible contact.</td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td>Drone 0: task reassignment</td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td>Drone 1: task reassignment</td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td>Drone 2: task reassignment</td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td>Drone 3: task reassignment</td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td>Drone 4: task reassignment</td></tr>
+      
+        <tr><td>6</td><td>task_reassignment</td><td>Drone 5: task reassignment</td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td>Drone 0: scan event</td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td>Drone 1: scan event</td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td>Drone 2: scan event</td></tr>
+      
+        <tr><td>6</td><td>detection_candidate</td><td>Drone 2: detection candidate</td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td>Drone 3: scan event</td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td>Drone 4: scan event</td></tr>
+      
+        <tr><td>6</td><td>scan_event</td><td>Drone 5: scan event</td></tr>
+      
+        <tr><td>6</td><td>inspection_pass_complete</td><td>Drone 0 completed an inspection pass and confirmed the contact.</td></tr>
+      
+        <tr><td>6</td><td>contact_confirmed</td><td>Drone 0 confirmed the target after close inspection.</td></tr>
+      
+        <tr><td>6</td><td>confirmed_detection</td><td>Drone 0: confirmed detection</td></tr>
+      
+        <tr><td>6</td><td>comms_failure</td><td>Drone 5: comms failure</td></tr>
+      
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Technical Details</h2>
+    <code>{'mission_timeline': 'Location: Donvale, City of Manningham, Victoria, 3111, Australia. AOI covers about 3.9 km^2 across 2.4 by 1.7 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as elevated mixed terrain. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 17 kph. Planning context is ready for recommendation and simulation. Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity. The mission progressed from a possible contact to a confirmed target after inspection. Coverage stayed mostly stable during asset rotation.', 'actual_outcome': {'status': 'completed', 'metrics': {'time_to_detection': 6, 'area_covered_pct': 97.87234042553192, 'probability_mass_covered': 0.9933639501662159, 'overlap_ratio': 0.7711442786069652, 'battery_used': 86.99365548470593, 'successful_returns_to_base': 0, 'forced_low_battery_returns': 0, 'approaching_reserve_events': 0, 'critical_battery_events': 0, 'recharge_cycles_started': 0, 'recharge_cycles_completed': 0, 'redeployments': 0, 'rejoined_search_events': 0, 'coverage_gap_events': 0, 'coverage_gap_steps': 0, 'average_active_search_drones': 5.428571428571429, 'battery_margin_min': 10.369, 'battery_margin_average': 32.13914285714285, 'comms_failures': 14, 'stale_information_events': 0, 'path_efficiency': 0.5747845358912471, 'average_overlap_per_step': 0.1913323395362024, 'detection_under_comms_mode': 'decentralized', 'entropy_reduction_over_time': 1.6619230974398524, 'information_gain_per_step': 0.2809338289666224, 'belief_peak_accuracy': 4.056171899069765e-05, 'time_to_first_candidate_detection': 1, 'time_to_confirmed_detection': 6, 'candidate_detection_count': 2, 'inspections_initiated': 2, 'inspections_completed': 2, 'confirmed_contact_count': 1, 'rejected_contact_count': 1, 'false_alarm_count': 1, 'reroute_count': 19, 'coordination_efficiency': 0.4931512649518365, 'return_to_base_efficiency': 1.0, 'mission_success': True}}, 'deviation_from_recommendation': {'strategy_differs': True, 'drone_count_differs': True, 'coordination_differs': True, 'reserve_differs': True}, 'asset_utilization': {'drone_count': 6, 'battery_used': 86.99365548470593, 'successful_returns_to_base': 0, 'path_efficiency': 0.5747845358912471}, 'battery_lifecycle': {'run_phase': 'Target confirmed', 'reserve_preset': 'balanced', 'return_to_base_count': 0, 'recharge_started_count': 0, 'recharge_completed_count': 0, 'redeploy_count': 0, 'rejoin_count': 0, 'coverage_gap_count': 0, 'battery_margin_summary': {'minimum_margin': 10.37, 'average_margin': 32.14, 'sustainability': 'Battery margins remained healthy for sustained coverage.'}, 'asset_utilization_summary': '0 return-to-base cycle(s), 0 completed service cycle(s), and 0 redeployment(s) were recorded.', 'mission_continuity_impact': 'Coverage stayed mostly stable during asset rotation.', 'highlights': [{'step': 0, 'event_type': 'search_pattern_selected', 'title': 'Search pattern selected', 'summary': 'Adaptive Rebalance selected for the mission.'}, {'step': 1, 'event_type': 'possible_contact_detected', 'title': 'Possible contact detected', 'summary': 'Drone 4 flagged a possible contact that requires inspection.'}, {'step': 2, 'event_type': 'search_pattern_rebalanced', 'title': 'Search pattern rebalanced', 'summary': 'Adaptive Rebalance engaged because possible contact activity.'}, {'step': 2, 'event_type': 'inspection_initiated', 'title': 'Inspection initiated', 'summary': 'Drone 4 moved to inspect the possible contact.'}, {'step': 2, 'event_type': 'inspection_pass_complete', 'title': 'Inspection pass complete', 'summary': 'Drone 4 completed an inspection pass and rejected the contact.'}, {'step': 2, 'event_type': 'false_positive_rejected', 'title': 'False alarm rejected', 'summary': 'Drone 4 rejected the contact as a false alarm.'}, {'step': 2, 'event_type': 'search_resumed_after_reject', 'title': 'Search resumed', 'summary': 'Drone 4 resumed the wider search after rejecting the contact.'}, {'step': 3, 'event_type': 'search_pattern_restored', 'title': 'Search pattern restored', 'summary': 'The mission returned to Adaptive Rebalance after the temporary rebalance.'}, {'step': 5, 'event_type': 'possible_contact_detected', 'title': 'Possible contact detected', 'summary': 'Drone 0 flagged a possible contact that requires inspection.'}, {'step': 6, 'event_type': 'search_pattern_rebalanced', 'title': 'Search pattern rebalanced', 'summary': 'Adaptive Rebalance engaged because possible contact activity.'}, {'step': 6, 'event_type': 'inspection_initiated', 'title': 'Inspection initiated', 'summary': 'Drone 0 moved to inspect the possible contact.'}, {'step': 6, 'event_type': 'inspection_pass_complete', 'title': 'Inspection pass complete', 'summary': 'Drone 0 completed an inspection pass and confirmed the contact.'}, {'step': 6, 'event_type': 'contact_confirmed', 'title': 'Contact confirmed', 'summary': 'Drone 0 confirmed the target after close inspection.'}]}, 'sensing_lifecycle': {'candidate_detection_count': 2, 'inspection_initiated_count': 2, 'inspection_pass_count': 2, 'confirmed_detection_count': 1, 'false_positive_count': 1, 'active_candidate_contacts': 0, 'contacts_under_inspection': 0, 'confirmation_pending': 0, 'operator_summary': 'The mission progressed from a possible contact to a confirmed target after inspection.', 'inspection_burden_summary': 'A limited number of inspection passes were needed to resolve possible contacts.', 'mission_impact_summary': 'Confirmation activity focused the mission on a credible target contact.', 'highlights': [{'step': 1, 'event_type': 'possible_contact_detected', 'title': 'Possible contact detected', 'summary': 'Drone 4 flagged a possible contact that requires inspection.'}, {'step': 2, 'event_type': 'inspection_initiated', 'title': 'Inspection initiated', 'summary': 'Drone 4 moved to inspect the possible contact.'}, {'step': 2, 'event_type': 'inspection_pass_complete', 'title': 'Inspection pass complete', 'summary': 'Drone 4 completed an inspection pass and rejected the contact.'}, {'step': 2, 'event_type': 'false_positive_rejected', 'title': 'False alarm rejected', 'summary': 'Drone 4 rejected the contact as a false alarm.'}, {'step': 2, 'event_type': 'search_resumed_after_reject', 'title': 'Search resumed', 'summary': 'Drone 4 resumed the wider search after rejecting the contact.'}, {'step': 5, 'event_type': 'possible_contact_detected', 'title': 'Possible contact detected', 'summary': 'Drone 0 flagged a possible contact that requires inspection.'}, {'step': 6, 'event_type': 'inspection_initiated', 'title': 'Inspection initiated', 'summary': 'Drone 0 moved to inspect the possible contact.'}, {'step': 6, 'event_type': 'inspection_pass_complete', 'title': 'Inspection pass complete', 'summary': 'Drone 0 completed an inspection pass and confirmed the contact.'}, {'step': 6, 'event_type': 'contact_confirmed', 'title': 'Contact confirmed', 'summary': 'Drone 0 confirmed the target after close inspection.'}, {'step': 6, 'event_type': 'confirmed_detection', 'title': 'Confirmed detection', 'summary': 'Drone 0: confirmed detection'}]}, 'search_pattern': {'pattern': 'adaptive_rebalance', 'pattern_label': 'Adaptive Rebalance', 'base_pattern': 'adaptive_rebalance', 'base_pattern_label': 'Adaptive Rebalance', 'summary': 'Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity.', 'reason': 'The mission started with adaptive rebalance, but it has shifted into adaptive rebalance because possible contact activity.', 'fit_summary': 'Best when the mission is likely to rebalance around cues, inspections, or rotating assets. Current spacing is built around an effective swath of about 5.4 cells. Hill Country is the dominant ground type.', 'rebalanced': True, 'rebalance_reason': 'possible contact activity', 'geometry': {'weather_factor': 0.9, 'visibility_modifier': 0.888, 'sensor_mode_factor': 1.08, 'fleet_coverage_factor': 1.0, 'area_sq_km': 3.9, 'shape_ratio': 1.43, 'staging_distance_to_center_km': 2.83, 'slope_burden': 'elevated', 'dominant_terrain': 'hill country', 'area_cells': 120, 'effective_swath_cells': 5.42, 'lane_spacing_cells': 4.44, 'overlap_margin': 0.18, 'sector_rows': 2, 'sector_cols': 3, 'sector_count': 6, 'ring_step_cells': 4, 'perimeter_spacing_cells': 4, 'coverage_depth': 'balanced'}, 'mission_effect_summary': 'The mission temporarily shifted away from adaptive rebalance because possible contact activity.', 'change_count': 2, 'highlights': [{'step': 0, 'event_type': 'search_pattern_selected', 'title': 'Search pattern selected', 'summary': 'Adaptive Rebalance selected for the mission.'}, {'step': 2, 'event_type': 'search_pattern_rebalanced', 'title': 'Search pattern rebalanced', 'summary': 'Adaptive Rebalance engaged because possible contact activity.'}, {'step': 3, 'event_type': 'search_pattern_restored', 'title': 'Search pattern restored', 'summary': 'The mission returned to Adaptive Rebalance after the temporary rebalance.'}, {'step': 6, 'event_type': 'search_pattern_rebalanced', 'title': 'Search pattern rebalanced', 'summary': 'Adaptive Rebalance engaged because possible contact activity.'}]}, 'mission_area': {'location_display_name': 'Donvale, City of Manningham, Victoria, 3111, Australia', 'location_source': 'live_geocoder', 'location_query': 'Donvale, City of Manningham, Victoria, 3111, Australia', 'center': {'latitude': -37.7898094, 'longitude': 145.1914915}, 'preview_span_km': 18, 'shape_type': 'rectangle', 'rectangle': {'north': -37.762592088533815, 'south': -37.77743768280601, 'east': 145.22511032130507, 'west': 145.1983017435441}, 'polygon': [{'latitude': -37.762592088533815, 'longitude': 145.1983017435441}, {'latitude': -37.762592088533815, 'longitude': 145.22511032130507}, {'latitude': -37.77743768280601, 'longitude': 145.22511032130507}, {'latitude': -37.77743768280601, 'longitude': 145.1983017435441}], 'bounds': {'north': -37.762592088533815, 'south': -37.77743768280601, 'east': 145.22511032130507, 'west': 145.1983017435441}, 'width_km': 2.36, 'height_km': 1.65, 'area_sq_km': 3.9, 'shape_ratio': 1.43, 'requested_grid_resolution_m': 500, 'grid_resolution_m': 500, 'cell_size_m': 500, 'grid_size': [12, 10], 'grid_cols': 12, 'grid_rows': 10, 'max_safe_cells': 4900, 'warnings': [], 'terrain_hint': 'mixed', 'requested_environment_type': 'mixed_terrain', 'last_known_status': 'known', 'environment_type': 'mixed_terrain', 'weather_summary': {'source': 'live_weather', 'provider': 'open-meteo', 'recommended_weather': 'windy', 'condition_label': 'Overcast', 'temperature_c': 17.3, 'wind_speed_kph': 16.6, 'precipitation_mm': 0, 'cloud_cover_pct': 100, 'visibility_label': 'Reduced', 'operator_summary': 'Current weather shows overcast with winds around 17 kph.', 'fallback_note': None, 'fetched_at': '2026-04-03T06:01:27.431265+00:00'}, 'center_grid_position': [6, 5], 'shape_summary': 'Rectangle AOI', 'aoi_outline_grid': [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [11, 1], [11, 2], [11, 3], [11, 4], [11, 5], [11, 6], [11, 7], [11, 8], [11, 9], [10, 9], [9, 9], [8, 9], [7, 9], [6, 9], [5, 9], [4, 9], [3, 9], [2, 9], [1, 9], [0, 9], [0, 8], [0, 7], [0, 6], [0, 5], [0, 4], [0, 3], [0, 2], [0, 1], [0, 0]], 'staging': {'latitude': -37.77372789671099, 'longitude': 145.2164083434431, 'label': 'Primary staging point', 'placement': 'map', 'grid_position': [7, 7]}, 'staging_distance_to_center_km': 2.83, 'staging_summary': 'Base is positioned inside the selected search area.', 'last_known_location': {'latitude': -37.76890609631455, 'longitude': 145.2088954557238, 'label': 'Last known location', 'placement': 'map', 'grid_position': [4, 4]}, 'last_known_inside_aoi': True, 'last_known_grid_position': [4, 4], 'last_known_summary': 'Last known point is placed inside the search area.', 'area_metrics_summary': 'AOI covers about 3.9 km^2 across 2.4 by 1.7 km at roughly 500 m cells.', 'operator_summary': 'AOI covers about 3.9 km^2 across 2.4 by 1.7 km at roughly 500 m cells.', 'grid_summary': {'map_size': [12, 10], 'cell_size_m': 500, 'shape_label': 'Rectangle AOI', 'operator_summary': 'Grid resolves to 12 by 10 cells.'}, 'area_metrics': {'area_sq_km': 3.9, 'width_km': 2.36, 'height_km': 1.65, 'grid_cols': 12, 'grid_rows': 10, 'grid_resolution_m': 500, 'staging_offset_km': 2.83, 'last_known_inside_aoi': True, 'operator_summary': 'AOI covers about 3.9 km^2 across 2.4 by 1.7 km at roughly 500 m cells. Grid resolves to 12 by 10 cells.'}, 'terrain_summary': {'source_mode': 'local_first_deterministic', 'dominant_terrain': 'hill country', 'terrain_mix': {'open terrain': 0.233, 'forest': 0.033, 'hill country': 0.6, 'urban edge': 0, 'water / no-go': 0.133}, 'elevation_range_m': [0, 629.6], 'mean_elevation_m': 342.9, 'slope_burden': 'elevated', 'trail_access': 'good', 'trail_coverage_pct': 0.25, 'obstacle_coverage_pct': 0.217, 'water_coverage_pct': 0.133, 'suggested_scenario_family': 'mixed_terrain', 'terrain_burden_label': 'Trail-accessible hill country', 'terrain_burden_summary': 'Hill country dominates, but usable access corridors should help movement and recovery routes.', 'slope_summary': {'value': 'steep', 'label': 'Steep terrain', 'operator_summary': 'Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.'}, 'operator_summary': 'The selected area reads as trail-accessible hill country, with steep terrain and good access.'}, 'terrain_burden_summary': 'Hill country dominates, but usable access corridors should help movement and recovery routes.', 'slope_summary': {'value': 'steep', 'label': 'Steep terrain', 'operator_summary': 'Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.'}, 'slope_elevation_summary': 'Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.', 'environment_summary': {'value': 'mixed_terrain', 'label': 'Elevated mixed terrain', 'operator_summary': 'Elevated ground is a defining feature of the selected area.'}, 'environment_label': 'Elevated mixed terrain', 'planner_ready': True, 'planner_status_summary': 'Planning context is ready for recommendation and simulation.', 'context_summary': 'Location: Donvale, City of Manningham, Victoria, 3111, Australia. AOI covers about 3.9 km^2 across 2.4 by 1.7 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as elevated mixed terrain. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 17 kph. Planning context is ready for recommendation and simulation.'}, 'battery_comms_risk_summary': {'battery_risk': 1.0, 'communications_fragility': 14, 'stale_information_events': 0}, 'alternate_plan_summary': {'available': False, 'summary': 'No saved comparison available for alternate-plan analysis.'}, 'links': {'run_id': 'run-f437db1fd5', 'plan_id': 'new-search-mission', 'comparison_id': None, 'replay_path': '/runs/run-f437db1fd5/replay', 'events_path': '/runs/run-f437db1fd5/events'}}</code>
+  </div>
+</body>
+</html>

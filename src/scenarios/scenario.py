@@ -53,6 +53,7 @@ class ScenarioConfig:
     communication_latency: int = 1
     coordination_mode: str = "centralized"
     base_position: Position = (0, 0)
+    deployment_mode: str = "base_launch"
     return_to_base_threshold: float = 28.0
     reserve_preset: str = "balanced"
     drone_range_km: float = 12.0
@@ -221,6 +222,7 @@ class ScenarioConfig:
                 communication_data.get("coordination_mode", "centralized")
             ),
             base_position=base_position,
+            deployment_mode=str(scenario_data.get("deployment_mode", "base_launch")),
             return_to_base_threshold=float(
                 battery_data.get("return_threshold", 28.0)
             ),

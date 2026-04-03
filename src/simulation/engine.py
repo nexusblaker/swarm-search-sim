@@ -657,7 +657,11 @@ class SimulationEngine:
         drones: list[Drone] = []
         candidate_x_positions = np.linspace(0, self.environment.width - 1, num=max(self.config.num_drones, 1), dtype=int)
         for drone_id, x_position in enumerate(candidate_x_positions):
-            start_position = self._resolve_open_cell((int(x_position), base_position[1]))
+            start_position = (
+                self._resolve_open_cell((int(x_position), base_position[1]))
+                if self.config.deployment_mode == "launch_line"
+                else base_position
+            )
             drone = Drone(
                 id=drone_id,
                 position=start_position,

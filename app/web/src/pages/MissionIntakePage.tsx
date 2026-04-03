@@ -1016,6 +1016,8 @@ export function MissionIntakePage() {
                   keyRisks={recommendation.data.key_risks}
                   teamCoordinationLabel={recommendation.data.team_coordination_label}
                   assetPackage={recommendation.data.asset_package}
+                  confidenceSummary={recommendation.data.confidence_summary}
+                  feasibilitySummary={recommendation.data.feasibility_summary}
                   riskSummary={recommendation.data.risk_summary}
                   uncertaintySummary={recommendation.data.uncertainty_summary}
                   technicalDetails={recommendation.data.technical_details}

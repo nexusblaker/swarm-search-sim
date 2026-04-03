@@ -16,6 +16,7 @@ scenario:
   strategy: information_gain
   seed: 7
   scenario_family: open_terrain
+  deployment_mode: base_launch
   base_position:
   - 1
   - 1

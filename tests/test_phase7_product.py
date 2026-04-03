@@ -233,6 +233,10 @@ def test_asset_package_persistence_and_concise_recommendation_summary(tmp_path: 
     assert plan["recommendation_json"]["concise_summary"].startswith("Recommended:")
     assert recommendation.json()["recommended_search_pattern"] is not None
     assert recommendation.json()["recommended_search_pattern_label"] is not None
+    assert recommendation.json()["confidence_summary"]["candidate_count"] >= 1
+    assert recommendation.json()["feasibility_summary"]["status"]
+    assert recommendation.json()["technical_details"]["first_candidate_band"]
+    assert recommendation.json()["technical_details"]["assumptions_summary"]
     assert recommendation.json()["search_pattern_summary"]
     assert recommendation.json()["asset_package"]["fleet_composition"]["drone_type_count"] == 2
     assert recommendation.json()["key_tradeoffs"]
@@ -376,6 +380,10 @@ def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_p
     assert completed["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert completed["summary_json"]["mission_area_summary"]
     assert completed["summary_json"]["mission_area"]["terrain_burden_summary"]
+    assert completed["summary_json"]["feasibility_summary"]["status"]
+    assert completed["summary_json"]["provenance_manifest"]["model_version"]
+    assert completed["summary_json"]["provenance_manifest"]["deployment_mode"] == "base_launch"
+    assert completed["artifact_paths"]["manifest"]
     assert completed["latest_snapshot_json"]["mission_area"]["aoi_outline_grid"]
     assert completed["latest_snapshot_json"]["mission_area"]["staging"]["grid_position"] == mission_area["staging"]["grid_position"]
     assert completed["latest_snapshot_json"]["mission_area"]["last_known_location"]["placement"] == "map"
@@ -387,9 +395,13 @@ def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_p
     assert report.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert report.json()["summary_json"]["mission_area"]["weather_summary"]["condition_label"]
     assert report.json()["summary_json"]["mission_area"]["slope_summary"]["label"]
+    assert report.json()["summary_json"]["feasibility_summary"]["status"]
+    assert report.json()["summary_json"]["provenance_manifest"]["model_version"]
     assert review.status_code == 200
     assert review.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert review.json()["summary_json"]["mission_area"]["last_known_location"]["placement"] == "map"
+    assert review.json()["summary_json"]["feasibility_summary"]["status"]
+    assert review.json()["summary_json"]["provenance_manifest"]["model_version"]
     assert mission_area["location_display_name"] in review.json()["summary_json"]["mission_timeline"]
 
 
@@ -429,6 +441,7 @@ def test_run_review_and_report_expose_battery_lifecycle_fields(tmp_path: Path) -
 
     assert completed["summary_json"]["lifecycle_summary"]["reserve_preset"] == "conservative"
     assert completed["summary_json"]["search_pattern_label"] is not None
+    assert completed["summary_json"]["provenance_manifest"]["deployment_mode"] == "base_launch"
     assert "lifecycle_state" in completed["latest_snapshot_json"]["drones"][0]
     assert "operator_status" in completed["latest_snapshot_json"]["drones"][0]
     assert replay.status_code == 200
@@ -438,9 +451,11 @@ def test_run_review_and_report_expose_battery_lifecycle_fields(tmp_path: Path) -
     assert report.status_code == 200
     assert report.json()["summary_json"]["battery_lifecycle"]["run_phase"]
     assert report.json()["summary_json"]["search_pattern"]["pattern_label"]
+    assert report.json()["summary_json"]["assumptions_summary"]
     assert review.status_code == 200
     assert review.json()["summary_json"]["battery_lifecycle"]["asset_utilization_summary"]
     assert review.json()["summary_json"]["search_pattern"]["summary"]
+    assert review.json()["summary_json"]["assumptions_summary"]
     assert review.json()["timeline_json"]["key_events"][0]["summary"]
 
 

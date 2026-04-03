@@ -5,7 +5,10 @@ import { api } from "@/api/client";
 import { useReports, useReviews, useRuns } from "@/api/hooks";
 import type {
   BatteryLifecycleSummary,
+  ConfidenceSummary,
+  FeasibilitySummary,
   MissionAreaSummary,
+  ProvenanceManifest,
   ReviewSummaryRecord,
   ReviewTimelineRecord,
   SearchPatternSummary,
@@ -60,6 +63,9 @@ export function ReviewsPage() {
   const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
   const searchPattern = (summary.search_pattern ?? {}) as SearchPatternSummary;
   const missionArea = (summary.mission_area ?? {}) as MissionAreaSummary;
+  const confidenceSummary = (summary.confidence_summary ?? {}) as ConfidenceSummary;
+  const feasibilitySummary = (summary.feasibility_summary ?? {}) as FeasibilitySummary;
+  const provenanceManifest = (summary.provenance_manifest ?? {}) as ProvenanceManifest;
   const timeline = (selected?.timeline_json ?? {}) as ReviewTimelineRecord;
   const actualOutcome = summary.actual_outcome ?? {};
   const actualMetrics = (actualOutcome.metrics as Record<string, unknown> | undefined) ?? {};
@@ -243,6 +249,27 @@ export function ReviewsPage() {
                   </p>
                 </div>
                 <div className="panel-subtle p-4">
+                  <p className="section-kicker">Feasibility and confidence</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {feasibilitySummary.operator_summary ?? "No launch-feasibility summary was captured for this mission."}
+                  </p>
+                  {feasibilitySummary.next_watch ? (
+                    <p className="mt-3 text-sm leading-6 text-muted">Watch next: {feasibilitySummary.next_watch}</p>
+                  ) : null}
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {confidenceSummary.confidence_reason ?? "No recommendation-confidence note was captured."}
+                  </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Model assumptions</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {summary.assumptions_summary ?? provenanceManifest.assumptions_summary ?? "Assumptions summary not recorded."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {summary.known_limitations_summary ?? provenanceManifest.known_limitations_summary ?? "Known limitations summary not recorded."}
+                  </p>
+                </div>
+                <div className="panel-subtle p-4">
                   <p className="section-kicker">Deviation from recommendation</p>
                   {deviationEntries.length > 0 ? (
                     <div className="mt-3 space-y-2">
@@ -320,6 +347,8 @@ export function ReviewsPage() {
                     label="Average active search drones"
                     value={String(actualMetrics.average_active_search_drones ?? "n/a")}
                   />
+                  <ReviewMetric label="Confidence" value={confidenceSummary.confidence_level ?? "n/a"} />
+                  <ReviewMetric label="Model version" value={provenanceManifest.model_version ?? "n/a"} />
                 </div>
               </CollapsiblePanel>
             </div>

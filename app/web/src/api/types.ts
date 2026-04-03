@@ -12,6 +12,62 @@ export type ResourceStatus =
 
 export type SummaryRecord = Record<string, unknown>;
 
+export interface FeasibilityWarning {
+  severity?: string;
+  label?: string;
+  title?: string;
+  summary?: string;
+  recommendation?: string;
+}
+
+export interface FeasibilitySummary {
+  status?: string;
+  status_label?: string;
+  issue_count?: number;
+  readiness_score?: number;
+  operator_summary?: string;
+  next_watch?: string;
+  warnings?: FeasibilityWarning[];
+}
+
+export interface ConfidenceSummary {
+  candidate_count?: number;
+  evaluation_seeds?: number;
+  method?: string;
+  success_band?: Record<string, number>;
+  time_band?: Record<string, number>;
+  fleet_package?: string;
+  mission_intent?: string;
+  confidence_level?: string;
+  confidence_reason?: string;
+  benchmark_context?: string[];
+  feasibility_status?: string;
+}
+
+export interface ProvenanceManifest {
+  seed?: number;
+  model_version?: string;
+  scenario_version?: string;
+  mission_plan_version?: string | null;
+  plan_id?: string | null;
+  comparison_id?: string | null;
+  candidate_id?: string | null;
+  deployment_mode?: string;
+  reserve_preset?: string;
+  search_pattern_requested?: string;
+  mission_intent?: string;
+  weather_source?: string;
+  aoi_source?: string;
+  terrain_derivation_source?: string;
+  calibration_version?: string;
+  calibration_snapshot?: Record<string, unknown>;
+  units?: Record<string, string>;
+  assumptions_summary?: string;
+  known_limitations_summary?: string;
+  benchmark_context?: string[];
+  feasibility_summary?: FeasibilitySummary;
+}
+
 export interface BatteryMarginSummary {
   minimum_margin?: number;
   average_margin?: number;
@@ -254,6 +310,12 @@ export interface RunSummaryRecord extends SummaryRecord {
   drone_statuses?: DroneStatusSummary[];
   battery_lifecycle?: BatteryLifecycleSummary;
   sensing_lifecycle?: SensingLifecycleSummary;
+  confidence_summary?: ConfidenceSummary;
+  feasibility_summary?: FeasibilitySummary;
+  provenance_manifest?: ProvenanceManifest;
+  assumptions_summary?: string;
+  known_limitations_summary?: string;
+  benchmark_context?: string[];
 }
 
 export interface ReviewTimelineKeyEvent extends Record<string, unknown> {
@@ -281,6 +343,12 @@ export interface ReviewSummaryRecord extends SummaryRecord {
   battery_comms_risk_summary?: Record<string, unknown>;
   alternate_plan_summary?: Record<string, unknown>;
   links?: Record<string, unknown>;
+  confidence_summary?: ConfidenceSummary;
+  feasibility_summary?: FeasibilitySummary;
+  provenance_manifest?: ProvenanceManifest;
+  assumptions_summary?: string;
+  known_limitations_summary?: string;
+  benchmark_context?: string[];
 }
 
 export interface ReportSummaryRecord extends SummaryRecord {
@@ -295,6 +363,12 @@ export interface ReportSummaryRecord extends SummaryRecord {
   run_phase?: string;
   battery_lifecycle?: BatteryLifecycleSummary;
   sensing_lifecycle?: SensingLifecycleSummary;
+  confidence_summary?: ConfidenceSummary;
+  feasibility_summary?: FeasibilitySummary;
+  provenance_manifest?: ProvenanceManifest;
+  assumptions_summary?: string;
+  known_limitations_summary?: string;
+  benchmark_context?: string[];
 }
 
 export interface CandidateContact {
@@ -582,6 +656,8 @@ export interface RecommendationResponse {
   search_pattern_fit_summary?: string | null;
   recommended_drone_count?: number | null;
   recommended_return_threshold?: number | null;
+  confidence_summary: ConfidenceSummary;
+  feasibility_summary: FeasibilitySummary;
   risk_summary: Record<string, unknown>;
   uncertainty_summary: Record<string, unknown>;
   explanation: string;

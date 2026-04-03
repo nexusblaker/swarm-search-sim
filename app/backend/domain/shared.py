@@ -12,7 +12,9 @@ import pandas as pd
 from src.analytics.metrics import SimulationMetrics
 from src.environment.mission_area import mission_area_operator_text
 from src.scenarios.scenario import ScenarioConfig
+from src.simulation.calibration import calibration_snapshot
 from src.simulation.search_patterns import pattern_label
+from src.simulation.validation import assess_mission_feasibility, benchmark_matches_for_config
 from src.utils.event_logger import EventLogger
 
 
@@ -50,6 +52,7 @@ def read_csv_records(path: Path, limit: int | None = None) -> list[dict[str, Any
 def scenario_summary(config: ScenarioConfig) -> dict[str, Any]:
     """Return a compact product-facing scenario summary."""
 
+    calibration = calibration_snapshot(config)
     return {
         "strategy": config.strategy,
         "mission_intent": config.mission_intent,
@@ -62,6 +65,7 @@ def scenario_summary(config: ScenarioConfig) -> dict[str, Any]:
         "weather": config.weather,
         "target_behavior": config.target_behavior,
         "coordination_mode": config.coordination_mode,
+        "deployment_mode": config.deployment_mode,
         "return_to_base_threshold": config.return_to_base_threshold,
         "reserve_preset": config.reserve_preset,
         "drone_range_km": config.drone_range_km,
@@ -69,6 +73,13 @@ def scenario_summary(config: ScenarioConfig) -> dict[str, Any]:
         "coverage_overlap_margin": config.coverage_overlap_margin,
         "mission_area": config.mission_area,
         "mission_area_summary": mission_area_operator_text(config.mission_area),
+        "model_version": calibration["model_version"],
+        "calibration_version": calibration["calibration_version"],
+        "units": calibration["units"],
+        "assumptions_summary": calibration["assumptions_summary"],
+        "known_limitations_summary": calibration["known_limitations_summary"],
+        "benchmark_context": benchmark_matches_for_config(config),
+        "feasibility_summary": assess_mission_feasibility(config),
     }
 
 

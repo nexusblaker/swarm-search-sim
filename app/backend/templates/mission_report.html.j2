@@ -32,6 +32,24 @@
   </div>
 
   <div class="card">
+    <h2>Executive Summary</h2>
+    <p>{{ run.summary_json.feasibility_summary.operator_summary if run.summary_json.feasibility_summary else "No launch-feasibility summary was attached to this run." }}</p>
+    <p>{{ run.summary_json.confidence_summary.confidence_reason if run.summary_json.confidence_summary else "No recommendation-confidence note was attached to this run." }}</p>
+    {% if recommendation %}
+    <p><strong>Recommended plan:</strong> {{ recommendation.concise_summary }}</p>
+    {% endif %}
+    {% if recommendation and recommendation.technical_details %}
+    <p>
+      <strong>Expected timing:</strong>
+      First candidate {{ recommendation.technical_details.first_candidate_band.low if recommendation.technical_details.first_candidate_band else "n/a" }}
+      to {{ recommendation.technical_details.first_candidate_band.high if recommendation.technical_details.first_candidate_band else "n/a" }} minutes,
+      confirmed contact {{ recommendation.technical_details.confirmed_detection_band.low if recommendation.technical_details.confirmed_detection_band else "n/a" }}
+      to {{ recommendation.technical_details.confirmed_detection_band.high if recommendation.technical_details.confirmed_detection_band else "n/a" }} minutes.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="card">
     <h2>Mission Area Summary</h2>
     <p>{{ mission_area.operator_summary or "Mission area summary not recorded." }}</p>
     {% if mission_area.terrain_summary %}
@@ -143,6 +161,21 @@
       <tr><th>Battery used</th><td>{{ metrics.battery_used }}</td></tr>
       <tr><th>Path efficiency</th><td>{{ metrics.path_efficiency }}</td></tr>
       <tr><th>Return efficiency</th><td>{{ metrics.return_to_base_efficiency }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Assumptions and Provenance</h2>
+    <p>{{ run.summary_json.assumptions_summary or run.summary_json.provenance_manifest.assumptions_summary or "Assumptions summary not recorded." }}</p>
+    <p>{{ run.summary_json.known_limitations_summary or run.summary_json.provenance_manifest.known_limitations_summary or "Known limitations summary not recorded." }}</p>
+    <table>
+      <tbody>
+      <tr><th>Model version</th><td>{{ run.summary_json.provenance_manifest.model_version or "n/a" }}</td></tr>
+      <tr><th>Scenario version</th><td>{{ run.summary_json.provenance_manifest.scenario_version or "n/a" }}</td></tr>
+      <tr><th>Calibration version</th><td>{{ run.summary_json.provenance_manifest.calibration_version or "n/a" }}</td></tr>
+      <tr><th>Deployment mode</th><td>{{ run.summary_json.provenance_manifest.deployment_mode or "n/a" }}</td></tr>
+      <tr><th>Benchmark context</th><td>{{ (run.summary_json.provenance_manifest.benchmark_context or [])|join(", ") if run.summary_json.provenance_manifest else "n/a" }}</td></tr>
       </tbody>
     </table>
   </div>

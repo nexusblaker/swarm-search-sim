@@ -466,6 +466,8 @@ class RecommendResponse(BaseModel):
     search_pattern_fit_summary: str | None = None
     recommended_drone_count: int | None = None
     recommended_return_threshold: float | None = None
+    confidence_summary: dict[str, Any] = Field(default_factory=dict)
+    feasibility_summary: dict[str, Any] = Field(default_factory=dict)
     risk_summary: dict[str, Any]
     uncertainty_summary: dict[str, Any] = Field(default_factory=dict)
     explanation: str

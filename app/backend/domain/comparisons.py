@@ -14,7 +14,9 @@ from app.backend.domain.plans import MissionPlanService
 from app.backend.domain.reports import ReportService
 from app.backend.domain.scenarios import ScenarioService
 from app.backend.domain.shared import confidence_band, metrics_to_summary, to_jsonable
+from src.simulation.calibration import calibration_snapshot
 from src.simulation.search_patterns import recommend_search_pattern
+from src.simulation.validation import assess_mission_feasibility, benchmark_matches_for_config, confidence_level_from_bands
 from src.simulation.engine import SimulationEngine
 
 
@@ -91,9 +93,10 @@ class ComparisonEvaluator:
 
         ranked_plans.sort(key=lambda item: item["score"], reverse=True)
         uncertainty = self._overall_uncertainty(ranked_plans)
+        top_recommendation = ranked_plans[0] if ranked_plans else {}
         return {
             "ranked_plans": ranked_plans,
-            "top_recommendation": ranked_plans[0] if ranked_plans else {},
+            "top_recommendation": top_recommendation,
             "asset_package": asset_package,
             "mission_intent": mission_intent,
             "confidence_summary": {
@@ -104,6 +107,10 @@ class ComparisonEvaluator:
                 "time_band": uncertainty["time_band"],
                 "fleet_package": asset_package.get("operator_summary", ""),
                 "mission_intent": mission_intent,
+                "confidence_level": top_recommendation.get("confidence_level"),
+                "confidence_reason": top_recommendation.get("confidence_reason"),
+                "benchmark_context": top_recommendation.get("benchmark_context", []),
+                "feasibility_status": top_recommendation.get("feasibility", {}).get("status"),
             },
             "uncertainty_summary": uncertainty,
             "sensitivity_summary": {
@@ -112,7 +119,9 @@ class ComparisonEvaluator:
                 "drone_count_options": sorted({item["drone_count"] for item in ranked_plans}),
                 "coordination_modes": sorted({item["coordination_mode"] for item in ranked_plans}),
                 "return_thresholds": sorted({item["return_threshold"] for item in ranked_plans}),
+                "benchmark_context": top_recommendation.get("benchmark_context", []),
             },
+            "feasibility_summary": top_recommendation.get("feasibility", {}),
         }
 
     def _resolve_payload(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -232,10 +241,16 @@ class ComparisonEvaluator:
         mission_intent: str,
     ) -> dict[str, Any]:
         success_values = [1.0 if metric.mission_success else 0.0 for metric in metrics]
+        first_candidate_times = [
+            float(metric.time_to_first_candidate_detection or metric.time_to_detection or candidate_config.max_steps)
+            for metric in metrics
+        ]
         detection_times = [
             float(metric.time_to_confirmed_detection or metric.time_to_detection or candidate_config.max_steps)
             for metric in metrics
         ]
+        rtb_counts = [float(metric.forced_low_battery_returns or 0.0) for metric in metrics]
+        active_search_levels = [float(metric.average_active_search_drones or 0.0) for metric in metrics]
         battery_risks = [float(metric.return_to_base_efficiency) for metric in metrics]
         overlaps = [float(metric.overlap_ratio) for metric in metrics]
         comms_failures = [float(metric.comms_failures) for metric in metrics]
@@ -254,6 +269,7 @@ class ComparisonEvaluator:
             candidate_config.scenario_family,
             candidate_config.mission_area,
         )
+        feasibility = assess_mission_feasibility(candidate_config)
         pattern_decision = recommend_search_pattern(
             candidate_config,
             asset_package.get("fleet_composition", {}),
@@ -266,6 +282,10 @@ class ComparisonEvaluator:
             - 1.5 * comms_fragility
             + heuristics["score_adjustment"]
         )
+        if feasibility.get("status") == "high_risk":
+            score -= 6.0
+        elif feasibility.get("status") == "likely_infeasible":
+            score -= 14.0
         failure_modes = []
         if expected_battery_risk > 0.45:
             failure_modes.append("battery margin risk")
@@ -281,6 +301,17 @@ class ComparisonEvaluator:
             failure_modes.append("coverage speed may lag the requested search tempo")
         if heuristics["inspection_watch"]:
             failure_modes.append("reduced visibility may create more inspection passes")
+        if feasibility.get("status") == "high_risk":
+            failure_modes.append("mission feasibility is high risk under the current assumptions")
+        if feasibility.get("status") == "likely_infeasible":
+            failure_modes.append("mission is likely infeasible without changing area, staging, fleet, or reserve posture")
+
+        success_band = confidence_band(success_values)
+        detection_band = confidence_band(detection_times)
+        first_candidate_band = confidence_band(first_candidate_times)
+        confidence = confidence_level_from_bands(success_band, detection_band, feasibility)
+        minutes_per_step = max(float(candidate_config.step_duration_minutes), 1.0)
+        calibration = calibration_snapshot(candidate_config)
 
         return {
             **candidate,
@@ -289,8 +320,13 @@ class ComparisonEvaluator:
             "expected_battery_risk": round(expected_battery_risk, 3),
             "expected_overlap": round(expected_overlap, 3),
             "battery_margin_band": confidence_band(battery_margin_risk),
-            "success_band": confidence_band(success_values),
-            "detection_time_band": confidence_band(detection_times),
+            "success_band": success_band,
+            "detection_time_band": detection_band,
+            "first_candidate_band": first_candidate_band,
+            "first_candidate_minutes_band": ComparisonEvaluator._steps_to_minutes_band(first_candidate_band, minutes_per_step),
+            "confirmed_detection_minutes_band": ComparisonEvaluator._steps_to_minutes_band(detection_band, minutes_per_step),
+            "rtb_count_band": confidence_band(rtb_counts),
+            "active_search_band": confidence_band(active_search_levels),
             "communications_fragility": round(comms_fragility, 3),
             "overlap_inefficiency": round(expected_overlap, 3),
             "robustness_under_changed_assumptions": "strong" if success_rate >= 0.7 else "moderate" if success_rate >= 0.5 else "fragile",
@@ -309,6 +345,14 @@ class ComparisonEvaluator:
             "mission_area": candidate_config.mission_area,
             "mission_area_summary": heuristics["area_summary"],
             "team_coordination_label": ComparisonEvaluator._coordination_label(candidate["coordination_mode"]),
+            "feasibility": feasibility,
+            "confidence_level": confidence["level"],
+            "confidence_label": confidence["label"],
+            "confidence_reason": confidence["reason"],
+            "benchmark_context": benchmark_matches_for_config(candidate_config),
+            "assumptions_summary": calibration["assumptions_summary"],
+            "known_limitations_summary": calibration["known_limitations_summary"],
+            "calibration_version": calibration["calibration_version"],
             **pattern_decision.to_record(),
             "score": round(score, 2),
             "metrics_sample": [metrics_to_summary(metric) for metric in metrics[:3]],
@@ -484,11 +528,18 @@ class ComparisonEvaluator:
         time_values = [float(item["expected_detection_time"]) for item in ranked_plans]
         battery_values = [float(item["expected_battery_risk"]) for item in ranked_plans]
         overlap_values = [float(item["expected_overlap"]) for item in ranked_plans]
+        top = ranked_plans[0] if ranked_plans else {}
         return {
             "success_band": confidence_band(success_values),
             "time_band": confidence_band(time_values),
             "battery_risk_band": confidence_band(battery_values),
             "overlap_band": confidence_band(overlap_values),
+            "top_plan_first_candidate_band": top.get("first_candidate_minutes_band", {}),
+            "top_plan_confirmed_detection_band": top.get("confirmed_detection_minutes_band", {}),
+            "top_plan_active_search_band": top.get("active_search_band", {}),
+            "top_plan_return_band": top.get("rtb_count_band", {}),
+            "confidence_level": top.get("confidence_level"),
+            "confidence_reason": top.get("confidence_reason"),
         }
 
     @staticmethod
@@ -513,6 +564,14 @@ class ComparisonEvaluator:
         if mode == "decentralized":
             return "distributed team coordination"
         return "guided from a single mission desk"
+
+    @staticmethod
+    def _steps_to_minutes_band(band: dict[str, float], minutes_per_step: float) -> dict[str, float]:
+        return {
+            "low": round(float(band.get("low", 0.0)) * minutes_per_step, 1),
+            "mean": round(float(band.get("mean", 0.0)) * minutes_per_step, 1),
+            "high": round(float(band.get("high", 0.0)) * minutes_per_step, 1),
+        }
 
 
 class PlanComparisonService:

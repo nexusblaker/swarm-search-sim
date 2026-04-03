@@ -5,8 +5,11 @@ import { api } from "@/api/client";
 import { useComparisons, useLibraryTemplates, usePlans, useRuns, useScenarios } from "@/api/hooks";
 import type {
   CandidateContact,
+  ConfidenceSummary,
+  FeasibilitySummary,
   LifecycleSummaryRecord,
   MissionAreaSummary,
+  ProvenanceManifest,
   RunRecord,
   RunSummaryRecord,
   Snapshot,
@@ -134,6 +137,9 @@ export function MissionControlPage() {
   const recentEvents = eventsQuery.data?.events ?? [];
   const selectedComparison = comparisons.find((item) => item.id === launchValue);
   const runSummary = (selected?.summary_json ?? {}) as RunSummaryRecord;
+  const confidenceSummary = (runSummary.confidence_summary ?? {}) as ConfidenceSummary;
+  const feasibilitySummary = (runSummary.feasibility_summary ?? {}) as FeasibilitySummary;
+  const provenanceManifest = (runSummary.provenance_manifest ?? {}) as ProvenanceManifest;
   const lifecycleSummary = (liveSnapshot?.lifecycle_summary ?? runSummary.lifecycle_summary ?? {}) as LifecycleSummaryRecord;
   const sensingSummary = (liveSnapshot?.sensing_summary ?? runSummary.sensing_summary ?? {}) as Record<string, unknown>;
   const liveDrones = liveSnapshot?.drones ?? [];
@@ -433,6 +439,8 @@ export function MissionControlPage() {
                       { label: "Staging", value: missionArea.staging?.label ?? "n/a" },
                       { label: "Weather", value: missionAreaWeather },
                       { label: "Run phase", value: runPhase },
+                      { label: "Confidence", value: confidenceSummary.confidence_level ?? "n/a" },
+                      { label: "Model version", value: provenanceManifest.model_version ?? "n/a" },
                     ]}
                   />
                   <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
@@ -458,6 +466,27 @@ export function MissionControlPage() {
                       {lifecycleSummary.coverage_gap_active
                         ? "The mission is compensating for temporary coverage loss while assets rotate through base."
                         : "Coverage remains stable while the fleet cycles through search, return, service, and redeploy."}
+                    </p>
+                  </div>
+                  <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Mission readiness</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">
+                      {feasibilitySummary.operator_summary ?? "No pre-run feasibility summary was attached to this mission."}
+                    </p>
+                    {feasibilitySummary.next_watch ? (
+                      <p className="mt-3 text-sm leading-6 text-muted">Watch next: {feasibilitySummary.next_watch}</p>
+                    ) : null}
+                  </div>
+                  <div className="mt-4 rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Confidence and assumptions</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">
+                      {confidenceSummary.confidence_reason ?? "Confidence notes were not captured for this run."}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {runSummary.assumptions_summary ?? provenanceManifest.assumptions_summary ?? "Assumptions summary not recorded."}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {runSummary.known_limitations_summary ?? provenanceManifest.known_limitations_summary ?? "Known limitations summary not recorded."}
                     </p>
                   </div>
                 </CollapsiblePanel>

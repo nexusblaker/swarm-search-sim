@@ -79,6 +79,8 @@ class RecommendationService:
             "search_pattern_fit_summary": top.get("search_pattern_fit_summary"),
             "recommended_drone_count": top.get("drone_count"),
             "recommended_return_threshold": top.get("return_threshold"),
+            "confidence_summary": comparison["confidence_summary"],
+            "feasibility_summary": top.get("feasibility", {}),
             "risk_summary": {
                 "overall_risk": "moderate" if top.get("expected_success_rate", 0.0) >= 0.5 else "elevated",
                 "battery_risk": top.get("expected_battery_risk"),
@@ -104,12 +106,24 @@ class RecommendationService:
                 "sensing_conditions_summary": top.get("sensing_conditions_summary"),
                 "inspection_burden": top.get("inspection_burden"),
                 "mission_intent": mission_intent,
+                "feasibility_summary": top.get("feasibility", {}),
+                "confidence_level": top.get("confidence_level"),
+                "confidence_reason": top.get("confidence_reason"),
+                "first_candidate_band": top.get("first_candidate_minutes_band", {}),
+                "confirmed_detection_band": top.get("confirmed_detection_minutes_band", {}),
+                "active_search_band": top.get("active_search_band", {}),
+                "return_rotation_band": top.get("rtb_count_band", {}),
+                "assumptions_summary": top.get("assumptions_summary"),
+                "known_limitations_summary": top.get("known_limitations_summary"),
+                "calibration_version": top.get("calibration_version"),
+                "benchmark_context": top.get("benchmark_context", []),
                 "confidence_summary": comparison["confidence_summary"],
                 "sensitivity_summary": comparison.get("sensitivity_summary", {}),
             },
             "recommendation_snapshot": {
                 "top_recommendation": top,
                 "confidence_summary": comparison["confidence_summary"],
+                "feasibility_summary": top.get("feasibility", {}),
                 "uncertainty_summary": comparison.get("uncertainty_summary", {}),
                 "sensitivity_summary": comparison.get("sensitivity_summary", {}),
                 "concise_summary": concise_summary,
@@ -128,12 +142,17 @@ class RecommendationService:
         intent_label = self.INTENT_LABELS.get(mission_intent, mission_intent.replace("_", " "))
         area_summary = str(top.get("mission_area_summary") or "").strip()
         context_note = self._context_note(top)
+        feasibility = top.get("feasibility", {})
+        feasibility_note = ""
+        if feasibility.get("status") in {"high_risk", "likely_infeasible"}:
+            feasibility_note = f" {feasibility.get('operator_summary', '')}".strip()
         return (
             f"{pattern_label} is the best fit for the requested {intent_label}. "
             f"It uses {strategy_label} underneath with {top.get('drone_count')} drones and a "
             f"{top.get('return_threshold')}% return reserve so coverage geometry, battery margin, and confirmation tempo stay aligned."
             f"{f' {area_summary}' if area_summary else ''}"
             f"{f' {context_note}' if context_note else ''}"
+            f"{f' {feasibility_note}' if feasibility_note else ''}"
         )
 
     def _build_concise_summary(
@@ -165,11 +184,25 @@ class RecommendationService:
             sensing_note = " Expect more inspect passes before confirmation."
         elif mission_intent == "high_confidence_confirmation":
             sensing_note = " It favors deliberate cue-to-confirm inspection over the fastest possible sweep."
+        uncertainty_note = ""
+        if top.get("first_candidate_minutes_band") and top.get("confirmed_detection_minutes_band"):
+            first_candidate = top["first_candidate_minutes_band"]
+            confirmed = top["confirmed_detection_minutes_band"]
+            uncertainty_note = (
+                f" Expected first candidate: {first_candidate.get('low', 0):.0f} to {first_candidate.get('high', 0):.0f} minutes. "
+                f"Expected confirmed contact: {confirmed.get('low', 0):.0f} to {confirmed.get('high', 0):.0f} minutes."
+            )
+        confidence_note = ""
+        if top.get("confidence_label"):
+            confidence_note = f" {top.get('confidence_label')}: {top.get('confidence_reason')}"
+        feasibility_note = ""
+        if top.get("feasibility", {}).get("status") in {"warning", "high_risk", "likely_infeasible"}:
+            feasibility_note = f" {top['feasibility'].get('operator_summary', '')}"
         return (
             f"Recommended: use {pattern_label} with {fleet_text}{staging_text}. "
             f"{reason or f'This gives the best balance for {intent_label}.'}"
             f"{f' {area_summary}' if area_summary else ''}"
-            f"{f' {context_note}' if context_note else ''}{tradeoff}{sensing_note}"
+            f"{f' {context_note}' if context_note else ''}{tradeoff}{sensing_note}{uncertainty_note}{confidence_note}{feasibility_note}"
         )
 
     def _build_alternative_summary(self, alternative: dict[str, Any]) -> str:

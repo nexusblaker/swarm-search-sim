@@ -12,6 +12,7 @@ scenario:
   strategy: information_gain
   seed: 7
   scenario_family: mixed_terrain
+  deployment_mode: base_launch
   base_position: [1, 1]
   target_start_radius: 3
   probability_diffusion: 0.08

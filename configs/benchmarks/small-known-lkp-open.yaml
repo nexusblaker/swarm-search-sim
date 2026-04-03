@@ -1,0 +1,34 @@
+id: small-known-lkp-open
+name: Small known-LKP open terrain
+description: Small open-terrain mission with a placed last known point.
+purpose: Validate confirmation tempo and pattern choice for a point-focused opening search.
+seed: 7
+expected_pattern: expanding_ring
+expected_feasibility: ready
+scenario_overrides:
+  name: Small known-LKP open terrain
+  scenario_family: open_terrain
+  weather: clear
+  num_drones: 3
+  max_steps: 28
+  mission_intent: high_confidence_confirmation
+  search_pattern: auto
+  last_known_status: known
+  map_size: [12, 10]
+  last_known_position: [6, 5]
+  drone:
+    battery: 120.0
+    estimated_max_range_km: 14.0
+    turnaround_time_minutes: 12.0
+  battery_policy:
+    reserve_preset: balanced
+    return_threshold: 28.0
+tolerances:
+  time_to_first_candidate_detection: [1, 18]
+  time_to_confirmed_detection: [2, 26]
+  overlap_ratio: [0.0, 0.35]
+  average_active_search_drones: [1.5, 3.2]
+assumptions:
+  - Open terrain should support relatively clean cue-to-confirm behavior.
+  - A precise last known point should favor an anchored search opening.
+

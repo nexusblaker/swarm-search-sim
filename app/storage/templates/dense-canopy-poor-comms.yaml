@@ -16,6 +16,7 @@ scenario:
   strategy: auction_based
   seed: 7
   scenario_family: dense_forest
+  deployment_mode: base_launch
   base_position:
   - 1
   - 1

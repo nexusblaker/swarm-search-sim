@@ -21,6 +21,7 @@ from app.backend.domain.shared import read_json, read_jsonl, scenario_summary, t
 from app.backend.storage import LocalProductPaths
 from src.scenarios.scenario import ScenarioConfig
 from src.simulation.engine import SimulationEngine
+from src.simulation.validation import build_run_manifest
 from src.visualisation.renderer import SimulationRenderer
 
 
@@ -40,6 +41,8 @@ class MissionRunController:
         plan_id: str | None = None,
         comparison_id: str | None = None,
         candidate_id: str | None = None,
+        plan_updated_at: float | None = None,
+        recommendation_context: dict[str, Any] | None = None,
     ) -> None:
         self.run_id = run_id
         self.job_id = job_id
@@ -52,15 +55,31 @@ class MissionRunController:
         self.plan_id = plan_id
         self.comparison_id = comparison_id
         self.candidate_id = candidate_id
+        self.plan_updated_at = plan_updated_at
+        self.recommendation_context = recommendation_context or {}
         self.engine = SimulationEngine(config)
         self.output_dir = self.paths.runs_dir / self.run_id
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.metadata_path = self.output_dir / "metadata.json"
+        self.manifest_path = self.output_dir / "run_manifest.json"
         self.lock = threading.RLock()
         (self.output_dir / "scenario.yaml").write_text(
             yaml.safe_dump(self.scenario_payload, sort_keys=False),
             encoding="utf-8",
         )
+        self.provenance_manifest = build_run_manifest(
+            self.config,
+            self.scenario_payload,
+            plan_id=self.plan_id,
+            plan_updated_at=self.plan_updated_at,
+            comparison_id=self.comparison_id,
+            candidate_id=self.candidate_id,
+        )
+        self.manifest_path.write_text(
+            json.dumps(to_jsonable(self.provenance_manifest), indent=2),
+            encoding="utf-8",
+        )
+        self._index_artifact("manifest", self.manifest_path)
         self._persist_run("queued", self.engine.get_state_snapshot())
 
     def run(self, job_id: str, cancel_event: threading.Event) -> dict[str, Any]:
@@ -191,6 +210,13 @@ class MissionRunController:
                     "plan_id": self.plan_id,
                     "comparison_id": self.comparison_id,
                     "candidate_id": self.candidate_id,
+                    "confidence_summary": self.recommendation_context.get("confidence_summary", {}),
+                    "recommendation_uncertainty_summary": self.recommendation_context.get("uncertainty_summary", {}),
+                    "feasibility_summary": self.provenance_manifest.get("feasibility_summary", {}),
+                    "provenance_manifest": self.provenance_manifest,
+                    "assumptions_summary": self.provenance_manifest.get("assumptions_summary"),
+                    "known_limitations_summary": self.provenance_manifest.get("known_limitations_summary"),
+                    "benchmark_context": self.provenance_manifest.get("benchmark_context", []),
                 },
                 "latest_snapshot_json": to_jsonable(snapshot),
                 "output_dir": str(self.output_dir.resolve()),
@@ -239,6 +265,11 @@ class MissionService:
             config = replace(config, seed=int(request["seed"]))
         run_id = f"run-{uuid4().hex[:10]}"
         job_id = f"job-run-{uuid4().hex[:10]}"
+        recommendation_context = {}
+        if comparison_id:
+            recommendation_context = self.comparisons.get_comparison(comparison_id).get("recommendation_json", {})
+        elif plan_context:
+            recommendation_context = plan_context.get("recommendation_json", {})
         controller = MissionRunController(
             run_id,
             job_id,
@@ -251,6 +282,8 @@ class MissionService:
             plan_id=plan_id,
             comparison_id=comparison_id,
             candidate_id=candidate_id,
+            plan_updated_at=plan_context.get("updated_at") if plan_context else None,
+            recommendation_context=recommendation_context,
         )
         if plan_context:
             for zone in plan_context.get("priority_zones_json", []):

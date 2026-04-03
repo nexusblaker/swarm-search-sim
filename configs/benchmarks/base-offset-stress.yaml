@@ -1,0 +1,32 @@
+id: base-offset-stress
+name: Base offset stress case
+description: Mission with staging displaced from the area centre.
+purpose: Validate that feasibility logic flags transit burden and increased battery pressure.
+seed: 11
+expected_feasibility: high_risk
+scenario_overrides:
+  name: Base offset stress case
+  scenario_family: mixed_terrain
+  weather: clear
+  num_drones: 3
+  max_steps: 28
+  mission_intent: broad_area_coverage
+  search_pattern: auto
+  last_known_status: unknown
+  mission_area:
+    staging_distance_to_center_km: 4.8
+  map_size: [22, 18]
+  drone:
+    battery: 95.0
+    estimated_max_range_km: 8.0
+    turnaround_time_minutes: 18.0
+  battery_policy:
+    reserve_preset: balanced
+    return_threshold: 30.0
+tolerances:
+  return_to_base_count: [1, 12]
+  average_active_search_drones: [0.8, 3.2]
+assumptions:
+  - Offset staging should reduce effective on-station time.
+  - The run should stay operational, but not look comfortably sustainable.
+

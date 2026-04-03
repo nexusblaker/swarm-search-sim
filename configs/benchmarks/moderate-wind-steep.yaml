@@ -1,0 +1,31 @@
+id: moderate-wind-steep
+name: Medium steep terrain with moderate wind
+description: Mixed hilly terrain with weather burden that should tighten battery pacing.
+purpose: Validate battery rotation and conservative search pacing under wind and slope pressure.
+seed: 9
+expected_feasibility: high_risk
+scenario_overrides:
+  name: Medium steep terrain with moderate wind
+  scenario_family: high_wind
+  weather: windy
+  num_drones: 4
+  max_steps: 30
+  mission_intent: battery_conservative
+  search_pattern: auto
+  last_known_status: unknown
+  map_size: [20, 16]
+  drone:
+    battery: 100.0
+    estimated_max_range_km: 10.0
+    turnaround_time_minutes: 16.0
+  battery_policy:
+    reserve_preset: conservative
+    return_threshold: 32.0
+tolerances:
+  return_to_base_count: [1, 10]
+  overlap_ratio: [0.0, 0.45]
+  average_active_search_drones: [1.0, 4.1]
+assumptions:
+  - Weather and slope burden should increase rotation pressure.
+  - Confirmation should remain possible but less predictable than in open terrain.
+

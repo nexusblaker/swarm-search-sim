@@ -1,0 +1,32 @@
+id: dense-vegetation-cue-heavy
+name: Dense vegetation cue-heavy mission
+description: Forested mission intended to stress cue, inspect, and reject behavior.
+purpose: Validate that confirmation slows down and false alarms remain possible in dense cover.
+seed: 5
+expected_feasibility: warning
+scenario_overrides:
+  name: Dense vegetation cue-heavy mission
+  scenario_family: dense_forest
+  weather: windy
+  num_drones: 3
+  max_steps: 34
+  mission_intent: high_confidence_confirmation
+  search_pattern: auto
+  last_known_status: known
+  map_size: [18, 14]
+  last_known_position: [9, 7]
+  drone:
+    battery: 115.0
+    estimated_max_range_km: 11.0
+    turnaround_time_minutes: 15.0
+  battery_policy:
+    reserve_preset: balanced
+    return_threshold: 29.0
+tolerances:
+  time_to_first_candidate_detection: [1, 20]
+  time_to_confirmed_detection: [4, 34]
+  overlap_ratio: [0.0, 0.5]
+assumptions:
+  - Dense vegetation should increase inspect burden and reduce clean confirmation speed.
+  - The model should remain able to confirm, but with more spread in timing.
+

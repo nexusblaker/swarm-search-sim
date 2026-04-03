@@ -16,6 +16,7 @@ scenario:
   strategy: probability_greedy
   seed: 7
   scenario_family: high_wind
+  deployment_mode: base_launch
   base_position:
   - 1
   - 1

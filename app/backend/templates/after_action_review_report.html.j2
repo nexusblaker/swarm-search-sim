@@ -29,6 +29,12 @@
   </div>
 
   <div class="card">
+    <h2>Feasibility and Confidence</h2>
+    <p>{{ review.summary_json.feasibility_summary.operator_summary if review.summary_json.feasibility_summary else "No launch-feasibility summary was captured." }}</p>
+    <p>{{ review.summary_json.confidence_summary.confidence_reason if review.summary_json.confidence_summary else "No recommendation-confidence note was captured." }}</p>
+  </div>
+
+  <div class="card">
     <h2>Mission Area Review</h2>
     <p>{{ mission_area.operator_summary or "Mission area summary not recorded." }}</p>
     {% if mission_area.terrain_summary %}
@@ -109,6 +115,20 @@
   <div class="card">
     <h2>Alternate Plan Analysis</h2>
     <p>{{ review.alternate_plan_json.summary }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Assumptions and Provenance</h2>
+    <p>{{ review.summary_json.assumptions_summary or review.summary_json.provenance_manifest.assumptions_summary or "Assumptions summary not recorded." }}</p>
+    <p>{{ review.summary_json.known_limitations_summary or review.summary_json.provenance_manifest.known_limitations_summary or "Known limitations summary not recorded." }}</p>
+    <table>
+      <tbody>
+        <tr><th>Model version</th><td>{{ review.summary_json.provenance_manifest.model_version or "n/a" }}</td></tr>
+        <tr><th>Scenario version</th><td>{{ review.summary_json.provenance_manifest.scenario_version or "n/a" }}</td></tr>
+        <tr><th>Calibration version</th><td>{{ review.summary_json.provenance_manifest.calibration_version or "n/a" }}</td></tr>
+        <tr><th>Deployment mode</th><td>{{ review.summary_json.provenance_manifest.deployment_mode or "n/a" }}</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="card">

@@ -1,0 +1,88 @@
+{"event_type": "search_pattern_selected", "step": 0, "pattern": "adaptive_rebalance", "pattern_label": "Adaptive Rebalance", "base_pattern": null, "base_pattern_label": null, "reason": "The mission is likely to shift around clues, inspections, or rotating assets, so a flexible pattern is a better fit than a fixed layout for fast containment. Donvale, City of Manningham, Victoria, 3111, Australia spans about 2.4 by 1.6 km with mostly hill country. Staging sits about 2.8 km from the area centre. A last known point has been placed inside the area.", "summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors."}
+{"event_type": "reroute", "step": 1, "drone_id": 5, "goal": [8, 7]}
+{"event_type": "scan_event", "step": 1, "drone_id": 0, "scanned_cell_count": 22, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 1, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 2, "scanned_cell_count": 11, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 3, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 1, "drone_id": 4, "scanned_cell_count": 8, "candidate_scores": {"11,3": 0.022222222222222223}}
+{"event_type": "detection_candidate", "step": 1, "drone_id": 4, "position": [11, 3], "score": 0.022222222222222223, "channels": {"thermal": 0.0, "visual": 0.0}}
+{"event_type": "possible_contact_detected", "step": 1, "drone_id": 4, "contact_id": "contact-1", "position": [11, 3], "confidence": 0.022, "candidate_score": 0.022, "requires_inspection": true, "note": "Low-confidence contact requires inspection."}
+{"event_type": "scan_event", "step": 1, "drone_id": 5, "scanned_cell_count": 12, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 1, "drone_id": 3, "recipient_id": 1, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 1, "drone_id": 1, "recipient_id": 4, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 1, "drone_id": 2, "recipient_id": 5, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 1, "drone_id": 5, "recipient_id": 3, "mode": "packet_loss"}
+{"event_type": "search_pattern_rebalanced", "step": 2, "pattern": "adaptive_rebalance", "pattern_label": "Adaptive Rebalance", "base_pattern": "adaptive_rebalance", "base_pattern_label": "Adaptive Rebalance", "reason": "possible contact activity", "summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity."}
+{"event_type": "inspection_initiated", "step": 2, "drone_id": 4, "contact_id": "contact-1", "position": [11, 3], "confidence": 0.022, "detecting_drone_id": 4}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 0, "previous_goal": [4, 4], "new_goal": [11, 3]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 1, "previous_goal": [0, 0], "new_goal": [3, 6]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 2, "previous_goal": [4, 0], "new_goal": [9, 3]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 3, "previous_goal": [9, 0], "new_goal": [11, 4]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 4, "previous_goal": [8, 4], "new_goal": [11, 3]}
+{"event_type": "reroute", "step": 2, "drone_id": 4, "goal": [11, 3]}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 5, "previous_goal": [8, 7], "new_goal": [1, 4]}
+{"event_type": "scan_event", "step": 2, "drone_id": 0, "scanned_cell_count": 16, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 1, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 2, "scanned_cell_count": 5, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 3, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 4, "scanned_cell_count": 10, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 2, "drone_id": 5, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "inspection_pass_complete", "step": 2, "drone_id": 4, "contact_id": "contact-1", "position": [11, 3], "confidence": 0.758, "outcome": "rejected", "note": "Contact rejected after close inspection."}
+{"event_type": "false_positive_rejected", "step": 2, "drone_id": 4, "contact_id": "contact-1", "position": [11, 3], "confidence": 0.758, "note": "Contact rejected after close inspection."}
+{"event_type": "search_resumed_after_reject", "step": 2, "drone_id": 4, "contact_id": "contact-1", "position": [11, 3]}
+{"event_type": "search_pattern_restored", "step": 3, "pattern": "adaptive_rebalance", "pattern_label": "Adaptive Rebalance", "base_pattern": "adaptive_rebalance", "base_pattern_label": "Adaptive Rebalance", "reason": null, "summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors."}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 0, "previous_goal": [11, 3], "new_goal": [4, 8]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 1, "previous_goal": [3, 6], "new_goal": [0, 0]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 2, "previous_goal": [9, 3], "new_goal": [4, 0]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 3, "previous_goal": [11, 4], "new_goal": [9, 0]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 4, "previous_goal": [11, 3], "new_goal": [8, 4]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 5, "previous_goal": [1, 4], "new_goal": [8, 7]}
+{"event_type": "scan_event", "step": 3, "drone_id": 0, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 1, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 2, "scanned_cell_count": 17, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 3, "scanned_cell_count": 10, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 4, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 3, "drone_id": 5, "scanned_cell_count": 5, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 3, "drone_id": 2, "recipient_id": 0, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 3, "drone_id": 3, "recipient_id": 0, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 3, "drone_id": 4, "recipient_id": 2, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 3, "drone_id": 5, "recipient_id": 3, "mode": "packet_loss"}
+{"event_type": "scan_event", "step": 4, "drone_id": 0, "scanned_cell_count": 12, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 1, "scanned_cell_count": 3, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 2, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 3, "scanned_cell_count": 15, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 4, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 4, "drone_id": 5, "scanned_cell_count": 5, "candidate_scores": {}}
+{"event_type": "task_reassignment", "step": 5, "drone_id": 0, "previous_goal": [4, 8], "new_goal": [4, 4]}
+{"event_type": "scan_event", "step": 5, "drone_id": 0, "scanned_cell_count": 19, "candidate_scores": {"1,7": 0.12}}
+{"event_type": "detection_candidate", "step": 5, "drone_id": 0, "position": [1, 7], "score": 0.12, "channels": {"thermal": 0.3270913721692647, "visual": 0.13212530708067324}}
+{"event_type": "possible_contact_detected", "step": 5, "drone_id": 0, "contact_id": "contact-2", "position": [1, 7], "confidence": 0.046, "candidate_score": 0.12, "requires_inspection": true, "note": "Possible thermal contact detected at long range."}
+{"event_type": "scan_event", "step": 5, "drone_id": 1, "scanned_cell_count": 1, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 2, "scanned_cell_count": 14, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 3, "scanned_cell_count": 3, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 4, "scanned_cell_count": 7, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 5, "drone_id": 5, "scanned_cell_count": 5, "candidate_scores": {}}
+{"event_type": "comms_failure", "step": 5, "drone_id": 1, "recipient_id": 5, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 5, "drone_id": 5, "recipient_id": 1, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 5, "drone_id": 2, "recipient_id": 3, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 5, "drone_id": 5, "recipient_id": 2, "mode": "packet_loss"}
+{"event_type": "comms_failure", "step": 5, "drone_id": 5, "recipient_id": 3, "mode": "packet_loss"}
+{"event_type": "search_pattern_rebalanced", "step": 6, "pattern": "adaptive_rebalance", "pattern_label": "Adaptive Rebalance", "base_pattern": "adaptive_rebalance", "base_pattern_label": "Adaptive Rebalance", "reason": "possible contact activity", "summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity."}
+{"event_type": "inspection_initiated", "step": 6, "drone_id": 0, "contact_id": "contact-2", "position": [1, 7], "confidence": 0.046, "detecting_drone_id": 0}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 0, "previous_goal": [4, 4], "new_goal": [1, 7]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 1, "previous_goal": [0, 0], "new_goal": [3, 7]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 2, "previous_goal": [4, 0], "new_goal": [0, 7]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 3, "previous_goal": [9, 0], "new_goal": [1, 9]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 4, "previous_goal": [8, 4], "new_goal": [1, 4]}
+{"event_type": "task_reassignment", "step": 6, "drone_id": 5, "previous_goal": [8, 7], "new_goal": [3, 9]}
+{"event_type": "scan_event", "step": 6, "drone_id": 0, "scanned_cell_count": 13, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 1, "scanned_cell_count": 11, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 2, "scanned_cell_count": 16, "candidate_scores": {"1,7": 0.12}}
+{"event_type": "detection_candidate", "step": 6, "drone_id": 2, "position": [1, 7], "score": 0.12, "channels": {"thermal": 0.3270913721692647, "visual": 0.13212530708067324}}
+{"event_type": "scan_event", "step": 6, "drone_id": 3, "scanned_cell_count": 8, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 4, "scanned_cell_count": 16, "candidate_scores": {}}
+{"event_type": "scan_event", "step": 6, "drone_id": 5, "scanned_cell_count": 27, "candidate_scores": {}}
+{"event_type": "inspection_pass_complete", "step": 6, "drone_id": 0, "contact_id": "contact-2", "position": [1, 7], "confidence": 0.915, "outcome": "confirmed", "note": "Target confirmed after close inspection."}
+{"event_type": "contact_confirmed", "step": 6, "drone_id": 0, "contact_id": "contact-2", "position": [1, 7], "confidence": 0.915, "note": "Target confirmed after close inspection."}
+{"event_type": "confirmed_detection", "step": 6, "drone_id": 0, "contact_id": "contact-2", "position": [1, 7], "confidence": 0.915}
+{"event_type": "comms_failure", "step": 6, "drone_id": 5, "recipient_id": 2, "mode": "packet_loss"}

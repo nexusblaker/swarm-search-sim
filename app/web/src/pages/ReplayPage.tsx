@@ -3,7 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
 import { useRuns } from "@/api/hooks";
-import type { CandidateContact, LifecycleSummaryRecord, MissionAreaSummary, Snapshot } from "@/api/types";
+import type {
+  CandidateContact,
+  ConfidenceSummary,
+  FeasibilitySummary,
+  LifecycleSummaryRecord,
+  MissionAreaSummary,
+  ProvenanceManifest,
+  Snapshot,
+} from "@/api/types";
 import { EventTimeline } from "@/components/mission/EventTimeline";
 import { MissionSnapshotMap } from "@/components/mission/MissionSnapshotMap";
 import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
@@ -78,6 +86,10 @@ export function ReplayPage() {
   const filteredEvents = allEvents.filter((event) => Number(event.step ?? 0) <= Number(frame?.step ?? 0));
   const lifecycleEvents = allEvents.filter(isLifecycleEvent);
   const selectedRun = completedRuns.find((run) => run.id === runId);
+  const runSummary = (selectedRun?.summary_json ?? {}) as Record<string, unknown>;
+  const confidenceSummary = (runSummary.confidence_summary ?? {}) as ConfidenceSummary;
+  const feasibilitySummary = (runSummary.feasibility_summary ?? {}) as FeasibilitySummary;
+  const provenanceManifest = (runSummary.provenance_manifest ?? {}) as ProvenanceManifest;
   const lifecycleSummary = (frame?.lifecycle_summary ?? selectedRun?.summary_json.lifecycle_summary ?? {}) as LifecycleSummaryRecord;
   const sensingSummary = (frame?.sensing_summary ?? selectedRun?.summary_json.sensing_summary ?? {}) as Record<string, unknown>;
   const candidateContacts = (frame?.candidate_contacts ?? []) as CandidateContact[];
@@ -283,6 +295,8 @@ export function ReplayPage() {
                     { label: "Active search assets", value: activeSearchCount },
                     { label: "Possible contacts", value: candidateContactCount },
                     { label: "Coverage gap", value: lifecycleSummary.coverage_gap_active ? "Managing gap" : "Covered" },
+                    { label: "Confidence", value: confidenceSummary.confidence_level ?? "n/a" },
+                    { label: "Model version", value: provenanceManifest.model_version ?? "n/a" },
                   ]}
                 />
                 <div className="mt-4 space-y-4">
@@ -315,6 +329,24 @@ export function ReplayPage() {
                       {lifecycleSummary.coverage_gap_active
                         ? "Coverage is thinner at this moment because one or more assets are away from the search area."
                         : "Coverage is currently stable, with returning and redeployed assets balanced into the mission."}
+                    </p>
+                  </div>
+                  <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Mission readiness</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">
+                      {feasibilitySummary.operator_summary ?? "No pre-run feasibility summary was captured for this replay."}
+                    </p>
+                    {feasibilitySummary.next_watch ? (
+                      <p className="mt-3 text-sm leading-6 text-muted">Watch next: {feasibilitySummary.next_watch}</p>
+                    ) : null}
+                  </div>
+                  <div className="rounded-[20px] border border-border/70 bg-surfaceAlt/55 p-4">
+                    <p className="section-kicker">Confidence and assumptions</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">
+                      {confidenceSummary.confidence_reason ?? "Confidence notes were not captured for this replay."}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-muted">
+                      {(runSummary.assumptions_summary as string | undefined) ?? provenanceManifest.assumptions_summary ?? "Assumptions summary not recorded."}
                     </p>
                   </div>
                 </div>

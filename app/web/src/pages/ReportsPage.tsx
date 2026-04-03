@@ -4,7 +4,10 @@ import { api } from "@/api/client";
 import { useReports } from "@/api/hooks";
 import type {
   BatteryLifecycleSummary,
+  ConfidenceSummary,
+  FeasibilitySummary,
   MissionAreaSummary,
+  ProvenanceManifest,
   ReportSummaryRecord,
   SearchPatternSummary,
   SensingLifecycleSummary,
@@ -48,6 +51,9 @@ export function ReportsPage() {
   const sensingLifecycle = (summary.sensing_lifecycle ?? {}) as SensingLifecycleSummary;
   const searchPattern = (summary.search_pattern ?? {}) as SearchPatternSummary;
   const missionArea = (summary.mission_area ?? {}) as MissionAreaSummary;
+  const confidenceSummary = (summary.confidence_summary ?? {}) as ConfidenceSummary;
+  const feasibilitySummary = (summary.feasibility_summary ?? {}) as FeasibilitySummary;
+  const provenanceManifest = (summary.provenance_manifest ?? {}) as ProvenanceManifest;
   const reportTitle =
     selected.owner_type === "review"
       ? "After-action report"
@@ -190,6 +196,18 @@ export function ReportsPage() {
                   {batteryLifecycle.reserve_preset?.replaceAll("_", " ") ?? "No reserve policy captured."}
                 </p>
               </div>
+              <div className="panel-subtle p-4">
+                <p className="section-kicker">Feasibility and confidence</p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {feasibilitySummary.operator_summary ?? "No launch-feasibility summary is attached to this export."}
+                </p>
+                {feasibilitySummary.next_watch ? (
+                  <p className="mt-3 text-sm leading-6 text-muted">Watch next: {feasibilitySummary.next_watch}</p>
+                ) : null}
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {confidenceSummary.confidence_reason ?? "No recommendation-confidence note is attached to this export."}
+                </p>
+              </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <ReportMetric label="Returns to base" value={batteryLifecycle.return_to_base_count ?? "n/a"} />
                 <ReportMetric label="Service cycles completed" value={batteryLifecycle.recharge_completed_count ?? "n/a"} />
@@ -215,6 +233,19 @@ export function ReportsPage() {
                   <ReportMetric label="Inspection passes" value={sensingLifecycle.inspection_pass_count ?? "n/a"} />
                   <ReportMetric label="Confirmed contacts" value={sensingLifecycle.confirmed_detection_count ?? "n/a"} />
                   <ReportMetric label="Rejected false alarms" value={sensingLifecycle.false_positive_count ?? "n/a"} />
+                </div>
+              </div>
+              <div className="panel-subtle p-4">
+                <p className="section-kicker">Model assumptions</p>
+                <p className="mt-3 text-sm leading-6 text-white/90">
+                  {summary.assumptions_summary ?? provenanceManifest.assumptions_summary ?? "Assumptions summary not recorded for this export."}
+                </p>
+                <p className="mt-3 text-sm leading-6 text-muted">
+                  {summary.known_limitations_summary ?? provenanceManifest.known_limitations_summary ?? "Known limitations summary not recorded for this export."}
+                </p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <ReportMetric label="Confidence" value={confidenceSummary.confidence_level ?? "n/a"} />
+                  <ReportMetric label="Model version" value={provenanceManifest.model_version ?? "n/a"} />
                 </div>
               </div>
             </div>

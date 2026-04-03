@@ -1,4 +1,4 @@
-import type { AssetPackage } from "@/api/types";
+import type { AssetPackage, ConfidenceSummary, FeasibilitySummary } from "@/api/types";
 import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { RiskIndicator } from "@/components/ui/RiskIndicator";
 
@@ -53,6 +53,8 @@ export function RecommendationCard({
   keyRisks = [],
   teamCoordinationLabel,
   assetPackage,
+  confidenceSummary,
+  feasibilitySummary,
   riskSummary,
   uncertaintySummary,
   technicalDetails,
@@ -72,6 +74,8 @@ export function RecommendationCard({
   keyRisks?: string[];
   teamCoordinationLabel?: string | null;
   assetPackage?: AssetPackage | null;
+  confidenceSummary?: ConfidenceSummary;
+  feasibilitySummary?: FeasibilitySummary;
   riskSummary?: Record<string, unknown>;
   uncertaintySummary?: Record<string, unknown>;
   technicalDetails?: Record<string, unknown>;
@@ -90,6 +94,32 @@ export function RecommendationCard({
           typeof (technicalDetails.mission_area as Record<string, unknown>).operator_summary === "string"
         ? ((technicalDetails.mission_area as Record<string, unknown>).operator_summary as string)
         : null;
+  const feasibilityWarnings = feasibilitySummary?.warnings ?? [];
+  const firstCandidateBand =
+    typeof technicalDetails?.first_candidate_band === "object" && technicalDetails.first_candidate_band !== null
+      ? (technicalDetails.first_candidate_band as Record<string, number>)
+      : null;
+  const confirmedBand =
+    typeof technicalDetails?.confirmed_detection_band === "object" && technicalDetails.confirmed_detection_band !== null
+      ? (technicalDetails.confirmed_detection_band as Record<string, number>)
+      : null;
+  const confidenceLabel =
+    confidenceSummary?.confidence_level === "high"
+      ? "High confidence"
+      : confidenceSummary?.confidence_level === "moderate"
+        ? "Moderate confidence"
+        : confidenceSummary?.confidence_level === "low"
+          ? "Low confidence"
+          : "Confidence pending";
+  const feasibilityLabel = feasibilitySummary?.status_label ?? "Mission readiness";
+  const feasibilityTone: "good" | "warning" | "danger" =
+    feasibilitySummary?.status === "likely_infeasible"
+      ? "danger"
+      : feasibilitySummary?.status === "high_risk"
+        ? "warning"
+        : feasibilitySummary?.status === "warning"
+          ? "warning"
+          : "good";
 
   return (
     <div className="panel-subtle p-5 md:p-6">
@@ -134,6 +164,16 @@ export function RecommendationCard({
           </div>
 
           <div className="rounded-[24px] border border-border bg-surfaceAlt/50 p-5">
+            <p className="section-kicker">{feasibilityLabel}</p>
+            <p className="mt-3 text-sm leading-7 text-muted">
+              {feasibilitySummary?.operator_summary ?? "No mission-feasibility watch item was returned."}
+            </p>
+            {feasibilitySummary?.next_watch ? (
+              <p className="mt-3 text-sm leading-7 text-white/90">Watch next: {feasibilitySummary.next_watch}</p>
+            ) : null}
+          </div>
+
+          <div className="rounded-[24px] border border-border bg-surfaceAlt/50 p-5">
             <p className="section-kicker">Best alternative</p>
             <p className="mt-3 text-sm leading-7 text-muted">
               {topAlternativeSummary ?? "No close alternative was returned in this evaluation bundle."}
@@ -142,16 +182,18 @@ export function RecommendationCard({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
+      <div className="mt-5 grid gap-4 md:grid-cols-5">
         <RiskIndicator label="Search pattern" value={patternTitle} tone="good" />
         <RiskIndicator label="Drone count" value={drones ? String(drones) : "n/a"} />
         <RiskIndicator
           label="Reserve threshold"
           value={reserveThreshold !== null && reserveThreshold !== undefined ? `${reserveThreshold}%` : "n/a"}
         />
+        <RiskIndicator label="Confidence" value={confidenceLabel} tone="good" />
+        <RiskIndicator label="Mission readiness" value={feasibilityLabel} tone={feasibilityTone} />
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[22px] border border-border bg-surfaceAlt/45 p-4">
           <p className="section-kicker">Key tradeoffs</p>
           <div className="mt-3 space-y-2">
@@ -164,15 +206,45 @@ export function RecommendationCard({
         </div>
 
         <div className="rounded-[22px] border border-border bg-surfaceAlt/45 p-4">
-          <p className="section-kicker">Key risks</p>
+          <p className="section-kicker">Expected timing</p>
           <div className="mt-3 space-y-2">
-            {(keyRisks.length ? keyRisks : ["No major operational risk was flagged in the short evaluation bundle."]).map((item) => (
-              <p key={item} className="text-sm leading-6 text-muted">
-                {item}
-              </p>
-            ))}
+            <p className="text-sm leading-6 text-muted">
+              {firstCandidateBand
+                ? `First candidate: ${Math.round(Number(firstCandidateBand.low ?? 0))} to ${Math.round(Number(firstCandidateBand.high ?? 0))} minutes`
+                : "First candidate window not available."}
+            </p>
+            <p className="text-sm leading-6 text-muted">
+              {confirmedBand
+                ? `Confirmed contact: ${Math.round(Number(confirmedBand.low ?? 0))} to ${Math.round(Number(confirmedBand.high ?? 0))} minutes`
+                : "Confirmed-contact window not available."}
+            </p>
           </div>
         </div>
+
+        <div className="rounded-[22px] border border-border bg-surfaceAlt/45 p-4">
+          <p className="section-kicker">Confidence range</p>
+          <div className="mt-3 space-y-2">
+            <p className="text-sm leading-6 text-white/90">{confidenceLabel}</p>
+            <p className="text-sm leading-6 text-muted">
+              {confidenceSummary?.confidence_reason ?? "Confidence notes were not returned for this recommendation."}
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-[22px] border border-border bg-surfaceAlt/45 p-4">
+            <p className="section-kicker">Planning watch items</p>
+            <div className="mt-3 space-y-2">
+              {(feasibilityWarnings.length
+                ? feasibilityWarnings.map((item) => item.summary ?? item.title ?? "")
+                : keyRisks.length
+                  ? keyRisks
+                  : ["No major operational risk was flagged in the short evaluation bundle."]).map((item, index) => (
+                <p key={`${item}-${index}`} className="text-sm leading-6 text-muted">
+                  {item}
+                </p>
+              ))}
+            </div>
+          </div>
       </div>
 
       <div className="mt-5">
@@ -185,6 +257,8 @@ export function RecommendationCard({
             <DetailRows title="Risk summary" record={riskSummary} />
             <DetailRows title="Uncertainty" record={uncertaintySummary} />
             <DetailRows title="Recommendation details" record={technicalDetails} />
+            <DetailRows title="Confidence summary" record={confidenceSummary as unknown as Record<string, unknown>} />
+            <DetailRows title="Feasibility summary" record={feasibilitySummary as unknown as Record<string, unknown>} />
             {assetPackage?.fleet_composition ? (
               <DetailRows
                 title="Fleet composition"

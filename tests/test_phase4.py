@@ -26,7 +26,13 @@ from src.simulation.search_patterns import (
     estimate_search_geometry,
     recommend_search_pattern,
 )
-from src.utils.config_loader import load_scenario_config
+from src.simulation.validation import (
+    assess_mission_feasibility,
+    build_run_manifest,
+    load_benchmark_library,
+    run_validation_suite,
+)
+from src.utils.config_loader import load_config, load_scenario_config
 from src.utils.event_logger import EventLogger
 
 
@@ -108,6 +114,57 @@ def test_search_geometry_lane_spacing_grows_with_sensor_swath() -> None:
     assert wide_geometry.lane_spacing_cells > base_geometry.lane_spacing_cells
 
 
+def test_validation_suite_runs_benchmark_library_and_writes_results(tmp_path: Path) -> None:
+    library = load_benchmark_library()
+
+    result = run_validation_suite(tmp_path, definitions=library[:2])
+
+    assert len(library) >= 5
+    assert result["benchmark_count"] == 2
+    assert (tmp_path / "validation_results.json").exists()
+    assert all("validation" in item for item in result["results"])
+
+
+def test_feasibility_assessment_flags_large_offset_weather_burden() -> None:
+    config = replace(
+        load_scenario_config(),
+        mission_intent="broad_area_coverage",
+        last_known_status="unknown",
+        num_drones=3,
+        drone_range_km=8.0,
+        reserve_preset="balanced",
+        return_to_base_threshold=30.0,
+        turnaround_time_minutes=20.0,
+        mission_area={
+            "area_sq_km": 52.0,
+            "grid_resolution_m": 500.0,
+            "grid_cols": 28,
+            "grid_rows": 22,
+            "staging_distance_to_center_km": 5.4,
+            "terrain_summary": {"terrain_burden_label": "Forested"},
+            "slope_summary": {"label": "Steep terrain"},
+            "weather_summary": {"wind_speed_kph": 29.0, "visibility_label": "Reduced"},
+        },
+    )
+
+    feasibility = assess_mission_feasibility(config)
+
+    assert feasibility["status"] in {"high_risk", "likely_infeasible"}
+    assert feasibility["warnings"]
+
+
+def test_run_manifest_records_model_context_and_units() -> None:
+    config = load_scenario_config()
+
+    manifest = build_run_manifest(config, load_config())
+
+    assert manifest["model_version"]
+    assert manifest["scenario_version"]
+    assert manifest["deployment_mode"] == "base_launch"
+    assert manifest["units"]["battery_energy"] == "sortie energy units"
+    assert "feasibility_summary" in manifest
+
+
 def test_mission_area_preview_builds_deterministic_real_grid_layers() -> None:
     location = resolve_location_input(query="Katoomba")
     mission_area = preview_mission_area(
@@ -164,6 +221,18 @@ def test_aoi_backed_environment_keeps_movement_costs_in_battery_scale() -> None:
     assert float(environment.movement_cost.min()) >= 0.65
     assert float(environment.movement_cost.max()) < 4.0
     assert np.isfinite(environment.movement_cost).all()
+
+
+def test_drones_start_at_base_by_default_and_launch_line_is_explicit() -> None:
+    config = replace(load_scenario_config(), num_drones=4, base_position=(2, 2))
+    engine = SimulationEngine(config)
+
+    assert len({drone.position for drone in engine.drones}) == 1
+    assert engine.drones[0].position == engine.drones[0].base_position
+
+    launch_line_engine = SimulationEngine(replace(config, deployment_mode="launch_line"))
+
+    assert len({drone.position for drone in launch_line_engine.drones}) > 1
 
 
 def test_aoi_backed_battery_decision_uses_normalized_route_energy() -> None:

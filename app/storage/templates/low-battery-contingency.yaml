@@ -16,6 +16,7 @@ scenario:
   strategy: sector_search
   seed: 7
   scenario_family: low_battery_budget
+  deployment_mode: base_launch
   base_position:
   - 1
   - 1
