@@ -333,11 +333,22 @@ class ComparisonEvaluator:
         type_count = int(fleet.get("drone_type_count") or 1)
         mission_area = mission_area or {}
         terrain_summary = mission_area.get("terrain_summary", {})
+        environment_summary = mission_area.get("environment_summary", {})
+        weather_summary = mission_area.get("weather_summary", {})
         area_sq_km = float(mission_area.get("area_sq_km", 0.0))
         shape_ratio = float(mission_area.get("shape_ratio", 1.0))
         staging_distance = float(mission_area.get("staging_distance_to_center_km", 0.0))
         dominant_terrain = str(terrain_summary.get("dominant_terrain", ""))
         slope_burden = str(terrain_summary.get("slope_burden", ""))
+        environment_label = str(environment_summary.get("label", "")).strip()
+        weather_label = str(weather_summary.get("condition_label", "")).strip()
+        visibility_label = str(weather_summary.get("visibility_label", "")).strip().lower()
+        wind_speed = float(weather_summary.get("wind_speed_kph", 0.0) or 0.0)
+        precise_last_known = bool(
+            isinstance(mission_area.get("last_known_location"), dict)
+            and mission_area["last_known_location"].get("latitude") is not None
+            and mission_area["last_known_location"].get("longitude") is not None
+        )
 
         score_adjustment = 0.0
         tradeoffs: list[str] = []
@@ -379,13 +390,32 @@ class ComparisonEvaluator:
             score_adjustment += 1.8
         if shape_ratio >= 1.8 and strategy == "sector_search":
             score_adjustment += 1.2
+        if precise_last_known and strategy in {"information_gain", "probability_greedy"}:
+            score_adjustment += 2.1
+            tradeoffs.append("a placed last known point supports a tighter early search focus")
+        elif not precise_last_known and area_sq_km >= 20.0 and strategy in {"sector_search", "auction_based"}:
+            score_adjustment += 1.5
+            tradeoffs.append("without a precise last known point, broad coverage stays the safer opening move")
         if staging_distance >= 3.5 and threshold < 28.0:
             score_adjustment -= 1.6
             tradeoffs.append("offset staging increases the battery burden on each sortie")
+        if wind_speed >= 24.0:
+            if threshold >= 30.0 or mission_intent == "battery_conservative":
+                score_adjustment += 1.8
+            else:
+                score_adjustment -= 1.8
+            tradeoffs.append("current wind will stretch transit legs and tighten reserve margins")
+        if visibility_label == "reduced":
+            score_adjustment += 1.0 if strategy in {"information_gain", "probability_greedy"} else -0.8
+            tradeoffs.append("reduced visibility favors slower confirmation passes over a pure speed push")
         if slope_burden == "elevated":
             tradeoffs.append("steeper ground will slow clean lane coverage and tighten battery pacing")
         if dominant_terrain in {"forest", "hill country"}:
             tradeoffs.append("denser ground may force tighter coverage and more deliberate confirmation passes")
+        if environment_label == "Forested" and strategy == "information_gain":
+            score_adjustment += 1.0
+        if environment_label == "Obstacle-heavy" and coordination_mode == "centralized":
+            score_adjustment += 0.8
         if type_count > 1 and coordination_mode == "decentralized":
             score_adjustment += 1.5
             tradeoffs.append("mixed fleet reduces idle time when coordination is distributed")
@@ -414,15 +444,28 @@ class ComparisonEvaluator:
             "Dense cover will likely delay confirmation and create more close inspection passes."
             if scenario_family == "dense_forest"
             else "Reduced visibility may increase the false-positive and inspection burden."
-            if scenario_family == "high_wind"
+            if scenario_family == "high_wind" or visibility_label == "reduced" or wind_speed >= 24.0
             else "Conditions support a relatively clean cue-to-confirm workflow."
         )
-        area_summary = (
-            f"{mission_area.get('location_display_name', 'Selected area')} covers about "
-            f"{area_sq_km:.1f} km² at {mission_area.get('grid_resolution_m', 0):.0f} m resolution."
-            if area_sq_km > 0.0
-            else "A standard synthetic planning area is in use."
-        )
+        area_summary_parts: list[str] = []
+        if area_sq_km > 0.0:
+            area_summary_parts.append(
+                f"{mission_area.get('location_display_name', 'Selected area')} covers about "
+                f"{area_sq_km:.1f} km² at {mission_area.get('grid_resolution_m', 0):.0f} m resolution."
+            )
+        else:
+            area_summary_parts.append("A standard synthetic planning area is in use.")
+        if environment_label:
+            area_summary_parts.append(f"The mapped area reads as {environment_label.lower()}.")
+        if wind_speed > 0.0 and weather_label:
+            area_summary_parts.append(
+                f"Current weather is {weather_label.lower()} with winds around {wind_speed:.0f} kph."
+            )
+        if staging_distance >= 0.5:
+            area_summary_parts.append(f"Staging sits about {staging_distance:.1f} km from the search centre.")
+        if precise_last_known:
+            area_summary_parts.append("A precise last known point is available for the opening search.")
+        area_summary = " ".join(area_summary_parts)
         return {
             "score_adjustment": round(score_adjustment, 2),
             "fit_summary": ", ".join(fit_traits),

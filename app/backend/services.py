@@ -36,7 +36,7 @@ class ProductBackend:
         self.templates = TemplateService(self.paths, self.store)
         self.reporting = ReportGenerator(self.paths)
         self.reports = ReportService(self.store, self.reporting)
-        self.geospatial = GeospatialService()
+        self.geospatial = GeospatialService(self.settings)
         self.comparison_evaluator = ComparisonEvaluator(self.scenarios, self.settings)
         self.comparison = self.comparison_evaluator
         self.recommendations = RecommendationService(

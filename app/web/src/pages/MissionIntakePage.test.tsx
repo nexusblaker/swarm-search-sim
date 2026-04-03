@@ -14,6 +14,7 @@ vi.mock("@tanstack/react-query", async () => {
     ...actual,
     useMutation: () => ({
       mutate: vi.fn(),
+      mutateAsync: vi.fn(),
       data: undefined,
       isPending: false,
       reset: vi.fn(),
@@ -32,6 +33,8 @@ describe("MissionIntakePage", () => {
     expect(screen.getByText("Build a new mission in five guided steps")).toBeInTheDocument();
     expect(screen.getByText("Describe the situation")).toBeInTheDocument();
     expect(screen.getByText("Set the real search area")).toBeInTheDocument();
+    expect(screen.getByText("Search by place name or coordinates")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Center map" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /step 2 assets/i }));
     fireEvent.click(screen.getByRole("button", { name: /mixed fleet/i }));

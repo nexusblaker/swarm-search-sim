@@ -13,12 +13,13 @@ from app.backend.main import create_app
 from src.utils.config_loader import load_config
 
 
-def _make_client(tmp_path: Path) -> TestClient:
+def _make_client(tmp_path: Path, **overrides: object) -> TestClient:
     settings = BackendSettings(
         storage_root=str(tmp_path / "storage"),
         db_path=str(tmp_path / "storage" / "swarm_product.db"),
         comparison_num_seeds=1,
         job_max_workers=2,
+        **overrides,
     )
     app = create_app(settings)
     return TestClient(app)
@@ -238,18 +239,35 @@ def test_asset_package_persistence_and_concise_recommendation_summary(tmp_path: 
 
 
 def test_geospatial_resolution_preview_and_plan_persistence(tmp_path: Path) -> None:
-    client = _make_client(tmp_path)
+    client = _make_client(tmp_path, enable_live_geocoder=False, enable_live_weather=False)
+
+    suggestions = client.post("/geo/search-locations", json={"query": "Kato", "limit": 5})
+    assert suggestions.status_code == 200
+    assert suggestions.json()["items"]
 
     resolved = client.post("/geo/resolve-location", json={"query": "Katoomba"})
     assert resolved.status_code == 200
     location = resolved.json()
+    weather = client.post(
+        "/geo/weather",
+        json={"latitude": location["latitude"], "longitude": location["longitude"]},
+    )
+    assert weather.status_code == 200
+    weather_summary = weather.json()
 
     preview = client.post(
         "/geo/preview-area",
         json={
             "location": location,
             "grid_resolution_m": 400.0,
-            "last_known_status": "unknown",
+            "last_known_status": "known",
+            "last_known_location": {
+                "latitude": location["latitude"] + 0.01,
+                "longitude": location["longitude"] + 0.01,
+                "label": "Last known location",
+                "placement": "map",
+            },
+            "weather_summary": weather_summary,
             "environment_type": "dense_forest",
             "weather": "windy",
         },
@@ -279,22 +297,47 @@ def test_geospatial_resolution_preview_and_plan_persistence(tmp_path: Path) -> N
     assert mission_area["grid_size"][0] >= 12
     assert mission_area["grid_size"][1] >= 10
     assert mission_area["terrain_summary"]["dominant_terrain"]
+    assert mission_area["environment_summary"]["label"]
+    assert mission_area["weather_summary"]["condition_label"]
     assert mission_area["staging"]["grid_position"]
+    assert mission_area["last_known_location"]["placement"] == "map"
+    assert "Last known location placed" in mission_area["last_known_summary"]
     assert plan["summary_json"]["mission_area"]["location_display_name"] == "Katoomba, NSW"
     assert plan["summary_json"]["mission_area_summary"]
     assert plan["summary_json"]["map_selection"]["grid_size"] == mission_area["grid_size"]
     assert plan["plan_json"]["scenario"]["mission_area"]["grid_size"] == mission_area["grid_size"]
+    assert plan["plan_json"]["scenario"]["mission_area"]["weather_summary"]["condition_label"]
+
+    recommendation = client.post(
+        "/recommend",
+        json={"plan_id": plan["id"], "mission_intent": "high_confidence_confirmation", "num_seeds": 1},
+    )
+    assert recommendation.status_code == 200
+    assert recommendation.json()["technical_details"]["mission_area"]["weather_summary"]["condition_label"]
+    assert recommendation.json()["technical_details"]["mission_area"]["last_known_location"]["placement"] == "map"
+    assert recommendation.json()["concise_summary"].startswith("Recommended:")
 
 
 def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_path: Path) -> None:
-    client = _make_client(tmp_path)
+    client = _make_client(tmp_path, enable_live_weather=False)
     location = client.post("/geo/resolve-location", json={"query": "-33.7126, 150.3119"}).json()
+    weather = client.post(
+        "/geo/weather",
+        json={"latitude": location["latitude"], "longitude": location["longitude"]},
+    ).json()
     mission_area = client.post(
         "/geo/preview-area",
         json={
             "location": location,
             "grid_resolution_m": 400.0,
-            "last_known_status": "unknown",
+            "last_known_status": "known",
+            "last_known_location": {
+                "latitude": location["latitude"] + 0.012,
+                "longitude": location["longitude"] + 0.008,
+                "label": "Last known location",
+                "placement": "map",
+            },
+            "weather_summary": weather,
             "environment_type": "dense_forest",
             "weather": "clear",
         },
@@ -326,12 +369,15 @@ def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_p
     assert completed["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert completed["summary_json"]["mission_area_summary"]
     assert completed["latest_snapshot_json"]["mission_area"]["staging"]["grid_position"] == mission_area["staging"]["grid_position"]
+    assert completed["latest_snapshot_json"]["mission_area"]["last_known_location"]["placement"] == "map"
     assert replay.status_code == 200
     assert replay.json()["replay"][-1]["mission_area"]["grid_size"] == mission_area["grid_size"]
     assert report.status_code == 200
     assert report.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
+    assert report.json()["summary_json"]["mission_area"]["weather_summary"]["condition_label"]
     assert review.status_code == 200
     assert review.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
+    assert review.json()["summary_json"]["mission_area"]["last_known_location"]["placement"] == "map"
     assert mission_area["location_display_name"] in review.json()["summary_json"]["mission_timeline"]
 
 

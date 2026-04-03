@@ -18,6 +18,11 @@ class BackendSettings:
     frontend_api_base_url: str = "http://127.0.0.1:8000"
     comparison_num_seeds: int = 2
     job_max_workers: int = 4
+    enable_live_geocoder: bool = True
+    enable_live_weather: bool = True
+    geocoder_endpoint: str = "https://nominatim.openstreetmap.org/search"
+    weather_endpoint: str = "https://api.open-meteo.com/v1/forecast"
+    geospatial_timeout_seconds: float = 1.5
 
     @classmethod
     def from_env(cls) -> "BackendSettings":
@@ -31,4 +36,15 @@ class BackendSettings:
             frontend_api_base_url=os.getenv("SWARM_FRONTEND_API_BASE_URL", "http://127.0.0.1:8000"),
             comparison_num_seeds=int(os.getenv("SWARM_COMPARISON_NUM_SEEDS", "2")),
             job_max_workers=int(os.getenv("SWARM_JOB_MAX_WORKERS", "4")),
+            enable_live_geocoder=os.getenv("SWARM_ENABLE_LIVE_GEOCODER", "1") not in {"0", "false", "False"},
+            enable_live_weather=os.getenv("SWARM_ENABLE_LIVE_WEATHER", "1") not in {"0", "false", "False"},
+            geocoder_endpoint=os.getenv(
+                "SWARM_GEOCODER_ENDPOINT",
+                "https://nominatim.openstreetmap.org/search",
+            ),
+            weather_endpoint=os.getenv(
+                "SWARM_WEATHER_ENDPOINT",
+                "https://api.open-meteo.com/v1/forecast",
+            ),
+            geospatial_timeout_seconds=float(os.getenv("SWARM_GEOSPATIAL_TIMEOUT_SECONDS", "1.5")),
         )

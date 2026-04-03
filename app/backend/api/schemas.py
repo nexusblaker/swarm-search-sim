@@ -152,6 +152,37 @@ class LocationResolveResponse(BaseModel):
     preview_span_km: float
     terrain_hint: str = "mixed"
     fallback_note: str | None = None
+    provider: str | None = None
+    match_reason: str | None = None
+
+
+class LocationSearchRequest(BaseModel):
+    query: str
+    limit: int = 5
+
+
+class LocationSearchResponse(BaseModel):
+    items: list[LocationResolveResponse] = Field(default_factory=list)
+
+
+class WeatherSummaryResponse(BaseModel):
+    source: str
+    provider: str | None = None
+    recommended_weather: str
+    condition_label: str
+    temperature_c: float
+    wind_speed_kph: float
+    precipitation_mm: float
+    cloud_cover_pct: float
+    visibility_label: str
+    operator_summary: str
+    fallback_note: str | None = None
+    fetched_at: str | None = None
+
+
+class WeatherLookupRequest(BaseModel):
+    latitude: float
+    longitude: float
 
 
 class MissionAreaPreviewRequest(BaseModel):
@@ -161,6 +192,8 @@ class MissionAreaPreviewRequest(BaseModel):
     polygon: list[dict[str, float]] = Field(default_factory=list)
     grid_resolution_m: float = 500.0
     staging: dict[str, Any] | None = None
+    last_known_location: dict[str, Any] | None = None
+    weather_summary: dict[str, Any] | None = None
     last_known_status: str = "unknown"
     environment_type: str = "mixed_terrain"
     weather: str = "clear"

@@ -85,6 +85,27 @@ export interface TerrainAreaSummary {
   operator_summary?: string;
 }
 
+export interface EnvironmentSummary {
+  value?: string;
+  label?: string;
+  operator_summary?: string;
+}
+
+export interface WeatherSummary {
+  source?: string;
+  provider?: string | null;
+  recommended_weather?: string;
+  condition_label?: string;
+  temperature_c?: number;
+  wind_speed_kph?: number;
+  precipitation_mm?: number;
+  cloud_cover_pct?: number;
+  visibility_label?: string;
+  operator_summary?: string;
+  fallback_note?: string | null;
+  fetched_at?: string | null;
+}
+
 export interface MissionAreaSummary {
   location_display_name?: string;
   location_source?: string;
@@ -108,7 +129,17 @@ export interface MissionAreaSummary {
   warnings?: string[];
   terrain_hint?: string;
   last_known_status?: string;
+  environment_label?: string;
+  environment_summary?: EnvironmentSummary;
   environment_type?: string;
+  last_known_location?: {
+    latitude?: number;
+    longitude?: number;
+    label?: string;
+    placement?: string;
+    grid_position?: [number, number];
+  } | null;
+  last_known_summary?: string;
   staging?: {
     latitude?: number;
     longitude?: number;
@@ -122,6 +153,7 @@ export interface MissionAreaSummary {
   operator_summary?: string;
   grid_summary?: Record<string, unknown>;
   terrain_summary?: TerrainAreaSummary;
+  weather_summary?: WeatherSummary;
 }
 
 export interface ResolvedLocation {
@@ -132,6 +164,12 @@ export interface ResolvedLocation {
   preview_span_km: number;
   terrain_hint?: string;
   fallback_note?: string | null;
+  provider?: string | null;
+  match_reason?: string | null;
+}
+
+export interface LocationSearchResponse {
+  items: ResolvedLocation[];
 }
 
 export interface DroneStatusSummary {

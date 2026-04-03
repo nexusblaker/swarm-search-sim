@@ -131,6 +131,50 @@ LOCAL_GAZETTEER: list[dict[str, Any]] = [
 ]
 
 
+def search_location_candidates(query: str | None, *, limit: int = 5) -> list[dict[str, Any]]:
+    """Return local-first autocomplete suggestions for place names or coordinates."""
+
+    suggestions: list[dict[str, Any]] = []
+    seen: set[tuple[float, float, str]] = set()
+    parsed = _parse_coordinate_query(query)
+    if parsed is not None:
+        candidate = resolve_location_input(latitude=parsed[0], longitude=parsed[1])
+        candidate["match_reason"] = "Direct coordinates"
+        suggestions.append(candidate)
+        seen.add((candidate["latitude"], candidate["longitude"], candidate["display_name"]))
+
+    normalized = _normalize_query(query)
+    if not normalized:
+        return suggestions[:limit]
+
+    ranked: list[tuple[int, str, dict[str, Any]]] = []
+    for entry in LOCAL_GAZETTEER:
+        score = _match_score(normalized, _entry_terms(entry))
+        if score is None:
+            continue
+        ranked.append((score, str(entry["display_name"]), entry))
+
+    for _, _, entry in sorted(ranked, key=lambda item: (item[0], item[1])):
+        candidate = {
+            "display_name": entry["display_name"],
+            "latitude": float(entry["latitude"]),
+            "longitude": float(entry["longitude"]),
+            "source": "local_gazetteer",
+            "preview_span_km": float(entry.get("preview_span_km", 18.0)),
+            "terrain_hint": str(entry.get("terrain_hint", "mixed")),
+            "fallback_note": "Using the built-in local gazetteer. Coordinates remain available for exact mission setup.",
+            "match_reason": "Local gazetteer match",
+        }
+        key = (candidate["latitude"], candidate["longitude"], candidate["display_name"])
+        if key in seen:
+            continue
+        suggestions.append(candidate)
+        seen.add(key)
+        if len(suggestions) >= limit:
+            break
+    return suggestions[:limit]
+
+
 def resolve_location_input(
     query: str | None = None,
     *,
@@ -169,6 +213,15 @@ def resolve_location_input(
 
     exact = next((entry for entry in LOCAL_GAZETTEER if normalized in _entry_terms(entry)), None)
     if exact is None:
+        matches = search_location_candidates(query, limit=1)
+        if matches:
+            candidate = dict(matches[0])
+            candidate.pop("match_reason", None)
+            candidate.setdefault(
+                "fallback_note",
+                "Using the closest built-in gazetteer match. Enter coordinates for an exact area.",
+            )
+            return candidate
         raise ValueError("Location not found in the local gazetteer. Enter coordinates for an exact area.")
     return {
         "display_name": exact["display_name"],
@@ -189,6 +242,8 @@ def preview_mission_area(
     polygon: list[dict[str, float]] | None = None,
     grid_resolution_m: float = 500.0,
     staging: dict[str, Any] | None = None,
+    last_known_location: dict[str, Any] | None = None,
+    weather_summary: dict[str, Any] | None = None,
     last_known_status: str = "unknown",
     environment_type: str = "mixed_terrain",
     weather: str = "clear",
@@ -262,8 +317,10 @@ def preview_mission_area(
         "max_safe_cells": MAX_SAFE_CELLS,
         "warnings": warnings,
         "terrain_hint": resolved["terrain_hint"],
+        "requested_environment_type": environment_type,
         "last_known_status": last_known_status,
         "environment_type": environment_type,
+        "weather_summary": dict(weather_summary or {"recommended_weather": weather, "source": "manual"}),
     }
     mission_area["center_grid_position"] = [grid_width // 2, grid_height // 2]
     mission_area["shape_summary"] = (
@@ -276,11 +333,20 @@ def preview_mission_area(
         _distance_km(staging_point, center),
         2,
     )
+    known_point = _normalize_last_known_point(last_known_location, mission_area)
+    mission_area["last_known_location"] = known_point
     mission_area["last_known_grid_position"] = list(
         _point_to_grid(
-            center,
+            known_point or center,
             mission_area,
         )
+    )
+    mission_area["last_known_summary"] = (
+        f"Last known location placed near {known_point['latitude']:.4f}, {known_point['longitude']:.4f}."
+        if known_point
+        else "Last known location not placed."
+        if last_known_status == "known"
+        else "Last known location unknown."
     )
     mission_area["operator_summary"] = (
         f"{resolved['display_name']} AOI covers about {area_sq_km:.1f} km² across "
@@ -301,6 +367,10 @@ def preview_mission_area(
         weather=weather,
     )
     mission_area["terrain_summary"] = terrain_preview["terrain_summary"]
+    environment_summary = _environment_summary(terrain_preview["terrain_summary"])
+    mission_area["environment_summary"] = environment_summary
+    mission_area["environment_type"] = environment_summary["value"]
+    mission_area["environment_label"] = environment_summary["label"]
     return mission_area
 
 
@@ -478,6 +548,16 @@ def _entry_terms(entry: dict[str, Any]) -> set[str]:
     return {_normalize_query(str(value)) for value in values if str(value).strip()}
 
 
+def _match_score(normalized_query: str, terms: set[str]) -> int | None:
+    if normalized_query in terms:
+        return 0
+    if any(term.startswith(normalized_query) for term in terms):
+        return 1
+    if any(normalized_query in term for term in terms):
+        return 2
+    return None
+
+
 def _parse_coordinate_query(query: str | None) -> tuple[float, float] | None:
     if not query:
         return None
@@ -569,6 +649,26 @@ def _normalize_staging_point(staging: dict[str, Any] | None, mission_area: dict[
         "longitude": _safe_float(staging.get("longitude")) if staging else center_lon,
         "label": str(staging.get("label") or "Primary staging point") if staging else "Primary staging point",
         "placement": str(staging.get("placement") or "map") if staging else "default_edge",
+    }
+    normalized["grid_position"] = list(_point_to_grid(normalized, mission_area))
+    return normalized
+
+
+def _normalize_last_known_point(
+    last_known_location: dict[str, Any] | None,
+    mission_area: dict[str, Any],
+) -> dict[str, Any] | None:
+    if not last_known_location:
+        return None
+    latitude = last_known_location.get("latitude")
+    longitude = last_known_location.get("longitude")
+    if latitude is None or longitude is None:
+        return None
+    normalized = {
+        "latitude": _safe_float(latitude),
+        "longitude": _safe_float(longitude),
+        "label": str(last_known_location.get("label") or "Last known location"),
+        "placement": str(last_known_location.get("placement") or "map"),
     }
     normalized["grid_position"] = list(_point_to_grid(normalized, mission_area))
     return normalized
@@ -710,6 +810,43 @@ def _terrain_summary(
         "trail_coverage_pct": round(trail_pct, 3),
         "obstacle_coverage_pct": round(obstacle_pct, 3),
         "suggested_scenario_family": suggested_family,
+        "operator_summary": operator_summary,
+    }
+
+
+def _environment_summary(terrain_summary: dict[str, Any]) -> dict[str, str]:
+    dominant = str(terrain_summary.get("dominant_terrain") or "")
+    slope_burden = str(terrain_summary.get("slope_burden") or "light")
+    obstacle_pct = float(terrain_summary.get("obstacle_coverage_pct", 0.0) or 0.0)
+
+    value = "mixed_terrain"
+    label = "Mixed terrain"
+    operator_summary = "Mixed terrain is the best overall description for the selected area."
+
+    if dominant == "forest" and slope_burden == "elevated":
+        value = "dense_forest"
+        label = "Forested hill country"
+        operator_summary = "Forested hill country is the dominant character of the selected area."
+    elif dominant == "forest":
+        value = "dense_forest"
+        label = "Forested"
+        operator_summary = "Forested terrain is the dominant character of the selected area."
+    elif dominant == "urban edge" or obstacle_pct >= 0.22:
+        value = "obstacle_heavy"
+        label = "Obstacle-heavy"
+        operator_summary = "Obstacle-heavy ground is the dominant character of the selected area."
+    elif dominant == "open terrain" and slope_burden == "light":
+        value = "open_terrain"
+        label = "Open terrain"
+        operator_summary = "Open terrain is the dominant character of the selected area."
+    elif slope_burden == "elevated":
+        value = "mixed_terrain"
+        label = "Elevated / hill country"
+        operator_summary = "Elevated ground is a defining feature of the selected area."
+
+    return {
+        "value": value,
+        "label": label,
         "operator_summary": operator_summary,
     }
 

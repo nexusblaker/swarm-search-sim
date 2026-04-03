@@ -829,8 +829,13 @@ def _pattern_reason(
             f"to monitor while reducing redundant overlap. {area_context}"
         )
     if pattern == SEARCH_PATTERN_EXPANDING_RING:
+        precision_phrase = (
+            "A precise last known point is available"
+            if (config.mission_area or {}).get("last_known_location")
+            else "A credible last known area is available"
+        )
         return (
-            "A credible last known area is available, so starting tight and expanding outward keeps the search anchored "
+            f"{precision_phrase}, so starting tight and expanding outward keeps the search anchored "
             f"around the best early clue. {area_context}"
         )
     if pattern == SEARCH_PATTERN_PERIMETER:
@@ -852,12 +857,16 @@ def _pattern_fit_summary(
     base = PATTERN_FIT_SUMMARIES.get(pattern, pattern_brief(pattern))
     area = config.mission_area or {}
     terrain_summary = area.get("terrain_summary", {})
+    weather_summary = area.get("weather_summary", {})
     terrain_note = ""
+    weather_note = ""
     if terrain_summary.get("dominant_terrain"):
         terrain_note = f" {terrain_summary['dominant_terrain'].title()} is the dominant ground type."
+    if float(weather_summary.get("wind_speed_kph", 0.0) or 0.0) >= 24.0:
+        weather_note = f" Winds near {float(weather_summary['wind_speed_kph']):.0f} kph are tightening spacing and reserve pacing."
     return (
         f"{base} Current spacing is built around an effective swath of about {geometry.effective_swath_cells:.1f} cells."
-        f"{terrain_note}"
+        f"{terrain_note}{weather_note}"
     )
 
 
@@ -882,9 +891,21 @@ def _area_context_phrase(mission_area: dict[str, Any] | None) -> str:
     height = float(mission_area.get("height_km", 0.0))
     staging_distance = float(mission_area.get("staging_distance_to_center_km", 0.0))
     terrain_summary = mission_area.get("terrain_summary", {})
+    weather_summary = mission_area.get("weather_summary", {})
     terrain = str(terrain_summary.get("dominant_terrain") or "").strip()
     terrain_text = f" with mostly {terrain}" if terrain else ""
     staging_text = ""
+    weather_text = ""
+    precise_last_known_text = ""
     if staging_distance >= 0.5:
         staging_text = f" Staging sits about {staging_distance:.1f} km from the area centre."
-    return f"{location} spans about {width:.1f} by {height:.1f} km{terrain_text}.{staging_text}".strip()
+    if float(weather_summary.get("wind_speed_kph", 0.0) or 0.0) >= 18.0:
+        weather_text = (
+            f" Current weather is {str(weather_summary.get('condition_label') or 'elevated wind').lower()}."
+        )
+    if mission_area.get("last_known_location"):
+        precise_last_known_text = " A last known point has been placed inside the area."
+    return (
+        f"{location} spans about {width:.1f} by {height:.1f} km{terrain_text}."
+        f"{staging_text}{weather_text}{precise_last_known_text}"
+    ).strip()

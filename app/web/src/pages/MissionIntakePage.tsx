@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
-import type { MissionIntent } from "@/api/types";
+import type { MissionIntent, ResolvedLocation, WeatherSummary } from "@/api/types";
 import { MissionAreaPlanner } from "@/components/mission/MissionAreaPlanner";
 import { CollapsiblePanel } from "@/components/ui/CollapsiblePanel";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { FieldHelp } from "@/components/ui/FieldHelp";
 import { InlineHint } from "@/components/ui/InlineHint";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Panel } from "@/components/ui/Panel";
@@ -20,10 +21,11 @@ import {
   buildRecommendationRequest,
   createDefaultMissionIntakeDraft,
   createDroneTypeDraft,
+  deriveSearchAreaSize,
   environmentOptions,
   missionIntentOptions,
   searchPatternOptions,
-  searchAreaOptions,
+  assetFieldHelpText,
   stagingLocationOptions,
   timeSinceContactOptions,
   weatherOptions,
@@ -31,7 +33,6 @@ import {
   type EnvironmentType,
   type MissionIntakeDraft,
   type SearchPatternChoice,
-  type SearchAreaSize,
   type StagingLocation,
   type TimeSinceContact,
   type WeatherType,
@@ -86,11 +87,21 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function FieldLabelWithHelp({ label, help }: { label: string; help?: string }) {
+  return (
+    <span className="field-label inline-flex items-center gap-2">
+      <span>{label}</span>
+      {help ? <FieldHelp text={help} /> : null}
+    </span>
+  );
+}
+
 export function MissionIntakePage() {
   const navigate = useNavigate();
   const invalidate = useInvalidateResources();
   const [step, setStep] = useState<StepIndex>(0);
   const [draft, setDraft] = useState<MissionIntakeDraft>(createDefaultMissionIntakeDraft);
+  const [locationSuggestions, setLocationSuggestions] = useState<ResolvedLocation[]>([]);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<ContinueAction | null>(null);
   const recommendation = useMutation({
@@ -102,9 +113,27 @@ export function MissionIntakePage() {
   const areaPreview = useMutation({
     mutationFn: (payload: Record<string, unknown>) => api.previewMissionArea(payload),
   });
+  const weatherLookup = useMutation({
+    mutationFn: (payload: Record<string, unknown>) => api.weather(payload),
+  });
 
   const assetPackage = useMemo(() => buildAssetPackage(draft), [draft]);
   const intakeSummary = useMemo(() => buildIntakeSummary(draft), [draft]);
+  const missionAreaLabel = draft.missionArea?.area_sq_km ? `${draft.missionArea.area_sq_km.toFixed(1)} km²` : "Draw on map";
+  const environmentLabel =
+    draft.missionArea?.environment_summary?.label ??
+    environmentOptions.find((option) => option.value === draft.environmentType)?.label ??
+    "Pending";
+  const weatherLabel =
+    draft.weatherSummary?.condition_label ??
+    weatherOptions.find((option) => option.value === draft.weather)?.label ??
+    "Pending";
+  const lastKnownLabel =
+    draft.lastKnownStatus === "known"
+      ? draft.missionArea?.last_known_location
+        ? "Placed on map"
+        : "Placement needed"
+      : "Unknown";
   const canAdvance = step < 4;
   const hasRecommendation = Boolean(recommendation.data);
 
@@ -117,44 +146,120 @@ export function MissionIntakePage() {
     recommendation.reset();
   }
 
+  useEffect(() => {
+    const query = draft.locationQuery.trim();
+    if (query.length < 2) {
+      setLocationSuggestions([]);
+      return;
+    }
+    const timeout = window.setTimeout(async () => {
+      try {
+        const response = await api.searchLocations({ query, limit: 5 });
+        setLocationSuggestions(response.items);
+      } catch {
+        setLocationSuggestions([]);
+      }
+    }, 220);
+    return () => window.clearTimeout(timeout);
+  }, [draft.locationQuery]);
+
   async function refreshMissionArea(
     nextDraft: MissionIntakeDraft,
     overrides?: {
       resolvedLocation?: MissionIntakeDraft["resolvedLocation"];
       rectangle?: Record<string, number>;
       staging?: Record<string, unknown>;
+      lastKnownLocation?: Record<string, unknown> | null;
+      weatherSummary?: WeatherSummary | null;
     },
   ) {
     const resolvedLocation = overrides?.resolvedLocation ?? nextDraft.resolvedLocation;
     if (!resolvedLocation) {
       return;
     }
+    const weatherSummary = overrides?.weatherSummary ?? nextDraft.weatherSummary ?? undefined;
+    const lastKnownLocation =
+      nextDraft.lastKnownStatus === "known"
+        ? overrides?.lastKnownLocation ?? nextDraft.lastKnownLocation ?? nextDraft.missionArea?.last_known_location ?? undefined
+        : undefined;
     const preview = await areaPreview.mutateAsync({
       location: resolvedLocation,
       rectangle: overrides?.rectangle ?? nextDraft.missionArea?.rectangle ?? undefined,
       grid_resolution_m: Number(nextDraft.gridResolutionMeters) || 500,
       staging: overrides?.staging ?? nextDraft.missionArea?.staging ?? undefined,
+      last_known_location: lastKnownLocation,
+      weather_summary: weatherSummary ?? undefined,
       last_known_status: nextDraft.lastKnownStatus,
       environment_type: nextDraft.environmentType,
       weather: nextDraft.weather,
     });
+    const derivedEnvironment = (preview.mission_area.environment_type as EnvironmentType | undefined) ?? nextDraft.environmentType;
+    const derivedWeather = (weatherSummary?.recommended_weather as WeatherType | undefined) ?? nextDraft.weather;
     setDraft((current) => ({
       ...current,
       resolvedLocation,
       missionArea: preview.mission_area,
+      weatherSummary: weatherSummary ?? current.weatherSummary,
+      lastKnownLocation: (preview.mission_area.last_known_location as MissionIntakeDraft["lastKnownLocation"] | undefined) ?? current.lastKnownLocation,
+      searchAreaSize: deriveSearchAreaSize(Number(preview.mission_area.area_sq_km ?? current.missionArea?.area_sq_km ?? 0)),
+      environmentType: derivedEnvironment,
+      weather: derivedWeather,
       gridResolutionMeters: String(Math.round(Number(preview.mission_area.grid_resolution_m ?? nextDraft.gridResolutionMeters))),
     }));
     recommendation.reset();
+  }
+
+  async function loadWeatherForLocation(resolved: ResolvedLocation): Promise<WeatherSummary> {
+    try {
+      return await weatherLookup.mutateAsync({
+        latitude: resolved.latitude,
+        longitude: resolved.longitude,
+      });
+    } catch {
+      return {
+        source: "manual",
+        recommended_weather: draft.weather,
+        condition_label: "Manual weather",
+        temperature_c: 0,
+        wind_speed_kph: 0,
+        precipitation_mm: 0,
+        cloud_cover_pct: 0,
+        visibility_label: "Good",
+        operator_summary: "Weather lookup was unavailable. Review and set mission weather manually if needed.",
+        fallback_note: "Weather service unavailable during setup.",
+      };
+    }
+  }
+
+  async function applyResolvedLocation(resolved: ResolvedLocation) {
+    const weatherSummary = await loadWeatherForLocation(resolved);
+    const recommendedWeather = (weatherSummary.recommended_weather as WeatherType | undefined) ?? draft.weather;
+    const nextDraft = {
+      ...draft,
+      resolvedLocation: resolved,
+      weatherSummary,
+      weather: recommendedWeather,
+    };
+    setDraft((current) => ({
+      ...current,
+      resolvedLocation: resolved,
+      weatherSummary,
+      weather: recommendedWeather,
+      locationQuery: resolved.display_name,
+    }));
+    setLocationSuggestions([]);
+    recommendation.reset();
+    await refreshMissionArea(nextDraft, {
+      resolvedLocation: resolved,
+      weatherSummary,
+    });
   }
 
   async function handleResolveLocation() {
     setSaveError(null);
     try {
       const resolved = await resolveLocation.mutateAsync({ query: draft.locationQuery });
-      const nextDraft = { ...draft, resolvedLocation: resolved };
-      setDraft((current) => ({ ...current, resolvedLocation: resolved }));
-      recommendation.reset();
-      await refreshMissionArea(nextDraft, { resolvedLocation: resolved });
+      await applyResolvedLocation(resolved);
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : "Unable to resolve the selected location.");
     }
@@ -268,24 +373,46 @@ export function MissionIntakePage() {
                       <p className="section-kicker">Mission location</p>
                       <h3 className="mt-1 text-lg font-semibold text-white">Set the real search area</h3>
                       <p className="mt-2 max-w-3xl text-sm leading-6 text-muted">
-                        Enter a city, suburb, landmark, or direct coordinates. The planner will center a local-first map view there, then let you define the search area and base location.
+                        Search by place name or paste coordinates. The map centers on the selected location, then lets you draw the mission box, place the base, and add the last known point when it matters.
                       </p>
                     </div>
                     {draft.resolvedLocation ? <span className="pill">{draft.resolvedLocation.source.replaceAll("_", " ")}</span> : null}
                   </div>
                   <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
-                    <label>
-                      <span className="field-label">Place name or coordinates</span>
-                      <input
-                        className="field-input"
-                        value={draft.locationQuery}
-                        onChange={(event) => updateDraft((current) => ({ ...current, locationQuery: event.target.value }))}
-                        placeholder="Katoomba, NSW or -33.7126, 150.3119"
-                      />
-                    </label>
+                    <div className="space-y-3">
+                      <label className="block">
+                        <span className="field-label">Search by place name or coordinates</span>
+                        <input
+                          className="field-input"
+                          value={draft.locationQuery}
+                          onChange={(event) => updateDraft((current) => ({ ...current, locationQuery: event.target.value }))}
+                          placeholder="Katoomba, NSW or -33.7126, 150.3119"
+                        />
+                      </label>
+                      {locationSuggestions.length > 0 ? (
+                        <div className="rounded-[22px] border border-border/70 bg-[#08111b]/95 p-2 shadow-soft">
+                          {locationSuggestions.map((suggestion) => (
+                            <button
+                              key={`${suggestion.display_name}-${suggestion.latitude}-${suggestion.longitude}`}
+                              type="button"
+                              className="flex w-full items-start justify-between gap-3 rounded-[18px] px-3 py-3 text-left transition hover:bg-white/[0.05]"
+                              onClick={() => void applyResolvedLocation(suggestion)}
+                            >
+                              <div>
+                                <p className="text-sm font-semibold text-white">{suggestion.display_name}</p>
+                                <p className="mt-1 text-xs leading-5 text-muted">
+                                  {suggestion.match_reason ?? suggestion.source.replaceAll("_", " ")}
+                                </p>
+                              </div>
+                              <span className="pill whitespace-nowrap">{suggestion.source.replaceAll("_", " ")}</span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
                     <div className="flex items-end">
                       <button type="button" className="primary-button w-full" onClick={() => void handleResolveLocation()}>
-                        {resolveLocation.isPending || areaPreview.isPending ? "Updating area..." : "Resolve location"}
+                        {resolveLocation.isPending || areaPreview.isPending || weatherLookup.isPending ? "Centering map..." : "Center map"}
                       </button>
                     </div>
                   </div>
@@ -298,6 +425,7 @@ export function MissionIntakePage() {
                         location={draft.resolvedLocation}
                         missionArea={draft.missionArea}
                         isUpdating={areaPreview.isPending}
+                        showLastKnownPlacement={draft.lastKnownStatus === "known"}
                         onRectangleChange={(rectangle) => {
                           const nextDraft = { ...draft };
                           void refreshMissionArea(nextDraft, { rectangle });
@@ -306,6 +434,11 @@ export function MissionIntakePage() {
                           const nextDraft = { ...draft };
                           void refreshMissionArea(nextDraft, { staging: point });
                         }}
+                        onLastKnownChange={(point) => {
+                          const nextDraft = { ...draft, lastKnownLocation: point };
+                          updateDraft(nextDraft);
+                          void refreshMissionArea(nextDraft, { lastKnownLocation: point });
+                        }}
                       />
 
                       {draft.missionArea ? (
@@ -313,6 +446,11 @@ export function MissionIntakePage() {
                           <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/45 p-5">
                             <p className="section-kicker">Area summary</p>
                             <p className="mt-3 text-base leading-7 text-white">{draft.missionArea.operator_summary}</p>
+                            {draft.missionArea.environment_summary?.operator_summary ? (
+                              <p className="mt-3 text-sm leading-6 text-white/90">
+                                {draft.missionArea.environment_summary.operator_summary}
+                              </p>
+                            ) : null}
                             {draft.missionArea.terrain_summary?.operator_summary ? (
                               <p className="mt-3 text-sm leading-6 text-muted">{draft.missionArea.terrain_summary.operator_summary}</p>
                             ) : null}
@@ -327,7 +465,7 @@ export function MissionIntakePage() {
                             ) : null}
                           </div>
                           <div className="rounded-[24px] border border-border/70 bg-surfaceAlt/45 p-5">
-                            <p className="section-kicker">Grid settings</p>
+                            <p className="section-kicker">Mission context</p>
                             <label className="mt-4 block">
                               <span className="field-label">Cell resolution</span>
                               <select
@@ -353,10 +491,19 @@ export function MissionIntakePage() {
                                 Grid: {draft.missionArea.grid_size?.[0] ?? "n/a"} x {draft.missionArea.grid_size?.[1] ?? "n/a"} cells
                               </p>
                               <p>
+                                Environment: {draft.missionArea.environment_summary?.label ?? "Derived from map"}
+                              </p>
+                              <p>
+                                Weather: {draft.weatherSummary?.condition_label ?? "Pending"}
+                              </p>
+                              <p>
                                 Area: {draft.missionArea.area_sq_km?.toFixed(1) ?? "n/a"} km²
                               </p>
                               <p>
                                 Staging: {draft.missionArea.staging?.label ?? "Primary staging point"}
+                              </p>
+                              <p>
+                                Last known: {draft.missionArea.last_known_summary ?? "Unknown"}
                               </p>
                             </div>
                           </div>
@@ -385,75 +532,55 @@ export function MissionIntakePage() {
                     description="Start with a broader uncertainty model and wider sweep assumptions."
                     selected={draft.lastKnownStatus === "unknown"}
                     onClick={() => {
-                      const nextDraft = { ...draft, lastKnownStatus: "unknown" as const };
+                      const nextDraft = { ...draft, lastKnownStatus: "unknown" as const, lastKnownLocation: null };
                       updateDraft(nextDraft);
                       if (nextDraft.resolvedLocation) {
-                        void refreshMissionArea(nextDraft);
+                        void refreshMissionArea(nextDraft, { lastKnownLocation: null });
                       }
                     }}
                   />
                 </div>
+                {draft.lastKnownStatus === "known" ? (
+                  <InlineHint>
+                    Place the last known point on the map to tighten pattern selection and starting search geometry.
+                  </InlineHint>
+                ) : null}
 
-                <div>
-                  <p className="field-label">Search area size</p>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {searchAreaOptions.map((option) => (
-                      <ChoiceCard
-                        key={option.value}
-                        label={option.label}
-                        description={option.description}
-                        selected={draft.searchAreaSize === option.value}
-                        onClick={() => updateDraft((current) => ({ ...current, searchAreaSize: option.value as SearchAreaSize }))}
-                      />
-                    ))}
+                {draft.missionArea ? (
+                  <div className="grid gap-4 lg:grid-cols-3">
+                    <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
+                      <p className="section-kicker">Area size</p>
+                      <p className="mt-3 text-sm leading-6 text-white">
+                        {draft.missionArea.area_sq_km?.toFixed(1) ?? "n/a"} km² across{" "}
+                        {draft.missionArea.width_km?.toFixed(1) ?? "n/a"} x {draft.missionArea.height_km?.toFixed(1) ?? "n/a"} km
+                      </p>
+                    </div>
+                    <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
+                      <p className="section-kicker">Derived environment</p>
+                      <p className="mt-3 text-sm leading-6 text-white">
+                        {draft.missionArea.environment_summary?.label ?? "Mixed terrain"}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-muted">
+                        {draft.missionArea.terrain_summary?.operator_summary ?? "Derived from the selected map area."}
+                      </p>
+                    </div>
+                    <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
+                      <p className="section-kicker">Current weather</p>
+                      <p className="mt-3 text-sm leading-6 text-white">
+                        {draft.weatherSummary?.condition_label ?? "Pending weather lookup"}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-muted">
+                        {draft.weatherSummary?.operator_summary ?? "Weather becomes the starting mission condition and can still be overridden."}
+                      </p>
+                    </div>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-muted">
-                    When a real AOI is set on the map, the drawn area drives the grid. This size choice still helps the planner pace time horizons and mission tempo.
-                  </p>
-                </div>
-
-                <div>
-                  <p className="field-label">Environment type</p>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {environmentOptions.map((option) => (
-                      <ChoiceCard
-                        key={option.value}
-                        label={option.label}
-                        description={option.description}
-                        selected={draft.environmentType === option.value}
-                        onClick={() => {
-                          const nextDraft = { ...draft, environmentType: option.value as EnvironmentType };
-                          updateDraft(nextDraft);
-                          if (nextDraft.resolvedLocation) {
-                            void refreshMissionArea(nextDraft);
-                          }
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
+                ) : (
+                  <InlineHint>
+                    Resolve a location first. Area size, terrain character, and weather will then auto-fill from the selected mission area.
+                  </InlineHint>
+                )}
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <label>
-                    <span className="field-label">Weather</span>
-                    <select
-                      className="field-input"
-                      value={draft.weather}
-                      onChange={(event) => {
-                        const nextDraft = { ...draft, weather: event.target.value as WeatherType };
-                        updateDraft(nextDraft);
-                        if (nextDraft.resolvedLocation) {
-                          void refreshMissionArea(nextDraft);
-                        }
-                      }}
-                    >
-                      {weatherOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
                   <label>
                     <span className="field-label">Time since last contact</span>
                     <select
@@ -473,7 +600,74 @@ export function MissionIntakePage() {
                       ))}
                     </select>
                   </label>
+                  <div className="rounded-[22px] border border-border/70 bg-surfaceAlt/45 p-4">
+                    <p className="section-kicker">Mission weather</p>
+                    <p className="mt-3 text-sm leading-6 text-white">
+                      {draft.weatherSummary?.condition_label ?? draft.weather}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      {draft.weatherSummary?.fallback_note ?? "This value feeds the starting simulation weather and can be adjusted below if needed."}
+                    </p>
+                  </div>
                 </div>
+
+                <CollapsiblePanel
+                  title="Adjust derived area context"
+                  description="Override the weather or environment only when the imported area needs a manual correction."
+                  defaultOpen={false}
+                  className="border-none bg-transparent shadow-none"
+                  headerClassName="rounded-[24px] border border-border bg-surfaceAlt/45"
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <label>
+                      <span className="field-label">Environment override</span>
+                      <select
+                        className="field-input"
+                        value={draft.environmentType}
+                        onChange={(event) => {
+                          const nextDraft = { ...draft, environmentType: event.target.value as EnvironmentType };
+                          updateDraft(nextDraft);
+                          if (nextDraft.resolvedLocation) {
+                            void refreshMissionArea(nextDraft);
+                          }
+                        }}
+                      >
+                        {environmentOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span className="field-label">Weather override</span>
+                      <select
+                        className="field-input"
+                        value={draft.weather}
+                        onChange={(event) => {
+                          const nextDraft = { ...draft, weather: event.target.value as WeatherType };
+                          updateDraft(nextDraft);
+                          if (nextDraft.resolvedLocation) {
+                            void refreshMissionArea(nextDraft, {
+                              weatherSummary: {
+                                ...(draft.weatherSummary ?? {}),
+                                recommended_weather: event.target.value,
+                                condition_label: draft.weatherSummary?.condition_label ?? event.target.value,
+                                source: draft.weatherSummary?.source ?? "manual",
+                              },
+                            });
+                          }
+                        }}
+                      >
+                        {weatherOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </CollapsiblePanel>
 
                 <CollapsiblePanel
                   title="Advanced area details"
@@ -615,7 +809,7 @@ export function MissionIntakePage() {
                           />
                         </label>
                         <label>
-                          <span className="field-label">Endurance (minutes)</span>
+                          <FieldLabelWithHelp label="Endurance (minutes)" help={assetFieldHelpText.maxEnduranceMinutes} />
                           <input
                             className="field-input"
                             value={asset.maxEnduranceMinutes}
@@ -623,7 +817,7 @@ export function MissionIntakePage() {
                           />
                         </label>
                         <label>
-                          <span className="field-label">Max range (km)</span>
+                          <FieldLabelWithHelp label="Max range (km)" help={assetFieldHelpText.estimatedMaxRangeKm} />
                           <input
                             className="field-input"
                             value={asset.estimatedMaxRangeKm}
@@ -631,7 +825,7 @@ export function MissionIntakePage() {
                           />
                         </label>
                         <label>
-                          <span className="field-label">Cruise speed (kph)</span>
+                          <FieldLabelWithHelp label="Cruise speed (kph)" help={assetFieldHelpText.cruiseSpeedKph} />
                           <input
                             className="field-input"
                             value={asset.cruiseSpeedKph}
@@ -639,7 +833,7 @@ export function MissionIntakePage() {
                           />
                         </label>
                         <label>
-                          <span className="field-label">Turnaround (minutes)</span>
+                          <FieldLabelWithHelp label="Turnaround (minutes)" help={assetFieldHelpText.turnaroundTimeMinutes} />
                           <input
                             className="field-input"
                             value={asset.turnaroundTimeMinutes}
@@ -656,7 +850,7 @@ export function MissionIntakePage() {
                         >
                           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                             <label>
-                              <span className="field-label">Sensor capability</span>
+                              <FieldLabelWithHelp label="Sensor capability" help={assetFieldHelpText.sensorCapabilityLevel} />
                               <select
                                 className="field-input"
                                 value={asset.sensorCapabilityLevel}
@@ -670,7 +864,7 @@ export function MissionIntakePage() {
                               </select>
                             </label>
                             <label>
-                              <span className="field-label">Thermal capability</span>
+                              <FieldLabelWithHelp label="Thermal capability" help={assetFieldHelpText.thermalCapabilityLevel} />
                               <select
                                 className="field-input"
                                 value={asset.thermalCapabilityLevel}
@@ -684,7 +878,7 @@ export function MissionIntakePage() {
                               </select>
                             </label>
                             <label>
-                              <span className="field-label">Detection proxy</span>
+                              <FieldLabelWithHelp label="Detection proxy" help={assetFieldHelpText.detectionCapabilityProxy} />
                               <input
                                 className="field-input"
                                 value={asset.detectionCapabilityProxy}
@@ -900,12 +1094,10 @@ export function MissionIntakePage() {
             <div className="mt-4 divide-y divide-border/60">
               <SummaryRow label="Location" value={draft.missionArea?.location_display_name ?? draft.resolvedLocation?.display_name ?? "Not set"} />
               <SummaryRow label="Situation" value={`${intakeSummary.search_area_size} search`} />
-              <SummaryRow label="Mission area" value={draft.missionArea?.area_sq_km ? `${draft.missionArea.area_sq_km.toFixed(1)} km²` : "Draw on map"} />
-              <SummaryRow label="Environment" value={`${draft.environmentType.replace("_", " ")}, ${draft.weather}`} />
-              <SummaryRow
-                label="Last known position"
-                value={draft.lastKnownStatus === "known" ? "Known contact area" : "Unknown"}
-              />
+              <SummaryRow label="Mission area" value={missionAreaLabel} />
+              <SummaryRow label="Environment" value={environmentLabel} />
+              <SummaryRow label="Weather" value={weatherLabel} />
+              <SummaryRow label="Last known position" value={lastKnownLabel} />
               <SummaryRow label="Fleet" value={assetPackage.drone_types.length > 1 ? "Mixed fleet" : "Uniform fleet"} />
               <SummaryRow label="Assets ready" value={`${intakeSummary.total_drones} drones`} />
               <SummaryRow

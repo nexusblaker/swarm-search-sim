@@ -127,11 +127,13 @@ class RecommendationService:
         pattern_label = str(top.get("search_pattern_label") or "this search pattern")
         intent_label = self.INTENT_LABELS.get(mission_intent, mission_intent.replace("_", " "))
         area_summary = str(top.get("mission_area_summary") or "").strip()
+        context_note = self._context_note(top)
         return (
             f"{pattern_label} is the best fit for the requested {intent_label}. "
             f"It uses {strategy_label} underneath with {top.get('drone_count')} drones and a "
             f"{top.get('return_threshold')}% return reserve so coverage geometry, battery margin, and confirmation tempo stay aligned."
             f"{f' {area_summary}' if area_summary else ''}"
+            f"{f' {context_note}' if context_note else ''}"
         )
 
     def _build_concise_summary(
@@ -157,6 +159,7 @@ class RecommendationService:
                 f" It edges out the main alternative by offering better "
                 f"{'battery margin' if float(top.get('expected_battery_risk', 0.0)) <= float(alternative.get('expected_battery_risk', 1.0)) else 'coverage speed'}."
             )
+        context_note = self._context_note(top)
         sensing_note = ""
         if str(top.get("inspection_burden", "")) == "elevated":
             sensing_note = " Expect more inspect passes before confirmation."
@@ -165,7 +168,8 @@ class RecommendationService:
         return (
             f"Recommended: use {pattern_label} with {fleet_text}{staging_text}. "
             f"{reason or f'This gives the best balance for {intent_label}.'}"
-            f"{f' {area_summary}' if area_summary else ''}{tradeoff}{sensing_note}"
+            f"{f' {area_summary}' if area_summary else ''}"
+            f"{f' {context_note}' if context_note else ''}{tradeoff}{sensing_note}"
         )
 
     def _build_alternative_summary(self, alternative: dict[str, Any]) -> str:
@@ -198,6 +202,27 @@ class RecommendationService:
         if str(top.get("inspection_burden", "")) == "elevated":
             risks.append("reduced visibility may create more low-confidence contacts that need inspection")
         return risks[:3]
+
+    @staticmethod
+    def _context_note(top: dict[str, Any]) -> str:
+        mission_area = top.get("mission_area") or {}
+        if not isinstance(mission_area, dict):
+            return ""
+        weather_summary = mission_area.get("weather_summary") or {}
+        wind_speed = float(weather_summary.get("wind_speed_kph", 0.0) or 0.0)
+        weather_label = str(weather_summary.get("condition_label") or "").strip()
+        has_precise_last_known = bool(
+            isinstance(mission_area.get("last_known_location"), dict)
+            and mission_area["last_known_location"].get("latitude") is not None
+            and mission_area["last_known_location"].get("longitude") is not None
+        )
+        if has_precise_last_known and str(top.get("search_pattern")) == "expanding_ring":
+            return "The placed last known point lets the opening search stay anchored instead of treating the mission as a wide sweep."
+        if wind_speed >= 24.0 and weather_label:
+            return f"{weather_label} conditions are already folded into the search pacing and reserve margins."
+        if str(top.get("search_pattern")) == "broad_area_sweep" and mission_area.get("last_known_status") == "unknown":
+            return "The area is being treated as a wide uncertainty search rather than a point-focused task."
+        return ""
 
     @staticmethod
     def _coordination_label(mode: Any) -> str:

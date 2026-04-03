@@ -6,6 +6,7 @@ import type {
   HealthResponse,
   JobRecord,
   LibraryTemplateRecord,
+  LocationSearchResponse,
   MissionPlanRecord,
   MissionAreaPreviewResponse,
   PlanComparisonRecord,
@@ -14,6 +15,7 @@ import type {
   ReportRecord,
   RunRecord,
   ScenarioRecord,
+  WeatherSummary,
 } from "@/api/types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
@@ -50,10 +52,14 @@ export const api = {
   baseUrl: API_BASE_URL,
   health: () => request<HealthResponse>("/health"),
   dashboardSummary: () => request<DashboardSummaryResponse>("/dashboard/summary"),
+  searchLocations: (payload: Record<string, unknown>) =>
+    request<LocationSearchResponse>("/geo/search-locations", { method: "POST", body: JSON.stringify(payload) }),
   resolveLocation: (payload: Record<string, unknown>) =>
     request<ResolvedLocation>("/geo/resolve-location", { method: "POST", body: JSON.stringify(payload) }),
   previewMissionArea: (payload: Record<string, unknown>) =>
     request<MissionAreaPreviewResponse>("/geo/preview-area", { method: "POST", body: JSON.stringify(payload) }),
+  weather: (payload: Record<string, unknown>) =>
+    request<WeatherSummary>("/geo/weather", { method: "POST", body: JSON.stringify(payload) }),
   scenarios: () => request<{ items: ScenarioRecord[] }>("/scenarios"),
   scenario: (id: string) => request<ScenarioRecord>(`/scenarios/${id}`),
   createScenario: (payload: Record<string, unknown>) =>

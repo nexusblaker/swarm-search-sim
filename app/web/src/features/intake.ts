@@ -4,6 +4,7 @@ import type {
   MissionIntent,
   RecommendationResponse,
   ResolvedLocation,
+  WeatherSummary,
 } from "@/api/types";
 
 export type LastKnownStatus = "known" | "unknown";
@@ -55,6 +56,8 @@ export interface MissionIntakeDraft {
   locationQuery: string;
   resolvedLocation: ResolvedLocation | null;
   missionArea: MissionAreaSummary | null;
+  weatherSummary: WeatherSummary | null;
+  lastKnownLocation: MissionAreaSummary["last_known_location"] | null;
   gridResolutionMeters: string;
   lastKnownStatus: LastKnownStatus;
   searchAreaSize: SearchAreaSize;
@@ -198,6 +201,17 @@ const DEFAULT_RESERVE_BY_INTENT: Record<MissionIntent, number> = {
   battery_conservative: 34,
 };
 
+export const assetFieldHelpText: Record<string, string> = {
+  maxEnduranceMinutes: "Estimated battery life or total usable flight time for one sortie.",
+  estimatedMaxRangeKm: "Estimated maximum practical distance the drone can travel in one sortie.",
+  cruiseSpeedKph: "Typical transit speed used for planning broad search timing and return pacing.",
+  turnaroundTimeMinutes:
+    "Estimated time needed after return to base before the drone can launch again, including battery swap, recharge, or basic servicing.",
+  sensorCapabilityLevel: "Overall sensing quality for broad search, cueing, and follow-up inspection work.",
+  thermalCapabilityLevel: "How well the drone supports thermal search, especially in low-visibility or cooler conditions.",
+  detectionCapabilityProxy: "Simple planning multiplier for how readily this drone can generate useful target clues.",
+};
+
 export function createDroneTypeDraft(id: string, overrides?: Partial<DroneTypeDraft>): DroneTypeDraft {
   return {
     id,
@@ -221,6 +235,8 @@ export function createDefaultMissionIntakeDraft(): MissionIntakeDraft {
     locationQuery: "",
     resolvedLocation: null,
     missionArea: null,
+    weatherSummary: null,
+    lastKnownLocation: null,
     gridResolutionMeters: "500",
     lastKnownStatus: "unknown",
     searchAreaSize: "medium",
@@ -246,6 +262,22 @@ function normalizeSearchPatternChoice(value: string | null | undefined): SearchP
     return "auto";
   }
   return SEARCH_PATTERN_CHOICES.includes(value as SearchPatternChoice) ? (value as SearchPatternChoice) : "auto";
+}
+
+export function deriveSearchAreaSize(areaSqKm: number | null | undefined): SearchAreaSize {
+  if (!areaSqKm || areaSqKm <= 0) {
+    return "medium";
+  }
+  if (areaSqKm < 5) {
+    return "small";
+  }
+  if (areaSqKm < 20) {
+    return "medium";
+  }
+  if (areaSqKm < 60) {
+    return "large";
+  }
+  return "very_large";
 }
 
 function totalDroneCount(assets: DroneTypeDraft[]): number {
@@ -385,8 +417,9 @@ export function buildIntakeSummary(draft: MissionIntakeDraft) {
     location_display_name: draft.missionArea?.location_display_name ?? draft.resolvedLocation?.display_name ?? "",
     last_known_status: draft.lastKnownStatus,
     search_area_size: draft.searchAreaSize,
-    environment_type: draft.environmentType,
+    environment_type: draft.missionArea?.environment_summary?.label ?? draft.environmentType,
     weather: draft.weather,
+    weather_summary: draft.weatherSummary?.operator_summary,
     time_since_contact: draft.timeSinceContact,
     mission_intent: draft.missionIntent,
     search_pattern_preference: draft.searchPattern,
@@ -394,6 +427,7 @@ export function buildIntakeSummary(draft: MissionIntakeDraft) {
     area_sq_km: draft.missionArea?.area_sq_km,
     grid_resolution_m: draft.missionArea?.grid_resolution_m ?? Number(draft.gridResolutionMeters),
     mission_area_summary: draft.missionArea?.operator_summary,
+    last_known_summary: draft.missionArea?.last_known_summary,
     total_drones: totalDroneCount(draft.assets),
     mixed_fleet: !draft.allDronesSame,
   };

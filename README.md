@@ -129,9 +129,22 @@ Frontend environment:
 
 ```bash
 VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_BASEMAP_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+VITE_BASEMAP_STYLE_LABEL=Live basemap
+VITE_BASEMAP_ATTRIBUTION=Map data © OpenStreetMap contributors
 ```
 
 See `app/web/.env.example`.
+
+Optional backend geospatial environment:
+
+```bash
+SWARM_ENABLE_LIVE_GEOCODER=1
+SWARM_ENABLE_LIVE_WEATHER=1
+SWARM_GEOCODER_ENDPOINT=https://nominatim.openstreetmap.org/search
+SWARM_WEATHER_ENDPOINT=https://api.open-meteo.com/v1/forecast
+SWARM_GEOSPATIAL_TIMEOUT_SECONDS=1.5
+```
 
 ## Frontend Commands
 
@@ -186,9 +199,10 @@ The new intake flow is staged as:
 The guided intake keeps the first pass operator-friendly and hides advanced details until they are useful. It captures:
 
 - whether the last known location is known or unknown
-- search area size
-- environment type
-- weather
+- place search or coordinate fallback
+- map-defined search area and grid resolution
+- auto-derived environment and area summary
+- current weather as the starting mission condition
 - time since last contact
 - fleet package details
 - staging location
@@ -196,6 +210,7 @@ The guided intake keeps the first pass operator-friendly and hides advanced deta
 - preferred search pattern or a request for automatic pattern selection
 
 The intake produces a standard `MissionPlan`, so the rest of the workflow remains compatible.
+Fleet fields now include inline help for endurance, range, cruise speed, turnaround, and sensing capability so mixed-fleet setup reads more clearly during planning.
 
 ### Search Patterns And Formations
 
@@ -218,25 +233,27 @@ Pattern selection is deterministic and explainable. At a high level it considers
 
 Unknown-location wide-area missions now bias toward coverage-first layouts instead of acting like a point search. Lane spacing and sector partitioning are derived from effective sensor coverage rather than a fixed arbitrary distance.
 
-### Real Mission Areas And AOI Planning
+### Real Mission Areas And Connected AOI Planning
 
-Slice 5 adds a local-first real-area workflow so operators can plan against a believable mission area instead of a generic synthetic grid. The intake now supports:
+The mission intake now uses a connected geospatial planning flow layered on top of the earlier local-first AOI support. Operators can:
 
-- rough location input by place name or direct latitude/longitude
-- local-first location resolution through a built-in gazetteer, with direct coordinate fallback for exact areas
-- a map-style mission-area planner centered on the selected location
-- AOI definition by drawing and reshaping a rectangle
-- staging/base placement on the selected area
-- grid resolution controls that map the AOI into the existing simulator grid
-- deterministic terrain, elevation, trail, and obstacle summaries derived from the selected area
+- search by place name with autocomplete
+- paste direct latitude/longitude as a first-class fallback
+- center the mission on a live basemap
+- draw and resize a rectangular AOI directly on the map
+- place staging/base on the map
+- place the last known location on the map when it is known
+- let area size, width x height, environment summary, and weather defaults update automatically
 
-The current Slice 5 model stays intentionally practical:
+This connected slice stays intentionally practical:
 
-- no live external GIS dependency is required for local use
-- no heavy image classification pipeline is used
-- no 3D terrain or 3D replay is added
+- the live basemap is tile-based and lightweight
+- live geocoding and weather are optional enhancements, not hard dependencies
+- the local gazetteer and coordinate input remain available when live lookup is unavailable
+- weather falls back to a deterministic local estimate when the live provider cannot be reached
+- the simulator still receives an explainable rasterized grid instead of opaque geospatial processing
 
-Instead, the product resolves a real place or coordinate pair, converts the AOI into a sim grid, and derives explainable terrain layers and summaries that the preserved simulation core can use.
+The selected AOI still drives mission-area bounds, terrain and elevation summaries, staging/base context, last known context, pattern recommendation, and downstream run/replay/review/report visibility.
 
 ### Scenarios
 
@@ -504,8 +521,10 @@ Main route groups:
 
 - `/health`
 - `/dashboard/summary`
+- `/geo/search-locations`
 - `/geo/resolve-location`
 - `/geo/preview-area`
+- `/geo/weather`
 - `/scenarios`
 - `/templates`
 - `/library/templates`
@@ -604,11 +623,18 @@ Important Slice 5 payload additions include:
   - `mission_area`
   - `mission_area_summary`
 
-Slice 5 currently uses a local-first fallback for map data:
+Connected geospatial behavior now layers on top of the Slice 5 fallback:
 
-- place names resolve through a built-in gazetteer
-- direct coordinates are supported for exact placement anywhere
-- terrain and elevation are derived deterministically from the selected AOI when live external layers are not available
+- `/geo/search-locations` returns local-first autocomplete suggestions and can augment them with live geocoder matches
+- `/geo/weather` fetches current weather for the selected location and falls back gracefully if the live provider is unavailable
+- `mission_area.weather_summary` stores the imported weather summary used during planning
+- `mission_area.last_known_location` stores the operator-placed last known point when available
+
+Local-first fallback behavior remains available:
+
+- place names still resolve through the built-in gazetteer
+- direct coordinates still work everywhere
+- terrain and elevation are still derived deterministically from the selected AOI when live external layers are not available
 
 ## Docker
 
