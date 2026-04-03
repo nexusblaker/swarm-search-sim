@@ -1,0 +1,121 @@
+{
+  "seed": 7,
+  "model_version": "slice6-operational-v1",
+  "scenario_version": "8c0ef9b5e4f7",
+  "mission_plan_version": "latest-test@1775199499.322",
+  "plan_id": "latest-test",
+  "comparison_id": null,
+  "candidate_id": null,
+  "deployment_mode": "base_launch",
+  "reserve_preset": "balanced",
+  "search_pattern_requested": "sector_split",
+  "mission_intent": "broad_area_coverage",
+  "weather_source": "live_weather",
+  "aoi_source": "live_geocoder",
+  "terrain_derivation_source": "local_first_deterministic",
+  "calibration_version": "default-operational-v1",
+  "calibration_snapshot": {
+    "version": "default-operational-v1",
+    "battery_burn_by_terrain": {
+      "plain": 1.0,
+      "forest": 1.18,
+      "hill": 1.24,
+      "urban": 1.14,
+      "water": 1.32
+    },
+    "weather_energy_factor": {
+      "clear": 1.0,
+      "windy": 1.12,
+      "rain": 1.22,
+      "storm": 1.38
+    },
+    "slope_penalty_factor": 0.55,
+    "cue_visibility_factor": {
+      "open": 1.0,
+      "mixed": 0.88,
+      "forested": 0.74,
+      "obstructed": 0.66
+    },
+    "confirm_visibility_factor": {
+      "open": 1.0,
+      "mixed": 0.9,
+      "forested": 0.8,
+      "obstructed": 0.72
+    },
+    "turnaround_efficiency_factor": 1.0,
+    "units": {
+      "battery_energy": "sortie energy units",
+      "battery_display": "percent of initial sortie energy",
+      "movement_cost": "energy units per grid-to-grid move",
+      "time_step": "minutes per simulation step",
+      "area": "square kilometres",
+      "distance": "kilometres",
+      "grid_resolution": "metres per cell",
+      "wind_speed": "kilometres per hour"
+    },
+    "modeled_assumptions": [
+      "Battery is tracked in sortie energy units and converted to percent for display only.",
+      "Route energy sums terrain, wind, and slope penalties over planned cell paths.",
+      "Detection uses staged cue, inspect, and confirm logic rather than instant target certainty.",
+      "Grid resolution and AOI size define operational scale for coverage and transit burden."
+    ],
+    "calibrated_estimates": [
+      "Terrain energy multipliers are tuned for relative operational burden rather than field-certified consumption.",
+      "Weather and slope penalties are calibrated estimates intended to keep route costs believable and stable.",
+      "Cue and confirmation visibility factors are benchmarked against scenario families, not against live sensor telemetry.",
+      "Turnaround timing is treated as an operational estimate that includes swap, recharge, and basic servicing."
+    ],
+    "known_limitations": [
+      "The simulator is still symbolic and grid-based rather than a full aerodynamics or flight-control model.",
+      "Mixed fleets influence planning, battery burden, and recommendation quality more than per-aircraft physics.",
+      "Benchmarks validate reasonableness within bounded SAR-style scenarios, not all field conditions.",
+      "Weather and terrain inputs are deterministic planning approximations rather than live onboard measurements."
+    ]
+  },
+  "units": {
+    "battery_energy": "sortie energy units",
+    "battery_display": "percent of initial sortie energy",
+    "movement_cost": "energy units per grid-to-grid move",
+    "time_step": "minutes per simulation step",
+    "area": "square kilometres",
+    "distance": "kilometres",
+    "grid_resolution": "metres per cell",
+    "wind_speed": "kilometres per hour"
+  },
+  "assumptions_summary": "Battery is modeled in sortie energy units with 3-minute steps. Reserve logic follows the balanced profile.",
+  "known_limitations_summary": "The simulator is still symbolic and grid-based rather than a full aerodynamics or flight-control model. Mixed fleets influence planning, battery burden, and recommendation quality more than per-aircraft physics.",
+  "benchmark_context": [
+    "moderate-wind-steep"
+  ],
+  "feasibility_summary": {
+    "status": "high_risk",
+    "status_label": "High Risk",
+    "issue_count": 3,
+    "readiness_score": 32,
+    "warnings": [
+      {
+        "severity": "high_risk",
+        "label": "High Risk",
+        "title": "Weather increases battery burden",
+        "summary": "Wind and weather are likely to reduce effective search time and increase turnover pressure.",
+        "recommendation": "Use a higher reserve margin and expect slower time to confirmation than in calm conditions."
+      },
+      {
+        "severity": "warning",
+        "label": "Warning",
+        "title": "Terrain and slope will slow clean coverage",
+        "summary": "Steeper ground increases route cost and makes broad, even coverage harder to sustain.",
+        "recommendation": "Favor patterns that respect battery margin and expect more deliberate lane spacing."
+      },
+      {
+        "severity": "warning",
+        "label": "Warning",
+        "title": "Confirmation burden is elevated",
+        "summary": "Terrain and visibility conditions are likely to create more cue and inspect activity before confirmation.",
+        "recommendation": "Expect more inspection passes and give extra attention to confirmation timing in the recommendation briefing."
+      }
+    ],
+    "operator_summary": "Mission is possible, but the current setup carries high operational risk.",
+    "next_watch": "Wind and weather are likely to reduce effective search time and increase turnover pressure."
+  }
+}

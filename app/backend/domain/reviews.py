@@ -113,6 +113,7 @@ class AfterActionReviewService:
                 "metrics": run_summary.get("metrics", {}),
             },
             "deviation_from_recommendation": deviation,
+            "deviation_summary": self._summarize_deviation(deviation),
             "asset_utilization": {
                 "drone_count": actual["num_drones"],
                 "battery_used": run_summary.get("metrics", {}).get("battery_used"),
@@ -188,3 +189,26 @@ class AfterActionReviewService:
                 f"with {actual['num_drones']} drones."
             ),
         }
+
+    @staticmethod
+    def _summarize_deviation(deviation: dict[str, bool]) -> str:
+        labels = [
+            label
+            for key, label in (
+                ("strategy_differs", "search strategy"),
+                ("drone_count_differs", "drone count"),
+                ("coordination_differs", "team coordination"),
+                ("reserve_differs", "reserve policy"),
+            )
+            if deviation.get(key)
+        ]
+        if not labels:
+            return "The run remained closely aligned with the original recommendation."
+        if len(labels) == 1:
+            return f"The run differed from the original recommendation in {labels[0]}."
+        if len(labels) == 2:
+            return f"The run differed materially from the original recommendation in {labels[0]} and {labels[1]}."
+        return (
+            "The run differed materially from the original recommendation in "
+            f"{', '.join(labels[:-1])}, and {labels[-1]}."
+        )

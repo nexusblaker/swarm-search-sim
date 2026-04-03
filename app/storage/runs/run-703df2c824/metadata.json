@@ -1,0 +1,6273 @@
+{
+  "id": "run-703df2c824",
+  "scenario_id": "plan",
+  "status": "completed",
+  "created_at": 1775199499.379609,
+  "updated_at": 1775199500.752584,
+  "completed_at": 1775199500.752584,
+  "config_json": {
+    "scenario": {
+      "name": "latest test",
+      "map_size": [
+        12,
+        10
+      ],
+      "weather": "windy",
+      "num_drones": 8,
+      "last_known_position": [
+        8,
+        2
+      ],
+      "target_assumptions": {
+        "behavior": "trail_biased",
+        "target_move_probability": 0.34,
+        "target_speed": 1,
+        "drift_sigma": 5
+      },
+      "target_start_radius": 4,
+      "max_steps": 40,
+      "strategy": "sector_search",
+      "search_pattern": "sector_split",
+      "scenario_family": "obstacle_heavy",
+      "last_known_status": "known",
+      "base_position": [
+        5,
+        0
+      ],
+      "mission_area": {
+        "location_display_name": "Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia",
+        "location_source": "live_geocoder",
+        "location_query": "Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia",
+        "center": {
+          "latitude": -37.369336,
+          "longitude": 145.5822701
+        },
+        "preview_span_km": 18,
+        "shape_type": "rectangle",
+        "rectangle": {
+          "north": -37.34316593935669,
+          "south": -37.37130622729662,
+          "east": 145.61718611055147,
+          "west": 145.56421754965288
+        },
+        "polygon": [
+          {
+            "latitude": -37.34316593935669,
+            "longitude": 145.56421754965288
+          },
+          {
+            "latitude": -37.34316593935669,
+            "longitude": 145.61718611055147
+          },
+          {
+            "latitude": -37.37130622729662,
+            "longitude": 145.61718611055147
+          },
+          {
+            "latitude": -37.37130622729662,
+            "longitude": 145.56421754965288
+          }
+        ],
+        "bounds": {
+          "north": -37.34316593935669,
+          "south": -37.37130622729662,
+          "east": 145.61718611055147,
+          "west": 145.56421754965288
+        },
+        "width_km": 4.69,
+        "height_km": 3.13,
+        "area_sq_km": 14.68,
+        "shape_ratio": 1.5,
+        "requested_grid_resolution_m": 500,
+        "grid_resolution_m": 500,
+        "cell_size_m": 500,
+        "grid_size": [
+          12,
+          10
+        ],
+        "grid_cols": 12,
+        "grid_rows": 10,
+        "max_safe_cells": 4900,
+        "warnings": [],
+        "terrain_hint": "mixed",
+        "requested_environment_type": "obstacle_heavy",
+        "last_known_status": "known",
+        "environment_type": "obstacle_heavy",
+        "weather_summary": {
+          "source": "live_weather",
+          "provider": "open-meteo",
+          "recommended_weather": "windy",
+          "condition_label": "Overcast",
+          "temperature_c": 13.4,
+          "wind_speed_kph": 21.3,
+          "precipitation_mm": 0,
+          "cloud_cover_pct": 100,
+          "visibility_label": "Reduced",
+          "operator_summary": "Current weather shows overcast with winds around 21 kph.",
+          "fallback_note": null,
+          "fetched_at": "2026-04-03T06:55:19.518426+00:00"
+        },
+        "center_grid_position": [
+          6,
+          5
+        ],
+        "shape_summary": "Rectangle AOI",
+        "aoi_outline_grid": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            9,
+            0
+          ],
+          [
+            10,
+            0
+          ],
+          [
+            11,
+            0
+          ],
+          [
+            11,
+            1
+          ],
+          [
+            11,
+            2
+          ],
+          [
+            11,
+            3
+          ],
+          [
+            11,
+            4
+          ],
+          [
+            11,
+            5
+          ],
+          [
+            11,
+            6
+          ],
+          [
+            11,
+            7
+          ],
+          [
+            11,
+            8
+          ],
+          [
+            11,
+            9
+          ],
+          [
+            10,
+            9
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            8,
+            9
+          ],
+          [
+            7,
+            9
+          ],
+          [
+            6,
+            9
+          ],
+          [
+            5,
+            9
+          ],
+          [
+            4,
+            9
+          ],
+          [
+            3,
+            9
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            1,
+            9
+          ],
+          [
+            0,
+            9
+          ],
+          [
+            0,
+            8
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "staging": {
+          "latitude": -37.34368079545057,
+          "longitude": 145.58778315429754,
+          "label": "Primary staging point",
+          "placement": "map",
+          "grid_position": [
+            5,
+            0
+          ]
+        },
+        "staging_distance_to_center_km": 2.9,
+        "staging_summary": "Base is positioned inside the selected search area.",
+        "last_known_location": {
+          "latitude": -37.34951558447108,
+          "longitude": 145.60378182167102,
+          "label": "Last known location",
+          "placement": "map",
+          "grid_position": [
+            8,
+            2
+          ]
+        },
+        "last_known_inside_aoi": true,
+        "last_known_grid_position": [
+          8,
+          2
+        ],
+        "last_known_summary": "Last known point is placed inside the search area.",
+        "area_metrics_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells.",
+        "operator_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells.",
+        "grid_summary": {
+          "map_size": [
+            12,
+            10
+          ],
+          "cell_size_m": 500,
+          "shape_label": "Rectangle AOI",
+          "operator_summary": "Grid resolves to 12 by 10 cells."
+        },
+        "area_metrics": {
+          "area_sq_km": 14.68,
+          "width_km": 4.69,
+          "height_km": 3.13,
+          "grid_cols": 12,
+          "grid_rows": 10,
+          "grid_resolution_m": 500,
+          "staging_offset_km": 2.9,
+          "last_known_inside_aoi": true,
+          "operator_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells. Grid resolves to 12 by 10 cells."
+        },
+        "terrain_summary": {
+          "source_mode": "local_first_deterministic",
+          "dominant_terrain": "hill country",
+          "terrain_mix": {
+            "open terrain": 0.15,
+            "forest": 0.092,
+            "hill country": 0.583,
+            "urban edge": 0,
+            "water / no-go": 0.175
+          },
+          "elevation_range_m": [
+            0,
+            837.1
+          ],
+          "mean_elevation_m": 416.8,
+          "slope_burden": "elevated",
+          "trail_access": "good",
+          "trail_coverage_pct": 0.3,
+          "obstacle_coverage_pct": 0.233,
+          "water_coverage_pct": 0.175,
+          "suggested_scenario_family": "obstacle_heavy",
+          "terrain_burden_label": "Trail-accessible hill country",
+          "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+          "slope_summary": {
+            "value": "steep",
+            "label": "Steep terrain",
+            "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+          },
+          "operator_summary": "The selected area reads as trail-accessible hill country, with steep terrain and good access."
+        },
+        "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+        "slope_summary": {
+          "value": "steep",
+          "label": "Steep terrain",
+          "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+        },
+        "slope_elevation_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.",
+        "environment_summary": {
+          "value": "obstacle_heavy",
+          "label": "Obstacle-heavy",
+          "operator_summary": "Obstacle-heavy ground is the dominant character of the selected area."
+        },
+        "environment_label": "Obstacle-heavy",
+        "planner_ready": true,
+        "planner_status_summary": "Planning context is ready for recommendation and simulation.",
+        "context_summary": "Location: Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia. AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as obstacle-heavy. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 21 kph. Planning context is ready for recommendation and simulation."
+      },
+      "communication": {
+        "coordination_mode": "centralized"
+      },
+      "battery_policy": {
+        "return_threshold": 30
+      },
+      "render": {
+        "save_frames": false,
+        "frame_stride": 3
+      },
+      "mission_intent": "broad_area_coverage",
+      "asset_package": {
+        "package_name": "latest test fleet",
+        "uniform_fleet": true,
+        "staging_location": "Primary staging point",
+        "notes": "",
+        "drone_types": [
+          {
+            "display_name": "General purpose drone",
+            "model_name": "General purpose drone",
+            "count": 8,
+            "max_endurance_minutes": 45.0,
+            "estimated_max_range_km": 41.0,
+            "cruise_speed_kph": 65.0,
+            "sensor_capability_level": "standard",
+            "thermal_capability_level": "assisted",
+            "detection_capability_proxy": 1.0,
+            "turnaround_time_minutes": 5.0,
+            "notes": ""
+          }
+        ],
+        "fleet_composition": {
+          "mix_type": "uniform",
+          "total_drones": 8,
+          "drone_type_count": 1,
+          "aggregate_endurance_minutes": 45.0,
+          "aggregate_range_km": 41.0,
+          "aggregate_speed_kph": 65.0,
+          "sensor_score": 1.0,
+          "thermal_score": 1.0,
+          "detection_score": 1.0,
+          "endurance_score": 0.45,
+          "coverage_score": 1.45,
+          "coordination_complexity": "low",
+          "average_turnaround_minutes": 5.0
+        },
+        "operator_summary": "8 General purpose drone staged from Primary staging point available for this mission."
+      },
+      "drone": {
+        "battery": 60.0,
+        "speed": 2,
+        "sensor_range": 5.31,
+        "fov": 130.0,
+        "estimated_max_range_km": 41.0,
+        "cruise_speed_kph": 65.0,
+        "sensor_capability_level": "standard",
+        "thermal_capability_level": "assisted",
+        "turnaround_time_minutes": 5.0,
+        "fleet_composition": {
+          "mix_type": "uniform",
+          "total_drones": 8,
+          "drone_type_count": 1,
+          "aggregate_endurance_minutes": 45.0,
+          "aggregate_range_km": 41.0,
+          "aggregate_speed_kph": 65.0,
+          "sensor_score": 1.0,
+          "thermal_score": 1.0,
+          "detection_score": 1.0,
+          "endurance_score": 0.45,
+          "coverage_score": 1.45,
+          "coordination_complexity": "low",
+          "average_turnaround_minutes": 5.0
+        }
+      }
+    }
+  },
+  "summary_json": {
+    "strategy": "sector_search",
+    "mission_intent": "broad_area_coverage",
+    "search_pattern": "adaptive_rebalance",
+    "search_pattern_label": "Adaptive Rebalance",
+    "last_known_status": "known",
+    "scenario_family": "obstacle_heavy",
+    "num_drones": 8,
+    "map_size": [
+      12,
+      10
+    ],
+    "weather": "windy",
+    "target_behavior": "trail_biased",
+    "coordination_mode": "centralized",
+    "deployment_mode": "base_launch",
+    "return_to_base_threshold": 30.0,
+    "reserve_preset": "balanced",
+    "drone_range_km": 41.0,
+    "turnaround_time_minutes": 5.0,
+    "coverage_overlap_margin": 0.18,
+    "mission_area": {
+      "location_display_name": "Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia",
+      "location_source": "live_geocoder",
+      "location_query": "Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia",
+      "center": {
+        "latitude": -37.369336,
+        "longitude": 145.5822701
+      },
+      "preview_span_km": 18,
+      "shape_type": "rectangle",
+      "rectangle": {
+        "north": -37.34316593935669,
+        "south": -37.37130622729662,
+        "east": 145.61718611055147,
+        "west": 145.56421754965288
+      },
+      "polygon": [
+        {
+          "latitude": -37.34316593935669,
+          "longitude": 145.56421754965288
+        },
+        {
+          "latitude": -37.34316593935669,
+          "longitude": 145.61718611055147
+        },
+        {
+          "latitude": -37.37130622729662,
+          "longitude": 145.61718611055147
+        },
+        {
+          "latitude": -37.37130622729662,
+          "longitude": 145.56421754965288
+        }
+      ],
+      "bounds": {
+        "north": -37.34316593935669,
+        "south": -37.37130622729662,
+        "east": 145.61718611055147,
+        "west": 145.56421754965288
+      },
+      "width_km": 4.69,
+      "height_km": 3.13,
+      "area_sq_km": 14.68,
+      "shape_ratio": 1.5,
+      "requested_grid_resolution_m": 500,
+      "grid_resolution_m": 500,
+      "cell_size_m": 500,
+      "grid_size": [
+        12,
+        10
+      ],
+      "grid_cols": 12,
+      "grid_rows": 10,
+      "max_safe_cells": 4900,
+      "warnings": [],
+      "terrain_hint": "mixed",
+      "requested_environment_type": "obstacle_heavy",
+      "last_known_status": "known",
+      "environment_type": "obstacle_heavy",
+      "weather_summary": {
+        "source": "live_weather",
+        "provider": "open-meteo",
+        "recommended_weather": "windy",
+        "condition_label": "Overcast",
+        "temperature_c": 13.4,
+        "wind_speed_kph": 21.3,
+        "precipitation_mm": 0,
+        "cloud_cover_pct": 100,
+        "visibility_label": "Reduced",
+        "operator_summary": "Current weather shows overcast with winds around 21 kph.",
+        "fallback_note": null,
+        "fetched_at": "2026-04-03T06:55:19.518426+00:00"
+      },
+      "center_grid_position": [
+        6,
+        5
+      ],
+      "shape_summary": "Rectangle AOI",
+      "aoi_outline_grid": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          11,
+          1
+        ],
+        [
+          11,
+          2
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "staging": {
+        "latitude": -37.34368079545057,
+        "longitude": 145.58778315429754,
+        "label": "Primary staging point",
+        "placement": "map",
+        "grid_position": [
+          5,
+          0
+        ]
+      },
+      "staging_distance_to_center_km": 2.9,
+      "staging_summary": "Base is positioned inside the selected search area.",
+      "last_known_location": {
+        "latitude": -37.34951558447108,
+        "longitude": 145.60378182167102,
+        "label": "Last known location",
+        "placement": "map",
+        "grid_position": [
+          8,
+          2
+        ]
+      },
+      "last_known_inside_aoi": true,
+      "last_known_grid_position": [
+        8,
+        2
+      ],
+      "last_known_summary": "Last known point is placed inside the search area.",
+      "area_metrics_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells.",
+      "operator_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells.",
+      "grid_summary": {
+        "map_size": [
+          12,
+          10
+        ],
+        "cell_size_m": 500,
+        "shape_label": "Rectangle AOI",
+        "operator_summary": "Grid resolves to 12 by 10 cells."
+      },
+      "area_metrics": {
+        "area_sq_km": 14.68,
+        "width_km": 4.69,
+        "height_km": 3.13,
+        "grid_cols": 12,
+        "grid_rows": 10,
+        "grid_resolution_m": 500,
+        "staging_offset_km": 2.9,
+        "last_known_inside_aoi": true,
+        "operator_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells. Grid resolves to 12 by 10 cells."
+      },
+      "terrain_summary": {
+        "source_mode": "local_first_deterministic",
+        "dominant_terrain": "hill country",
+        "terrain_mix": {
+          "open terrain": 0.15,
+          "forest": 0.092,
+          "hill country": 0.583,
+          "urban edge": 0,
+          "water / no-go": 0.175
+        },
+        "elevation_range_m": [
+          0,
+          837.1
+        ],
+        "mean_elevation_m": 416.8,
+        "slope_burden": "elevated",
+        "trail_access": "good",
+        "trail_coverage_pct": 0.3,
+        "obstacle_coverage_pct": 0.233,
+        "water_coverage_pct": 0.175,
+        "suggested_scenario_family": "obstacle_heavy",
+        "terrain_burden_label": "Trail-accessible hill country",
+        "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+        "slope_summary": {
+          "value": "steep",
+          "label": "Steep terrain",
+          "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+        },
+        "operator_summary": "The selected area reads as trail-accessible hill country, with steep terrain and good access."
+      },
+      "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+      "slope_summary": {
+        "value": "steep",
+        "label": "Steep terrain",
+        "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+      },
+      "slope_elevation_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.",
+      "environment_summary": {
+        "value": "obstacle_heavy",
+        "label": "Obstacle-heavy",
+        "operator_summary": "Obstacle-heavy ground is the dominant character of the selected area."
+      },
+      "environment_label": "Obstacle-heavy",
+      "planner_ready": true,
+      "planner_status_summary": "Planning context is ready for recommendation and simulation.",
+      "context_summary": "Location: Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia. AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as obstacle-heavy. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 21 kph. Planning context is ready for recommendation and simulation."
+    },
+    "mission_area_summary": "Location: Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia. AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as obstacle-heavy. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 21 kph. Planning context is ready for recommendation and simulation.",
+    "model_version": "slice6-operational-v1",
+    "calibration_version": "default-operational-v1",
+    "units": {
+      "battery_energy": "sortie energy units",
+      "battery_display": "percent of initial sortie energy",
+      "movement_cost": "energy units per grid-to-grid move",
+      "time_step": "minutes per simulation step",
+      "area": "square kilometres",
+      "distance": "kilometres",
+      "grid_resolution": "metres per cell",
+      "wind_speed": "kilometres per hour"
+    },
+    "assumptions_summary": "Battery is modeled in sortie energy units with 3-minute steps. Reserve logic follows the balanced profile.",
+    "known_limitations_summary": "The simulator is still symbolic and grid-based rather than a full aerodynamics or flight-control model. Mixed fleets influence planning, battery burden, and recommendation quality more than per-aircraft physics.",
+    "benchmark_context": [
+      "moderate-wind-steep"
+    ],
+    "feasibility_summary": {
+      "status": "high_risk",
+      "status_label": "High Risk",
+      "issue_count": 3,
+      "readiness_score": 32,
+      "warnings": [
+        {
+          "severity": "high_risk",
+          "label": "High Risk",
+          "title": "Weather increases battery burden",
+          "summary": "Wind and weather are likely to reduce effective search time and increase turnover pressure.",
+          "recommendation": "Use a higher reserve margin and expect slower time to confirmation than in calm conditions."
+        },
+        {
+          "severity": "warning",
+          "label": "Warning",
+          "title": "Terrain and slope will slow clean coverage",
+          "summary": "Steeper ground increases route cost and makes broad, even coverage harder to sustain.",
+          "recommendation": "Favor patterns that respect battery margin and expect more deliberate lane spacing."
+        },
+        {
+          "severity": "warning",
+          "label": "Warning",
+          "title": "Confirmation burden is elevated",
+          "summary": "Terrain and visibility conditions are likely to create more cue and inspect activity before confirmation.",
+          "recommendation": "Expect more inspection passes and give extra attention to confirmation timing in the recommendation briefing."
+        }
+      ],
+      "operator_summary": "Mission is possible, but the current setup carries high operational risk.",
+      "next_watch": "Wind and weather are likely to reduce effective search time and increase turnover pressure."
+    },
+    "metrics": {
+      "time_to_detection": 13,
+      "area_covered_pct": 98.91304347826087,
+      "probability_mass_covered": 0.9971869981242186,
+      "overlap_ratio": 0.8743093922651933,
+      "battery_used": 78.20493923151771,
+      "successful_returns_to_base": 8,
+      "forced_low_battery_returns": 8,
+      "approaching_reserve_events": 9,
+      "critical_battery_events": 0,
+      "recharge_cycles_started": 8,
+      "recharge_cycles_completed": 8,
+      "redeployments": 8,
+      "rejoined_search_events": 8,
+      "coverage_gap_events": 1,
+      "coverage_gap_steps": 5,
+      "average_active_search_drones": 5.0,
+      "battery_margin_min": -7.039,
+      "battery_margin_average": 16.58686607142857,
+      "comms_failures": 3,
+      "stale_information_events": 0,
+      "path_efficiency": 0.521110771295358,
+      "average_overlap_per_step": 0.30391766537750997,
+      "detection_under_comms_mode": "centralized",
+      "entropy_reduction_over_time": 4.758798171310764,
+      "information_gain_per_step": 0.3696923080704501,
+      "belief_peak_accuracy": 9.747381981712295e-10,
+      "time_to_first_candidate_detection": 1,
+      "time_to_confirmed_detection": 13,
+      "candidate_detection_count": 2,
+      "inspections_initiated": 2,
+      "inspections_completed": 2,
+      "confirmed_contact_count": 1,
+      "rejected_contact_count": 1,
+      "false_alarm_count": 1,
+      "reroute_count": 57,
+      "coordination_efficiency": 0.5305471672214407,
+      "return_to_base_efficiency": 1.0,
+      "mission_success": true
+    },
+    "run_phase": "Target confirmed",
+    "search_pattern_summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity.",
+    "search_pattern_reason": "The mission started with sector split, but it has shifted into adaptive rebalance because possible contact activity.",
+    "search_pattern_fit_summary": "Best when several drones can search in parallel without crowding each other. Current spacing is built around an effective swath of about 5.0 cells. Hill Country is the dominant ground type.",
+    "search_pattern_base": "sector_split",
+    "search_pattern_base_label": "Sector Split",
+    "search_pattern_rebalanced": true,
+    "search_pattern_rebalance_reason": "possible contact activity",
+    "search_pattern_geometry": {
+      "weather_factor": 0.9,
+      "visibility_modifier": 0.819,
+      "sensor_mode_factor": 1.08,
+      "fleet_coverage_factor": 1.0,
+      "area_sq_km": 14.68,
+      "shape_ratio": 1.5,
+      "staging_distance_to_center_km": 2.9,
+      "slope_burden": "elevated",
+      "dominant_terrain": "hill country",
+      "area_cells": 120,
+      "effective_swath_cells": 4.95,
+      "lane_spacing_cells": 4.06,
+      "overlap_margin": 0.18,
+      "sector_rows": 3,
+      "sector_cols": 3,
+      "sector_count": 9,
+      "ring_step_cells": 3,
+      "perimeter_spacing_cells": 4,
+      "coverage_depth": "balanced"
+    },
+    "lifecycle_summary": {
+      "run_phase": "Target confirmed",
+      "reserve_preset": "balanced",
+      "drone_state_counts": {
+        "searching": 8
+      },
+      "active_search_drones": 7,
+      "returning_drones": 0,
+      "recharging_drones": 0,
+      "ready_to_redeploy": 0,
+      "coverage_gap_active": false,
+      "coverage_gap_steps": 5
+    },
+    "sensing_summary": {
+      "candidate_detection_count": 2,
+      "inspections_initiated": 2,
+      "inspections_completed": 2,
+      "confirmed_contact_count": 1,
+      "rejected_contact_count": 1,
+      "active_candidate_contacts": 0,
+      "contacts_under_inspection": 0,
+      "confirmation_pending": 0,
+      "operator_summary": "No active contacts are awaiting confirmation."
+    },
+    "drone_statuses": [
+      {
+        "id": 0,
+        "operator_status": "Searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 83.1,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      },
+      {
+        "id": 1,
+        "operator_status": "Searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 82.0,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      },
+      {
+        "id": 2,
+        "operator_status": "Searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 86.1,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      },
+      {
+        "id": 3,
+        "operator_status": "Searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 87.0,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      },
+      {
+        "id": 4,
+        "operator_status": "Contact Confirmed",
+        "sensing_status": "Contact Confirmed",
+        "assigned_contact_id": "contact-2",
+        "reserve_status_label": "Approaching Reserve Limit",
+        "battery_pct": 78.6,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": false
+      },
+      {
+        "id": 5,
+        "operator_status": "Back in Search",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 92.9,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      },
+      {
+        "id": 6,
+        "operator_status": "Searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 85.2,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      },
+      {
+        "id": 7,
+        "operator_status": "Searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Safe",
+        "battery_pct": 74.8,
+        "return_service_eta_steps": 0,
+        "contributing_to_search": true
+      }
+    ],
+    "error": null,
+    "plan_id": "latest-test",
+    "comparison_id": null,
+    "candidate_id": null,
+    "confidence_summary": {
+      "candidate_count": 12,
+      "evaluation_seeds": 1,
+      "method": "short benchmark bundle",
+      "success_band": {
+        "mean": 1,
+        "low": 1,
+        "high": 1
+      },
+      "time_band": {
+        "mean": 7.833333333333333,
+        "low": 3,
+        "high": 13
+      },
+      "fleet_package": "8 General purpose drone staged from Primary staging point available for this mission.",
+      "mission_intent": "broad_area_coverage",
+      "confidence_level": "moderate",
+      "confidence_reason": "Results are directionally useful, but terrain, weather, or timing spread still matter.",
+      "benchmark_context": [
+        "moderate-wind-steep"
+      ],
+      "feasibility_status": "high_risk"
+    },
+    "recommendation_uncertainty_summary": {
+      "success_band": {
+        "mean": 1,
+        "low": 1,
+        "high": 1
+      },
+      "time_band": {
+        "mean": 7.833333333333333,
+        "low": 3,
+        "high": 13
+      },
+      "battery_risk_band": {
+        "mean": 0.5,
+        "low": 0,
+        "high": 1
+      },
+      "overlap_band": {
+        "mean": 0.8086666666666668,
+        "low": 0.66,
+        "high": 0.874
+      },
+      "top_plan_first_candidate_band": {
+        "low": 3,
+        "mean": 3,
+        "high": 3
+      },
+      "top_plan_confirmed_detection_band": {
+        "low": 39,
+        "mean": 39,
+        "high": 39
+      },
+      "top_plan_active_search_band": {
+        "mean": 5,
+        "low": 5,
+        "high": 5
+      },
+      "top_plan_return_band": {
+        "mean": 8,
+        "low": 8,
+        "high": 8
+      },
+      "confidence_level": "moderate",
+      "confidence_reason": "Results are directionally useful, but terrain, weather, or timing spread still matter."
+    },
+    "provenance_manifest": {
+      "seed": 7,
+      "model_version": "slice6-operational-v1",
+      "scenario_version": "8c0ef9b5e4f7",
+      "mission_plan_version": "latest-test@1775199499.322",
+      "plan_id": "latest-test",
+      "comparison_id": null,
+      "candidate_id": null,
+      "deployment_mode": "base_launch",
+      "reserve_preset": "balanced",
+      "search_pattern_requested": "sector_split",
+      "mission_intent": "broad_area_coverage",
+      "weather_source": "live_weather",
+      "aoi_source": "live_geocoder",
+      "terrain_derivation_source": "local_first_deterministic",
+      "calibration_version": "default-operational-v1",
+      "calibration_snapshot": {
+        "version": "default-operational-v1",
+        "battery_burn_by_terrain": {
+          "plain": 1.0,
+          "forest": 1.18,
+          "hill": 1.24,
+          "urban": 1.14,
+          "water": 1.32
+        },
+        "weather_energy_factor": {
+          "clear": 1.0,
+          "windy": 1.12,
+          "rain": 1.22,
+          "storm": 1.38
+        },
+        "slope_penalty_factor": 0.55,
+        "cue_visibility_factor": {
+          "open": 1.0,
+          "mixed": 0.88,
+          "forested": 0.74,
+          "obstructed": 0.66
+        },
+        "confirm_visibility_factor": {
+          "open": 1.0,
+          "mixed": 0.9,
+          "forested": 0.8,
+          "obstructed": 0.72
+        },
+        "turnaround_efficiency_factor": 1.0,
+        "units": {
+          "battery_energy": "sortie energy units",
+          "battery_display": "percent of initial sortie energy",
+          "movement_cost": "energy units per grid-to-grid move",
+          "time_step": "minutes per simulation step",
+          "area": "square kilometres",
+          "distance": "kilometres",
+          "grid_resolution": "metres per cell",
+          "wind_speed": "kilometres per hour"
+        },
+        "modeled_assumptions": [
+          "Battery is tracked in sortie energy units and converted to percent for display only.",
+          "Route energy sums terrain, wind, and slope penalties over planned cell paths.",
+          "Detection uses staged cue, inspect, and confirm logic rather than instant target certainty.",
+          "Grid resolution and AOI size define operational scale for coverage and transit burden."
+        ],
+        "calibrated_estimates": [
+          "Terrain energy multipliers are tuned for relative operational burden rather than field-certified consumption.",
+          "Weather and slope penalties are calibrated estimates intended to keep route costs believable and stable.",
+          "Cue and confirmation visibility factors are benchmarked against scenario families, not against live sensor telemetry.",
+          "Turnaround timing is treated as an operational estimate that includes swap, recharge, and basic servicing."
+        ],
+        "known_limitations": [
+          "The simulator is still symbolic and grid-based rather than a full aerodynamics or flight-control model.",
+          "Mixed fleets influence planning, battery burden, and recommendation quality more than per-aircraft physics.",
+          "Benchmarks validate reasonableness within bounded SAR-style scenarios, not all field conditions.",
+          "Weather and terrain inputs are deterministic planning approximations rather than live onboard measurements."
+        ]
+      },
+      "units": {
+        "battery_energy": "sortie energy units",
+        "battery_display": "percent of initial sortie energy",
+        "movement_cost": "energy units per grid-to-grid move",
+        "time_step": "minutes per simulation step",
+        "area": "square kilometres",
+        "distance": "kilometres",
+        "grid_resolution": "metres per cell",
+        "wind_speed": "kilometres per hour"
+      },
+      "assumptions_summary": "Battery is modeled in sortie energy units with 3-minute steps. Reserve logic follows the balanced profile.",
+      "known_limitations_summary": "The simulator is still symbolic and grid-based rather than a full aerodynamics or flight-control model. Mixed fleets influence planning, battery burden, and recommendation quality more than per-aircraft physics.",
+      "benchmark_context": [
+        "moderate-wind-steep"
+      ],
+      "feasibility_summary": {
+        "status": "high_risk",
+        "status_label": "High Risk",
+        "issue_count": 3,
+        "readiness_score": 32,
+        "warnings": [
+          {
+            "severity": "high_risk",
+            "label": "High Risk",
+            "title": "Weather increases battery burden",
+            "summary": "Wind and weather are likely to reduce effective search time and increase turnover pressure.",
+            "recommendation": "Use a higher reserve margin and expect slower time to confirmation than in calm conditions."
+          },
+          {
+            "severity": "warning",
+            "label": "Warning",
+            "title": "Terrain and slope will slow clean coverage",
+            "summary": "Steeper ground increases route cost and makes broad, even coverage harder to sustain.",
+            "recommendation": "Favor patterns that respect battery margin and expect more deliberate lane spacing."
+          },
+          {
+            "severity": "warning",
+            "label": "Warning",
+            "title": "Confirmation burden is elevated",
+            "summary": "Terrain and visibility conditions are likely to create more cue and inspect activity before confirmation.",
+            "recommendation": "Expect more inspection passes and give extra attention to confirmation timing in the recommendation briefing."
+          }
+        ],
+        "operator_summary": "Mission is possible, but the current setup carries high operational risk.",
+        "next_watch": "Wind and weather are likely to reduce effective search time and increase turnover pressure."
+      }
+    }
+  },
+  "latest_snapshot_json": {
+    "step": 13,
+    "done": true,
+    "paused": false,
+    "weather": "windy",
+    "strategy": "sector_search",
+    "mission_area": {
+      "location_display_name": "Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia",
+      "location_source": "live_geocoder",
+      "location_query": "Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia",
+      "center": {
+        "latitude": -37.369336,
+        "longitude": 145.5822701
+      },
+      "preview_span_km": 18,
+      "shape_type": "rectangle",
+      "rectangle": {
+        "north": -37.34316593935669,
+        "south": -37.37130622729662,
+        "east": 145.61718611055147,
+        "west": 145.56421754965288
+      },
+      "polygon": [
+        {
+          "latitude": -37.34316593935669,
+          "longitude": 145.56421754965288
+        },
+        {
+          "latitude": -37.34316593935669,
+          "longitude": 145.61718611055147
+        },
+        {
+          "latitude": -37.37130622729662,
+          "longitude": 145.61718611055147
+        },
+        {
+          "latitude": -37.37130622729662,
+          "longitude": 145.56421754965288
+        }
+      ],
+      "bounds": {
+        "north": -37.34316593935669,
+        "south": -37.37130622729662,
+        "east": 145.61718611055147,
+        "west": 145.56421754965288
+      },
+      "width_km": 4.69,
+      "height_km": 3.13,
+      "area_sq_km": 14.68,
+      "shape_ratio": 1.5,
+      "requested_grid_resolution_m": 500,
+      "grid_resolution_m": 500,
+      "cell_size_m": 500,
+      "grid_size": [
+        12,
+        10
+      ],
+      "grid_cols": 12,
+      "grid_rows": 10,
+      "max_safe_cells": 4900,
+      "warnings": [],
+      "terrain_hint": "mixed",
+      "requested_environment_type": "obstacle_heavy",
+      "last_known_status": "known",
+      "environment_type": "obstacle_heavy",
+      "weather_summary": {
+        "source": "live_weather",
+        "provider": "open-meteo",
+        "recommended_weather": "windy",
+        "condition_label": "Overcast",
+        "temperature_c": 13.4,
+        "wind_speed_kph": 21.3,
+        "precipitation_mm": 0,
+        "cloud_cover_pct": 100,
+        "visibility_label": "Reduced",
+        "operator_summary": "Current weather shows overcast with winds around 21 kph.",
+        "fallback_note": null,
+        "fetched_at": "2026-04-03T06:55:19.518426+00:00"
+      },
+      "center_grid_position": [
+        6,
+        5
+      ],
+      "shape_summary": "Rectangle AOI",
+      "aoi_outline_grid": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          10,
+          0
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          11,
+          1
+        ],
+        [
+          11,
+          2
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          11,
+          4
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          3,
+          9
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          1,
+          9
+        ],
+        [
+          0,
+          9
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          7
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "staging": {
+        "latitude": -37.34368079545057,
+        "longitude": 145.58778315429754,
+        "label": "Primary staging point",
+        "placement": "map",
+        "grid_position": [
+          5,
+          0
+        ]
+      },
+      "staging_distance_to_center_km": 2.9,
+      "staging_summary": "Base is positioned inside the selected search area.",
+      "last_known_location": {
+        "latitude": -37.34951558447108,
+        "longitude": 145.60378182167102,
+        "label": "Last known location",
+        "placement": "map",
+        "grid_position": [
+          8,
+          2
+        ]
+      },
+      "last_known_inside_aoi": true,
+      "last_known_grid_position": [
+        8,
+        2
+      ],
+      "last_known_summary": "Last known point is placed inside the search area.",
+      "area_metrics_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells.",
+      "operator_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells.",
+      "grid_summary": {
+        "map_size": [
+          12,
+          10
+        ],
+        "cell_size_m": 500,
+        "shape_label": "Rectangle AOI",
+        "operator_summary": "Grid resolves to 12 by 10 cells."
+      },
+      "area_metrics": {
+        "area_sq_km": 14.68,
+        "width_km": 4.69,
+        "height_km": 3.13,
+        "grid_cols": 12,
+        "grid_rows": 10,
+        "grid_resolution_m": 500,
+        "staging_offset_km": 2.9,
+        "last_known_inside_aoi": true,
+        "operator_summary": "AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells. Grid resolves to 12 by 10 cells."
+      },
+      "terrain_summary": {
+        "source_mode": "local_first_deterministic",
+        "dominant_terrain": "hill country",
+        "terrain_mix": {
+          "open terrain": 0.15,
+          "forest": 0.092,
+          "hill country": 0.583,
+          "urban edge": 0,
+          "water / no-go": 0.175
+        },
+        "elevation_range_m": [
+          0,
+          837.1
+        ],
+        "mean_elevation_m": 416.8,
+        "slope_burden": "elevated",
+        "trail_access": "good",
+        "trail_coverage_pct": 0.3,
+        "obstacle_coverage_pct": 0.233,
+        "water_coverage_pct": 0.175,
+        "suggested_scenario_family": "obstacle_heavy",
+        "terrain_burden_label": "Trail-accessible hill country",
+        "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+        "slope_summary": {
+          "value": "steep",
+          "label": "Steep terrain",
+          "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+        },
+        "operator_summary": "The selected area reads as trail-accessible hill country, with steep terrain and good access."
+      },
+      "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+      "slope_summary": {
+        "value": "steep",
+        "label": "Steep terrain",
+        "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+      },
+      "slope_elevation_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.",
+      "environment_summary": {
+        "value": "obstacle_heavy",
+        "label": "Obstacle-heavy",
+        "operator_summary": "Obstacle-heavy ground is the dominant character of the selected area."
+      },
+      "environment_label": "Obstacle-heavy",
+      "planner_ready": true,
+      "planner_status_summary": "Planning context is ready for recommendation and simulation.",
+      "context_summary": "Location: Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia. AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as obstacle-heavy. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 21 kph. Planning context is ready for recommendation and simulation."
+    },
+    "last_known_position": [
+      8,
+      2
+    ],
+    "last_known_status": "known",
+    "coordination_mode": "centralized",
+    "run_phase": "Target confirmed",
+    "base_position": [
+      5,
+      0
+    ],
+    "terrain_grid": [
+      [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        0,
+        1
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        1
+      ],
+      [
+        2,
+        2,
+        1,
+        4,
+        2,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        0,
+        4,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        4,
+        2,
+        2,
+        4
+      ],
+      [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        4,
+        4,
+        4
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      [
+        2,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      [
+        4,
+        4,
+        4,
+        4,
+        4,
+        2,
+        2,
+        0,
+        0,
+        2,
+        2,
+        2
+      ],
+      [
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2,
+        0,
+        2,
+        2,
+        2,
+        2
+      ]
+    ],
+    "obstacle_mask": [
+      [
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      [
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    ],
+    "probability_map": [
+      [
+        0.0,
+        5.540914792876018e-08,
+        8.489156640671665e-08,
+        1.522740848403465e-07,
+        1.6582929774625542e-06,
+        4.996482778895432e-05,
+        4.171855427866194e-05,
+        1.0008426734825136e-05,
+        7.079311099376462e-06,
+        2.170198139271818e-05,
+        1.909519065047028e-05,
+        1.3710295752506472e-05
+      ],
+      [
+        0.0,
+        1.2210878086587965e-06,
+        0.0,
+        2.575151563274115e-07,
+        1.1294259724723404e-06,
+        5.703516670909173e-05,
+        4.707586293884415e-05,
+        1.1184674804357227e-05,
+        9.589338172367214e-06,
+        1.0666559582011158e-05,
+        1.4102821433070857e-05,
+        8.359096034337623e-06
+      ],
+      [
+        0.0,
+        0.0,
+        2.4189058537777757e-10,
+        8.404607210719106e-10,
+        3.4115270681191393e-07,
+        2.636537095588955e-07,
+        1.0534824694172322e-05,
+        3.5306744142110553e-06,
+        2.3806111253060446e-06,
+        6.53255307140581e-06,
+        7.985285308339771e-06,
+        5.931652496667133e-06
+      ],
+      [
+        2.7471346623226456e-14,
+        2.846648986651613e-13,
+        7.630650682698427e-09,
+        0.0,
+        1.1953274790300012e-07,
+        0.0,
+        0.0,
+        6.1365890784170776e-06,
+        2.040877935076765e-06,
+        2.6956982029526757e-06,
+        3.0932968021062405e-06,
+        4.621993801546463e-06
+      ],
+      [
+        4.497970260522505e-11,
+        0.0,
+        1.1931308145591052e-08,
+        7.155053265366247e-08,
+        3.051012277793703e-09,
+        8.641851645932891e-07,
+        3.8423522866306487e-05,
+        0.0,
+        0.0,
+        3.5008041355857994e-07,
+        1.8896621480434673e-07,
+        0.0
+      ],
+      [
+        1.517002051271246e-08,
+        4.4998330467620414e-12,
+        9.694702064174087e-10,
+        0.0,
+        0.0,
+        0.0,
+        5.009384261571358e-05,
+        0.00013964685553818836,
+        0.00024268661127195323,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        4.887231921538823e-09,
+        3.4700397912005115e-10,
+        1.3406176497722157e-09,
+        5.724951250298526e-09,
+        2.2579856254030715e-08,
+        2.2258495035517692e-08,
+        3.8079209149586406e-08,
+        1.0415801190107745e-07,
+        0.0004665223507081988,
+        0.0015477761711050564,
+        0.003908901207690667,
+        0.0031442183750048334
+      ],
+      [
+        3.263877742856238e-07,
+        0.0,
+        2.726971151334725e-09,
+        7.578970145584423e-09,
+        5.791706110920904e-10,
+        2.6573948256847732e-11,
+        2.021580565088503e-09,
+        9.747381981712295e-10,
+        9.04342454385675e-07,
+        9.944682341367502e-05,
+        0.003373440880008862,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        5.983331375783403e-10,
+        2.060368265267649e-09,
+        2.564139927416652e-09,
+        2.8590310493664925e-06,
+        0.00031875133091635946,
+        0.0004954210026139233,
+        0.004397015691802723
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.9295575218829926,
+        7.15261473975533e-05,
+        3.914010952586414e-08,
+        3.6276831750474336e-09,
+        9.543772307472832e-09,
+        4.56589832317341e-08,
+        0.00027601496571914586,
+        0.04695516222445276,
+        0.004529449808721524
+      ]
+    ],
+    "shared_searched_cells": [
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        10,
+        7
+      ],
+      [
+        10,
+        8
+      ],
+      [
+        11,
+        0
+      ],
+      [
+        11,
+        1
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        11,
+        6
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        11,
+        9
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        5,
+        7
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        6,
+        9
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        9
+      ]
+    ],
+    "entropy_map": [
+      [
+        2.8630998994207924e-11,
+        9.812140654618071e-07,
+        1.467086801038814e-06,
+        2.542609272951896e-06,
+        2.3729709814540356e-05,
+        0.000544824789435984,
+        0.00046243113891304135,
+        0.0001252262173856859,
+        9.102812124526738e-05,
+        0.0002547399440617343,
+        0.00022658476400075206,
+        0.0001672293668977337
+      ],
+      [
+        2.8630998994207924e-11,
+        1.7847135923003844e-05,
+        2.8630998994207924e-11,
+        4.164583296996214e-06,
+        1.6595559894862853e-05,
+        0.0006143722073883063,
+        0.0005161268913861665,
+        0.000138700709842907,
+        0.00012039273964663292,
+        0.00013278151123251861,
+        0.00017161904802998618,
+        0.00010609495161421228
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        5.597961521136415e-09,
+        1.8403627975051165e-08,
+        5.421235648992831e-06,
+        4.257645984730657e-06,
+        0.0001312725424860249,
+        4.785483122731768e-05,
+        3.320512615625936e-05,
+        8.452280615164698e-05,
+        0.00010171581406996393,
+        7.73203048041007e-05
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        1.5025585002975617e-07,
+        2.8630998994207924e-11,
+        2.024845949443335e-06,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        7.978325773430827e-05,
+        2.8780724856436354e-05,
+        3.726493290227863e-05,
+        4.233570005837339e-05,
+        6.140171821169158e-05
+      ],
+      [
+        1.1166125452222634e-09,
+        2.8630998994207924e-11,
+        2.2960728649552714e-07,
+        1.2487615617046387e-06,
+        6.287462770130163e-08,
+        1.2929487628791891e-05,
+        0.0004290686212210557,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        5.554061742635853e-06,
+        3.114483990302791e-06,
+        2.8630998994207924e-11
+      ],
+      [
+        2.8829023062520617e-07,
+        1.220668966495723e-10,
+        2.1090117921968542e-08,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.0005461024040765747,
+        0.0013791975847153109,
+        0.00226271732016283,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11
+      ],
+      [
+        9.841242866101312e-08,
+        7.90533530247209e-09,
+        2.8729617715823302e-08,
+        1.1437554815241777e-07,
+        4.201254937394535e-07,
+        4.1446524369659183e-07,
+        6.886090866398384e-07,
+        1.7787435217078716e-06,
+        0.004044735405388768,
+        0.011562138457615608,
+        0.025574150181914175,
+        0.02125685364988694
+      ],
+      [
+        5.201047772292878e-06,
+        2.8630998994207924e-11,
+        5.650304495179702e-08,
+        1.4928970890145162e-07,
+        1.289779590550702e-08,
+        6.736785647666592e-10,
+        4.2492382580976104e-08,
+        2.1199436981926895e-08,
+        1.3489223845716085e-05,
+        0.00101593261470174,
+        0.022568769512854796,
+        2.8630998994207924e-11
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        1.3305058272845508e-08,
+        4.326851883116094e-08,
+        5.328703983946978e-08,
+        3.935463774412668e-05,
+        0.00288499913708905,
+        0.004265502944503181,
+        0.028249187855848734
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.2547819995331133,
+        0.000754272672574927,
+        7.067184383278455e-07,
+        7.413051445458879e-08,
+        1.857922135780673e-07,
+        8.173901058366162e-07,
+        0.002537934824728706,
+        0.18945037825082045,
+        0.02896531811320015
+      ]
+    ],
+    "target_position": [
+      7,
+      7
+    ],
+    "target_trail": [
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        7
+      ]
+    ],
+    "target_detected": true,
+    "visited_cells": [
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        6
+      ]
+    ],
+    "searched_cells": [
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        10,
+        7
+      ],
+      [
+        10,
+        8
+      ],
+      [
+        10,
+        9
+      ],
+      [
+        11,
+        0
+      ],
+      [
+        11,
+        1
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        11,
+        6
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        11,
+        9
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        5,
+        7
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        6,
+        9
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        9
+      ]
+    ],
+    "last_searched_cells": [
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        10,
+        8
+      ],
+      [
+        10,
+        9
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        11,
+        9
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        5,
+        7
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        6,
+        9
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        9
+      ]
+    ],
+    "scan_footprints": {
+      "0": [
+        [
+          10,
+          8
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "1": [
+        [
+          10,
+          8
+        ],
+        [
+          10,
+          9
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          9,
+          9
+        ]
+      ],
+      "2": [
+        [
+          10,
+          4
+        ],
+        [
+          9,
+          4
+        ]
+      ],
+      "3": [
+        [
+          0,
+          3
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          3,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          2
+        ]
+      ],
+      "4": [
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          7,
+          7
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          9
+        ],
+        [
+          8,
+          9
+        ]
+      ],
+      "5": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "6": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "7": [
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          3,
+          7
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          7
+        ],
+        [
+          5,
+          8
+        ]
+      ]
+    },
+    "communication_links": [
+      [
+        [
+          6,
+          4
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      [
+        [
+          5,
+          4
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      [
+        [
+          7,
+          2
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      [
+        [
+          7,
+          1
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      [
+        [
+          8,
+          5
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      [
+        [
+          5,
+          0
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      [
+        [
+          3,
+          2
+        ],
+        [
+          5,
+          0
+        ]
+      ],
+      [
+        [
+          1,
+          3
+        ],
+        [
+          5,
+          0
+        ]
+      ]
+    ],
+    "reserved_paths": {
+      "0": [
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          7,
+          6
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          9,
+          8
+        ],
+        [
+          10,
+          9
+        ]
+      ],
+      "1": [
+        [
+          5,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          4,
+          9
+        ]
+      ],
+      "2": [
+        [
+          7,
+          2
+        ],
+        [
+          8,
+          3
+        ],
+        [
+          9,
+          4
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          8,
+          6
+        ],
+        [
+          7,
+          7
+        ]
+      ],
+      "3": [
+        [
+          7,
+          1
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "4": [
+        [
+          8,
+          5
+        ],
+        [
+          7,
+          6
+        ]
+      ],
+      "5": [
+        [
+          5,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "6": [
+        [
+          3,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "7": [
+        [
+          1,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          4
+        ]
+      ]
+    },
+    "global_objectives": {
+      "0": [
+        10,
+        9
+      ],
+      "1": [
+        3,
+        9
+      ],
+      "2": [
+        5,
+        6
+      ],
+      "3": [
+        7,
+        8
+      ],
+      "4": [
+        7,
+        6
+      ],
+      "5": [
+        9,
+        8
+      ],
+      "6": [
+        7,
+        6
+      ],
+      "7": [
+        9,
+        4
+      ]
+    },
+    "search_pattern": "adaptive_rebalance",
+    "search_pattern_label": "Adaptive Rebalance",
+    "search_pattern_summary": "Begins with structured coverage, then shifts drones toward clues, inspections, and under-covered sectors. The mission is currently tightening around possible contact activity.",
+    "search_pattern_reason": "The mission started with sector split, but it has shifted into adaptive rebalance because possible contact activity.",
+    "search_pattern_fit_summary": "Best when several drones can search in parallel without crowding each other. Current spacing is built around an effective swath of about 5.0 cells. Hill Country is the dominant ground type.",
+    "search_pattern_base": "sector_split",
+    "search_pattern_base_label": "Sector Split",
+    "search_pattern_rebalanced": true,
+    "search_pattern_rebalance_reason": "possible contact activity",
+    "search_pattern_geometry": {
+      "weather_factor": 0.9,
+      "visibility_modifier": 0.819,
+      "sensor_mode_factor": 1.08,
+      "fleet_coverage_factor": 1.0,
+      "area_sq_km": 14.68,
+      "shape_ratio": 1.5,
+      "staging_distance_to_center_km": 2.9,
+      "slope_burden": "elevated",
+      "dominant_terrain": "hill country",
+      "area_cells": 120,
+      "effective_swath_cells": 4.95,
+      "lane_spacing_cells": 4.06,
+      "overlap_margin": 0.18,
+      "sector_rows": 3,
+      "sector_cols": 3,
+      "sector_count": 9,
+      "ring_step_cells": 3,
+      "perimeter_spacing_cells": 4,
+      "coverage_depth": "balanced"
+    },
+    "manual_targets": {},
+    "forced_return_overrides": [],
+    "priority_zones": [],
+    "exclusion_zones": [],
+    "returning_drones": [],
+    "active_search_drones": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6,
+      7
+    ],
+    "lifecycle_summary": {
+      "run_phase": "Target confirmed",
+      "reserve_preset": "balanced",
+      "drone_state_counts": {
+        "searching": 8
+      },
+      "active_search_drones": 7,
+      "returning_drones": 0,
+      "recharging_drones": 0,
+      "ready_to_redeploy": 0,
+      "coverage_gap_active": false,
+      "coverage_gap_steps": 5
+    },
+    "sensing_summary": {
+      "candidate_detection_count": 2,
+      "inspections_initiated": 2,
+      "inspections_completed": 2,
+      "confirmed_contact_count": 1,
+      "rejected_contact_count": 1,
+      "active_candidate_contacts": 0,
+      "contacts_under_inspection": 0,
+      "confirmation_pending": 0,
+      "operator_summary": "No active contacts are awaiting confirmation."
+    },
+    "candidate_contacts": [
+      {
+        "id": "contact-2",
+        "position": [
+          7,
+          7
+        ],
+        "status": "contact_confirmed",
+        "status_label": "Contact Confirmed",
+        "confidence": 0.922,
+        "candidate_score": 0.899,
+        "cue_step": 12,
+        "detecting_drone_id": 4,
+        "assigned_drone_id": 4,
+        "inspection_attempts": 1,
+        "resolved": true,
+        "outcome": "confirmed",
+        "resolution_step": 13,
+        "note": "Target confirmed after close inspection."
+      },
+      {
+        "id": "contact-1",
+        "position": [
+          10,
+          1
+        ],
+        "status": "false_alarm_rejected",
+        "status_label": "False Alarm Rejected",
+        "confidence": 0.765,
+        "candidate_score": 0.022,
+        "cue_step": 1,
+        "detecting_drone_id": 4,
+        "assigned_drone_id": null,
+        "inspection_attempts": 1,
+        "resolved": true,
+        "outcome": "rejected",
+        "resolution_step": 2,
+        "note": "Contact rejected after close inspection."
+      }
+    ],
+    "detection_event": {
+      "step": 13,
+      "drone_id": 4,
+      "position": [
+        7,
+        7
+      ],
+      "confidence": 0.922130529399456,
+      "contact_id": "contact-2",
+      "summary": "Target confirmed after close inspection."
+    },
+    "drones": [
+      {
+        "id": 0,
+        "position": [
+          7,
+          6
+        ],
+        "battery": 49.839260983976445,
+        "battery_pct": 83.1,
+        "visited_cells": [
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            7,
+            5
+          ],
+          [
+            7,
+            6
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            5
+          ],
+          [
+            7,
+            6
+          ]
+        ],
+        "planned_path": [
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            5
+          ],
+          [
+            7,
+            6
+          ],
+          [
+            8,
+            7
+          ],
+          [
+            9,
+            8
+          ],
+          [
+            10,
+            9
+          ]
+        ],
+        "intended_target": [
+          10,
+          9
+        ],
+        "reserved_goal": [
+          10,
+          9
+        ],
+        "detections": [
+          {
+            "step": 13,
+            "target_position": [
+              7,
+              7
+            ],
+            "confidence": 0.46590196610169493,
+            "is_true_positive": true,
+            "stage": "cue",
+            "outcome": "candidate",
+            "contact_id": "contact-2"
+          }
+        ],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Searching",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 7.615,
+        "reserve_required": 30.291,
+        "continue_margin_required": 41.253,
+        "battery_margin": 11.266,
+        "return_eta_steps": 4,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      },
+      {
+        "id": 1,
+        "position": [
+          6,
+          6
+        ],
+        "battery": 49.222844282605934,
+        "battery_pct": 82.0,
+        "visited_cells": [
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            7,
+            3
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            6,
+            6
+          ]
+        ],
+        "planned_path": [
+          [
+            5,
+            4
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            6,
+            6
+          ],
+          [
+            6,
+            7
+          ],
+          [
+            5,
+            8
+          ],
+          [
+            4,
+            9
+          ],
+          [
+            3,
+            9
+          ]
+        ],
+        "intended_target": [
+          3,
+          9
+        ],
+        "reserved_goal": [
+          3,
+          9
+        ],
+        "detections": [
+          {
+            "step": 13,
+            "target_position": [
+              7,
+              7
+            ],
+            "confidence": 0.29145333430034387,
+            "is_true_positive": true,
+            "stage": "cue",
+            "outcome": "candidate",
+            "contact_id": "contact-2"
+          }
+        ],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Searching",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 7.814,
+        "reserve_required": 30.291,
+        "continue_margin_required": 41.781,
+        "battery_margin": 10.459,
+        "return_eta_steps": 4,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      },
+      {
+        "id": 2,
+        "position": [
+          9,
+          4
+        ],
+        "battery": 51.63034836732775,
+        "battery_pct": 86.1,
+        "visited_cells": [
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            9,
+            3
+          ],
+          [
+            9,
+            4
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            9,
+            3
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            9,
+            4
+          ]
+        ],
+        "planned_path": [
+          [
+            7,
+            2
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            8,
+            6
+          ],
+          [
+            7,
+            7
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "intended_target": [
+          5,
+          6
+        ],
+        "reserved_goal": [
+          5,
+          6
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Searching",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 4.006,
+        "reserve_required": 30.176,
+        "continue_margin_required": 37.79,
+        "battery_margin": 18.082,
+        "return_eta_steps": 2,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      },
+      {
+        "id": 3,
+        "position": [
+          5,
+          2
+        ],
+        "battery": 52.21974558021796,
+        "battery_pct": 87.0,
+        "visited_cells": [
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            1
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            5,
+            2
+          ]
+        ],
+        "planned_path": [
+          [
+            7,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            4,
+            7
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            7,
+            8
+          ]
+        ],
+        "intended_target": [
+          7,
+          8
+        ],
+        "reserved_goal": [
+          7,
+          8
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Searching",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 4.006,
+        "reserve_required": 30.122,
+        "continue_margin_required": 35.892,
+        "battery_margin": 19.798,
+        "return_eta_steps": 2,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      },
+      {
+        "id": 4,
+        "position": [
+          7,
+          6
+        ],
+        "battery": 47.17873621260158,
+        "battery_pct": 78.6,
+        "visited_cells": [
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            7,
+            6
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            9,
+            1
+          ],
+          [
+            9,
+            3
+          ],
+          [
+            9,
+            4
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            9,
+            1
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            9,
+            3
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            2
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            7,
+            6
+          ]
+        ],
+        "planned_path": [
+          [
+            8,
+            5
+          ],
+          [
+            7,
+            6
+          ]
+        ],
+        "intended_target": [
+          7,
+          6
+        ],
+        "reserved_goal": [
+          7,
+          6
+        ],
+        "detections": [
+          {
+            "step": 1,
+            "target_position": [
+              10,
+              1
+            ],
+            "confidence": 0.022222222222222223,
+            "is_true_positive": false,
+            "stage": "cue",
+            "outcome": "candidate",
+            "contact_id": "contact-1"
+          },
+          {
+            "step": 2,
+            "target_position": [
+              10,
+              1
+            ],
+            "confidence": 0.7653756015902908,
+            "is_true_positive": false,
+            "stage": "inspect",
+            "outcome": "rejected",
+            "contact_id": "contact-1"
+          },
+          {
+            "step": 12,
+            "target_position": [
+              7,
+              6
+            ],
+            "confidence": 0.14158136055343654,
+            "is_true_positive": true,
+            "stage": "cue",
+            "outcome": "candidate",
+            "contact_id": "contact-2"
+          },
+          {
+            "step": 13,
+            "target_position": [
+              7,
+              7
+            ],
+            "confidence": 0.922130529399456,
+            "is_true_positive": true,
+            "stage": "inspect",
+            "outcome": "confirmed",
+            "contact_id": "contact-2"
+          }
+        ],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Contact Confirmed",
+        "sensing_state": "confirmed_contact",
+        "sensing_status": "Contact Confirmed",
+        "assigned_contact_id": "contact-2",
+        "active_contact_position": [
+          7,
+          7
+        ],
+        "reserve_status": "approaching_reserve_limit",
+        "reserve_status_label": "Approaching Reserve Limit",
+        "reserve_reason": "Battery reserve is tightening and return planning should begin.",
+        "energy_required_to_base": 10.419,
+        "reserve_required": 30.334,
+        "continue_margin_required": 42.544,
+        "battery_margin": 5.882,
+        "return_eta_steps": 5,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 2,
+        "contacts_confirmed": 1,
+        "contacts_rejected": 1,
+        "contributing_to_search": false,
+        "returning_to_base": false
+      },
+      {
+        "id": 5,
+        "position": [
+          3,
+          2
+        ],
+        "battery": 55.73597379473224,
+        "battery_pct": 92.9,
+        "visited_cells": [
+          [
+            3,
+            2
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            7,
+            6
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            8,
+            6
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            9,
+            6
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            8,
+            3
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            7,
+            6
+          ],
+          [
+            8,
+            6
+          ],
+          [
+            9,
+            6
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            9,
+            4
+          ],
+          [
+            8,
+            5
+          ],
+          [
+            7,
+            6
+          ],
+          [
+            6,
+            5
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "planned_path": [
+          [
+            5,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            4,
+            7
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            7,
+            8
+          ],
+          [
+            8,
+            8
+          ],
+          [
+            9,
+            8
+          ]
+        ],
+        "intended_target": [
+          9,
+          8
+        ],
+        "reserved_goal": [
+          9,
+          8
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Back in Search",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 0.0,
+        "reserve_required": 30.062,
+        "continue_margin_required": 34.068,
+        "battery_margin": 25.932,
+        "return_eta_steps": 0,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      },
+      {
+        "id": 6,
+        "position": [
+          1,
+          3
+        ],
+        "battery": 51.11098407421309,
+        "battery_pct": 85.2,
+        "visited_cells": [
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            2,
+            7
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            5,
+            2
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            2,
+            7
+          ],
+          [
+            1,
+            6
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "planned_path": [
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            6
+          ],
+          [
+            4,
+            7
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            6,
+            8
+          ],
+          [
+            7,
+            7
+          ],
+          [
+            7,
+            6
+          ]
+        ],
+        "intended_target": [
+          7,
+          6
+        ],
+        "reserved_goal": [
+          7,
+          6
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Searching",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 4.034,
+        "reserve_required": 30.174,
+        "continue_margin_required": 37.988,
+        "battery_margin": 17.748,
+        "return_eta_steps": 2,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      },
+      {
+        "id": 7,
+        "position": [
+          1,
+          5
+        ],
+        "battery": 44.85716747280729,
+        "battery_pct": 74.8,
+        "visited_cells": [
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            6,
+            1
+          ]
+        ],
+        "path_history": [
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            3
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            2
+          ],
+          [
+            4,
+            2
+          ],
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            5
+          ]
+        ],
+        "planned_path": [
+          [
+            1,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            2,
+            5
+          ],
+          [
+            3,
+            4
+          ],
+          [
+            4,
+            4
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            6,
+            4
+          ],
+          [
+            7,
+            3
+          ],
+          [
+            8,
+            2
+          ],
+          [
+            9,
+            3
+          ],
+          [
+            9,
+            4
+          ]
+        ],
+        "intended_target": [
+          9,
+          4
+        ],
+        "reserved_goal": [
+          9,
+          4
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "searching",
+        "operator_status": "Searching",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "safe",
+        "reserve_status_label": "Safe",
+        "reserve_reason": "Battery margin supports continued search.",
+        "energy_required_to_base": 8.126,
+        "reserve_required": 30.248,
+        "continue_margin_required": 38.373,
+        "battery_margin": 9.249,
+        "return_eta_steps": 4,
+        "return_service_eta_steps": 0,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 1,
+        "recharge_cycles": 1,
+        "redeployments": 1,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": true,
+        "returning_to_base": false
+      }
+    ],
+    "metrics": {
+      "time_to_detection": 13,
+      "area_covered_pct": 98.91304347826087,
+      "probability_mass_covered": 0.9971869981242186,
+      "overlap_ratio": 0.8743093922651933,
+      "battery_used": 78.20493923151771,
+      "successful_returns_to_base": 8,
+      "forced_low_battery_returns": 8,
+      "approaching_reserve_events": 9,
+      "critical_battery_events": 0,
+      "recharge_cycles_started": 8,
+      "recharge_cycles_completed": 8,
+      "redeployments": 8,
+      "rejoined_search_events": 8,
+      "coverage_gap_events": 1,
+      "coverage_gap_steps": 5,
+      "average_active_search_drones": 5.0,
+      "battery_margin_min": -7.039,
+      "battery_margin_average": 16.58686607142857,
+      "comms_failures": 3,
+      "stale_information_events": 0,
+      "path_efficiency": 0.521110771295358,
+      "average_overlap_per_step": 0.30391766537750997,
+      "detection_under_comms_mode": "centralized",
+      "entropy_reduction_over_time": 4.758798171310764,
+      "information_gain_per_step": 0.3696923080704501,
+      "belief_peak_accuracy": 9.747381981712295e-10,
+      "time_to_first_candidate_detection": 1,
+      "time_to_confirmed_detection": 13,
+      "candidate_detection_count": 2,
+      "inspections_initiated": 2,
+      "inspections_completed": 2,
+      "confirmed_contact_count": 1,
+      "rejected_contact_count": 1,
+      "false_alarm_count": 1,
+      "reroute_count": 57,
+      "coordination_efficiency": 0.5305471672214407,
+      "return_to_base_efficiency": 1.0,
+      "mission_success": true
+    }
+  },
+  "output_dir": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-703df2c824",
+  "job_id": "job-run-6879435348",
+  "plan_id": "latest-test",
+  "comparison_id": null,
+  "candidate_id": null,
+  "artifact_paths": {
+    "manifest": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-703df2c824\\run_manifest.json",
+    "final_state": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-703df2c824\\final_state.png",
+    "events": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-703df2c824\\run_events.jsonl",
+    "replay": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-703df2c824\\run_replay.json"
+  },
+  "job": {
+    "id": "job-run-6879435348",
+    "job_type": "mission_run",
+    "owner_type": "run",
+    "owner_id": "run-703df2c824",
+    "status": "running",
+    "progress": 0.325,
+    "created_at": 1775199499.4089346,
+    "updated_at": 1775199500.3045096,
+    "completed_at": null,
+    "error": null,
+    "summary_json": {
+      "step": 13
+    }
+  },
+  "interventions": []
+}

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { RecommendationCard } from "@/components/ui/RecommendationCard";
 
 describe("RecommendationCard", () => {
-  it("renders the recommendation briefing fields", () => {
+  it("renders the recommendation as a clearer briefing", () => {
     render(
       <RecommendationCard
         strategy="information_gain"
@@ -36,23 +36,25 @@ describe("RecommendationCard", () => {
         uncertaintySummary={{ confidence: 0.78 }}
         technicalDetails={{
           mission_intent: "high_confidence_confirmation",
-          mission_area_summary: "Katoomba AOI covers about 14.2 kmÂ² across 4.8 by 3.1 km at roughly 400 m cells.",
+          mission_area_summary: "Katoomba AOI covers about 14.2 km² across 4.8 by 3.1 km at roughly 400 m cells.",
           first_candidate_band: { low: 12, mean: 16, high: 20 },
-          confirmed_detection_band: { low: 24, mean: 31, high: 40 },
+          confirmed_detection_band: { low: 24, mean: 24, high: 24 },
         }}
       />,
     );
 
     expect(screen.getByText("Recommended plan")).toBeInTheDocument();
     expect(screen.getByText(/use a focused confirmation search/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Broad Area Sweep").length).toBeGreaterThan(0);
-    expect(screen.getByText("4")).toBeInTheDocument();
-    expect(screen.getByText("28%")).toBeInTheDocument();
+    expect(screen.getByText("Why this fits")).toBeInTheDocument();
+    expect(screen.getByText("Expected timeline")).toBeInTheDocument();
+    expect(screen.getByText("Confidence")).toBeInTheDocument();
+    expect(screen.getByText("Main risk")).toBeInTheDocument();
+    expect(screen.getByText("Best alternative")).toBeInTheDocument();
     expect(screen.getByText(/balances expected success/i)).toBeInTheDocument();
-    expect(screen.getByText(/guided from a single mission desk/i)).toBeInTheDocument();
-    expect(screen.getByText(/Katoomba AOI covers about 14.2 kmÂ²/i)).toBeInTheDocument();
-    expect(screen.getByText("Mission readiness")).toBeInTheDocument();
-    expect(screen.getByText("Expected timing")).toBeInTheDocument();
+    expect(screen.getByText(/Best when the location is uncertain/i)).toBeInTheDocument();
     expect(screen.getByText(/First candidate: 12 to 20 minutes/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirmed contact: about 24 minutes/i)).toBeInTheDocument();
+    expect(screen.getByText("Moderate")).toBeInTheDocument();
+    expect(screen.getByText("Technical assumptions")).toBeInTheDocument();
   });
 });

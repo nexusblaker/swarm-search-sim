@@ -335,6 +335,7 @@ export interface ReviewSummaryRecord extends SummaryRecord {
   mission_timeline?: string;
   actual_outcome?: Record<string, unknown>;
   deviation_from_recommendation?: Record<string, unknown>;
+  deviation_summary?: string;
   asset_utilization?: Record<string, unknown>;
   battery_lifecycle?: BatteryLifecycleSummary;
   sensing_lifecycle?: SensingLifecycleSummary;

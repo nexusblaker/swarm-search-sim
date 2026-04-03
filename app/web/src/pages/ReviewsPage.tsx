@@ -69,12 +69,34 @@ export function ReviewsPage() {
   const timeline = (selected?.timeline_json ?? {}) as ReviewTimelineRecord;
   const actualOutcome = summary.actual_outcome ?? {};
   const actualMetrics = (actualOutcome.metrics as Record<string, unknown> | undefined) ?? {};
-  const deviationEntries = Object.entries((summary.deviation_from_recommendation ?? {}) as Record<string, unknown>);
-  const alternatePlanSummary = (selected?.alternate_plan_json?.summary as string | undefined) ?? "No alternate-plan analysis was captured.";
+  const deviationRecord = (summary.deviation_from_recommendation ?? {}) as Record<string, unknown>;
+  const deviationEntries = Object.entries(deviationRecord);
+  const deviationSummary = buildDeviationSummary(summary.deviation_summary, deviationRecord);
+  const alternatePlanRecord = (selected?.alternate_plan_json ?? {}) as Record<string, unknown>;
+  const alternatePlanSummary =
+    (alternatePlanRecord.summary as string | undefined) ?? "No alternate-plan analysis was captured.";
+  const alternatePlanAvailable = alternatePlanRecord.available !== false && Boolean(alternatePlanRecord.summary);
   const nextAdjustment =
     batteryLifecycle.mission_continuity_impact ??
     sensingLifecycle.inspection_burden_summary ??
     "Use this review to adjust the next mission plan before launch.";
+  const missionAreaNotes = uniqueReviewNarrative([
+    missionArea.context_summary ?? missionArea.operator_summary,
+    missionArea.terrain_burden_summary ?? missionArea.terrain_summary?.operator_summary,
+    missionArea.slope_elevation_summary ?? missionArea.slope_summary?.operator_summary,
+  ]);
+  const searchPatternNotes = uniqueReviewNarrative([
+    searchPattern.summary,
+    searchPattern.reason,
+    searchPattern.mission_effect_summary,
+  ]);
+  const assumptionSummary =
+    summary.assumptions_summary ?? provenanceManifest.assumptions_summary ?? "Assumptions summary not recorded.";
+  const limitationsSummary =
+    summary.known_limitations_summary ??
+    provenanceManifest.known_limitations_summary ??
+    "Known limitations summary not recorded.";
+  const benchmarkContext = summary.benchmark_context ?? provenanceManifest.benchmark_context ?? [];
 
   return (
     <div className="page-stack">
@@ -173,49 +195,26 @@ export function ReviewsPage() {
               <div className="space-y-4">
                 <div className="panel-subtle p-4">
                   <p className="section-kicker">Mission outcome</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{String(actualOutcome.status ?? "Outcome not recorded")}</p>
+                  <p className="mt-3 text-lg font-semibold text-white">
+                    {formatReviewValue(actualOutcome.status ?? "Outcome not recorded")}
+                  </p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
                     {summary.mission_timeline ?? "Generated from replay, events, and intervention history."}
                   </p>
                 </div>
                 <div className="panel-subtle p-4">
-                  <p className="section-kicker">What happened</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {batteryLifecycle.asset_utilization_summary ?? "No fleet rotation summary available."}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-muted">
-                    {sensingLifecycle.operator_summary ?? "No sensing workflow summary available."}
-                  </p>
-                </div>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <ReviewMetric label="Returns to base" value={batteryLifecycle.return_to_base_count ?? 0} />
-                  <ReviewMetric label="Service cycles completed" value={batteryLifecycle.recharge_completed_count ?? 0} />
-                  <ReviewMetric label="Redeployments" value={batteryLifecycle.redeploy_count ?? 0} />
-                  <ReviewMetric label="Coverage gaps" value={batteryLifecycle.coverage_gap_count ?? 0} />
-                </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Search pattern summary</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {searchPattern.summary ?? "No search pattern summary available."}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-muted">
-                    {searchPattern.reason ?? "No pattern-fit note available."}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {searchPattern.mission_effect_summary ?? "No pattern-change summary available."}
-                  </p>
-                </div>
-                <div className="panel-subtle p-4">
                   <p className="section-kicker">Mission area review</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {missionArea.context_summary ?? missionArea.operator_summary ?? "No mission area summary was captured for this review."}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-muted">
-                    {missionArea.terrain_burden_summary ?? missionArea.terrain_summary?.operator_summary ?? "No terrain burden summary was captured."}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-muted">
-                    {missionArea.slope_elevation_summary ?? missionArea.slope_summary?.operator_summary ?? "No slope burden summary was captured."}
-                  </p>
+                  <div className="mt-3 space-y-2">
+                    {missionAreaNotes.length ? (
+                      missionAreaNotes.map((item, index) => (
+                        <p key={`${item}-${index}`} className={index === 0 ? "text-sm leading-6 text-white/90" : "text-sm leading-6 text-muted"}>
+                          {item}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="text-sm leading-6 text-muted">No mission area summary was captured for this review.</p>
+                    )}
+                  </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <ReviewMetric
                       label="Area size"
@@ -236,69 +235,62 @@ export function ReviewsPage() {
                   </div>
                 </div>
                 <div className="panel-subtle p-4">
-                  <p className="section-kicker">Main takeaways</p>
+                  <p className="section-kicker">Search pattern review</p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
-                    {batteryLifecycle.mission_continuity_impact ?? "No mission continuity note available."}
+                    {searchPattern.pattern_label ?? "Pattern not recorded"}
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {searchPatternNotes.length ? (
+                      searchPatternNotes.map((item, index) => (
+                        <p key={`${item}-${index}`} className={index === 0 ? "text-sm leading-6 text-white/90" : "text-sm leading-6 text-muted"}>
+                          {item}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="text-sm leading-6 text-muted">No search pattern summary available.</p>
+                    )}
+                  </div>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Deviation from recommendation</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {deviationSummary}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-muted">
-                    {sensingLifecycle.mission_impact_summary ?? "No sensing impact note available."}
+                    {deviationEntries.length
+                      ? "Detailed comparison checks remain available in the technical appendix."
+                      : "The run stayed close to the recommendation and did not trigger a material deviation note."}
+                  </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Battery lifecycle review</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {batteryLifecycle.asset_utilization_summary ?? "No fleet rotation summary available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    {batteryLifecycle.mission_continuity_impact ?? "No mission continuity note available."}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
                     Battery margin: min {String(batteryLifecycle.battery_margin_summary?.minimum_margin ?? "n/a")} /
                     avg {String(batteryLifecycle.battery_margin_summary?.average_margin ?? "n/a")}
                   </p>
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <ReviewMetric label="Returns to base" value={batteryLifecycle.return_to_base_count ?? 0} />
+                    <ReviewMetric label="Service cycles completed" value={batteryLifecycle.recharge_completed_count ?? 0} />
+                    <ReviewMetric label="Redeployments" value={batteryLifecycle.redeploy_count ?? 0} />
+                    <ReviewMetric label="Coverage gaps" value={batteryLifecycle.coverage_gap_count ?? 0} />
+                  </div>
                 </div>
                 <div className="panel-subtle p-4">
-                  <p className="section-kicker">Feasibility and confidence</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {feasibilitySummary.operator_summary ?? "No launch-feasibility summary was captured for this mission."}
-                  </p>
-                  {feasibilitySummary.next_watch ? (
-                    <p className="mt-3 text-sm leading-6 text-muted">Watch next: {feasibilitySummary.next_watch}</p>
-                  ) : null}
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {confidenceSummary.confidence_reason ?? "No recommendation-confidence note was captured."}
-                  </p>
-                </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Model assumptions</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">
-                    {summary.assumptions_summary ?? provenanceManifest.assumptions_summary ?? "Assumptions summary not recorded."}
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-muted">
-                    {summary.known_limitations_summary ?? provenanceManifest.known_limitations_summary ?? "Known limitations summary not recorded."}
-                  </p>
-                </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Deviation from recommendation</p>
-                  {deviationEntries.length > 0 ? (
-                    <div className="mt-3 space-y-2">
-                      {deviationEntries.map(([key, value]) => (
-                        <div key={key} className="flex items-start justify-between gap-4">
-                          <p className="text-sm text-muted">{key.replaceAll("_", " ")}</p>
-                          <p className="text-right text-sm font-medium text-white">{String(value ?? "n/a")}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-3 text-sm leading-6 text-muted">No deviation from the recommendation was recorded.</p>
-                  )}
-                </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Alternate-plan perspective</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">{alternatePlanSummary}</p>
-                </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Recommended next adjustment</p>
-                  <p className="mt-3 text-sm leading-6 text-white/90">{nextAdjustment}</p>
-                </div>
-                <div className="panel-subtle p-4">
-                  <p className="section-kicker">Sensing workflow summary</p>
+                  <p className="section-kicker">Sensing workflow review</p>
                   <p className="mt-3 text-sm leading-6 text-white/90">
                     {sensingLifecycle.operator_summary ?? "No sensing workflow summary available."}
                   </p>
                   <p className="mt-3 text-sm leading-6 text-muted">
                     {sensingLifecycle.inspection_burden_summary ?? "No inspection burden note available."}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {sensingLifecycle.mission_impact_summary ?? "No sensing impact note available."}
                   </p>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <ReviewMetric label="Possible contacts" value={sensingLifecycle.candidate_detection_count ?? 0} />
@@ -306,6 +298,18 @@ export function ReviewsPage() {
                     <ReviewMetric label="Inspection passes" value={sensingLifecycle.inspection_pass_count ?? 0} />
                     <ReviewMetric label="Rejected false alarms" value={sensingLifecycle.false_positive_count ?? 0} />
                   </div>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Alternate plan analysis</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">
+                    {alternatePlanAvailable
+                      ? alternatePlanSummary
+                      : "No alternate-plan analysis was captured for this run."}
+                  </p>
+                </div>
+                <div className="panel-subtle p-4">
+                  <p className="section-kicker">Recommended next adjustment</p>
+                  <p className="mt-3 text-sm leading-6 text-white/90">{nextAdjustment}</p>
                 </div>
               </div>
             </Panel>
@@ -332,23 +336,89 @@ export function ReviewsPage() {
                 </div>
               </CollapsiblePanel>
 
+              <Panel
+                eyebrow="Mission context"
+                title="Feasibility and confidence"
+                description="Keep the launch-time risk and confidence picture nearby while reading the review."
+              >
+                <div className="space-y-4">
+                  <div className="panel-subtle p-4">
+                    <p className="section-kicker">Feasibility</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">
+                      {feasibilitySummary.operator_summary ?? "No launch-feasibility summary was captured for this mission."}
+                    </p>
+                    {feasibilitySummary.next_watch ? (
+                      <p className="mt-3 text-sm leading-6 text-muted">Watch next: {feasibilitySummary.next_watch}</p>
+                    ) : null}
+                  </div>
+                  <div className="panel-subtle p-4">
+                    <p className="section-kicker">Confidence</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">
+                      {confidenceSummary.confidence_reason ?? "No recommendation-confidence note was captured."}
+                    </p>
+                  </div>
+                </div>
+              </Panel>
+
               <CollapsiblePanel
-                title="Captured mission metrics"
-                description="Open the structured outcome metrics behind this review."
+                title="Technical appendix"
+                description="Assumptions, model context, and raw recommendation comparison detail stay here."
                 defaultOpen={false}
               >
-                <div className="space-y-3">
-                  <ReviewMetric label="Pattern" value={searchPattern.pattern_label ?? "n/a"} />
-                  <ReviewMetric label="Pattern changes" value={searchPattern.change_count ?? 0} />
-                  <ReviewMetric label="Mission success" value={String(actualMetrics.mission_success ?? "n/a")} />
-                  <ReviewMetric label="Area covered (%)" value={String(actualMetrics.area_covered_pct ?? "n/a")} />
-                  <ReviewMetric label="Battery used" value={String(actualMetrics.battery_used ?? "n/a")} />
-                  <ReviewMetric
-                    label="Average active search drones"
-                    value={String(actualMetrics.average_active_search_drones ?? "n/a")}
+                <div className="space-y-4">
+                  <div className="panel-subtle p-4">
+                    <p className="section-kicker">Model assumptions</p>
+                    <p className="mt-3 text-sm leading-6 text-white/90">{assumptionSummary}</p>
+                    <p className="mt-3 text-sm leading-6 text-muted">{limitationsSummary}</p>
+                  </div>
+                  <DetailPanel
+                    title="Model context"
+                    items={[
+                      { label: "Model version", value: provenanceManifest.model_version ?? "n/a" },
+                      { label: "Scenario version", value: provenanceManifest.scenario_version ?? "n/a" },
+                      { label: "Calibration version", value: provenanceManifest.calibration_version ?? "n/a" },
+                      { label: "Deployment mode", value: provenanceManifest.deployment_mode ?? "n/a" },
+                      { label: "Reserve policy", value: batteryLifecycle.reserve_preset?.replaceAll("_", " ") ?? "n/a" },
+                    ]}
                   />
-                  <ReviewMetric label="Confidence" value={confidenceSummary.confidence_level ?? "n/a"} />
-                  <ReviewMetric label="Model version" value={provenanceManifest.model_version ?? "n/a"} />
+                  {benchmarkContext.length ? (
+                    <div className="panel-subtle p-4">
+                      <p className="section-kicker">Benchmark context</p>
+                      <div className="mt-3 space-y-2">
+                        {benchmarkContext.map((item) => (
+                          <p key={item} className="text-sm leading-6 text-muted">
+                            {item}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {deviationEntries.length ? (
+                    <div className="panel-subtle p-4">
+                      <p className="section-kicker">Recommendation comparison detail</p>
+                      <div className="mt-3 space-y-2">
+                        {deviationEntries.map(([key, value]) => (
+                          <div key={key} className="flex items-start justify-between gap-4">
+                            <p className="text-sm text-muted">{humanizeReviewLabel(key)}</p>
+                            <p className="text-right text-sm font-medium text-white">{formatReviewValue(value)}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <ReviewMetric label="Pattern" value={searchPattern.pattern_label ?? "n/a"} />
+                    <ReviewMetric label="Pattern changes" value={searchPattern.change_count ?? 0} />
+                    <ReviewMetric label="Mission success" value={formatReviewValue(actualMetrics.mission_success ?? "n/a")} />
+                    <ReviewMetric label="Area covered (%)" value={formatReviewValue(actualMetrics.area_covered_pct ?? "n/a")} />
+                    <ReviewMetric label="Battery used" value={formatReviewValue(actualMetrics.battery_used ?? "n/a")} />
+                    <ReviewMetric
+                      label="Average active search drones"
+                      value={formatReviewValue(actualMetrics.average_active_search_drones ?? "n/a")}
+                    />
+                    <ReviewMetric label="Confidence" value={confidenceSummary.confidence_level ?? "n/a"} />
+                    <ReviewMetric label="Model version" value={provenanceManifest.model_version ?? "n/a"} />
+                  </div>
                 </div>
               </CollapsiblePanel>
             </div>
@@ -367,8 +437,8 @@ export function ReviewsPage() {
           </Panel>
 
           <CollapsiblePanel
-            title="Technical details"
-            description="Open the structured review summary behind this after-action view."
+            title="Structured appendix"
+            description="Open the full structured review payload behind this after-action summary."
             defaultOpen={false}
           >
             <pre className="whitespace-pre-wrap text-xs leading-6 text-muted">
@@ -388,4 +458,66 @@ function ReviewMetric({ label, value }: { label: string; value: string | number 
       <p className="mt-2 text-lg font-semibold text-white">{value}</p>
     </div>
   );
+}
+
+function normalizeReviewNarrative(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function uniqueReviewNarrative(values: Array<string | null | undefined>): string[] {
+  const seen = new Set<string>();
+  const items: string[] = [];
+  for (const value of values) {
+    if (!value) continue;
+    const trimmed = value.trim();
+    if (!trimmed) continue;
+    const normalized = normalizeReviewNarrative(trimmed);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    items.push(trimmed);
+  }
+  return items;
+}
+
+function buildDeviationSummary(
+  summary: string | undefined,
+  deviationRecord: Record<string, unknown>,
+): string {
+  if (summary?.trim()) return summary;
+  const labels = Object.entries(deviationRecord)
+    .filter(([, value]) => Boolean(value))
+    .map(([key]) =>
+      ({
+        strategy_differs: "search strategy",
+        drone_count_differs: "drone count",
+        coordination_differs: "team coordination",
+        reserve_differs: "reserve policy",
+      })[key] ?? humanizeReviewLabel(key).toLowerCase(),
+    );
+
+  if (!labels.length) {
+    return "The run remained closely aligned with the original recommendation.";
+  }
+  if (labels.length === 1) {
+    return `The run differed from the original recommendation in ${labels[0]}.`;
+  }
+  if (labels.length === 2) {
+    return `The run differed materially from the original recommendation in ${labels[0]} and ${labels[1]}.`;
+  }
+  return `The run differed materially from the original recommendation in ${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}.`;
+}
+
+function humanizeReviewLabel(label: string): string {
+  return label
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function formatReviewValue(value: unknown): string {
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (value === null || value === undefined || value === "") return "n/a";
+  return String(value);
 }

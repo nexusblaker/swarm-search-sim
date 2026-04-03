@@ -197,6 +197,7 @@ def test_after_action_review_and_library_flow(tmp_path: Path) -> None:
     assert completed["status"] == "completed"
     assert loaded.status_code == 200
     assert loaded.json()["summary_json"]["alternate_plan_summary"]
+    assert loaded.json()["summary_json"]["deviation_summary"]
     assert loaded.json()["report"] is not None
 
 

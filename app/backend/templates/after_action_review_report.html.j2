@@ -61,6 +61,8 @@
 
   <div class="card">
     <h2>Deviation From Recommendation</h2>
+    <p>{{ review.summary_json.deviation_summary or "No deviation summary was captured for this review." }}</p>
+    {% if review.summary_json.deviation_from_recommendation %}
     <table>
       <tbody>
         {% for key, value in review.summary_json.deviation_from_recommendation.items() %}
@@ -68,6 +70,7 @@
         {% endfor %}
       </tbody>
     </table>
+    {% endif %}
   </div>
 
   <div class="card">
@@ -114,11 +117,11 @@
 
   <div class="card">
     <h2>Alternate Plan Analysis</h2>
-    <p>{{ review.alternate_plan_json.summary }}</p>
+    <p>{{ review.alternate_plan_json.summary if review.alternate_plan_json else "No alternate-plan analysis was captured for this review." }}</p>
   </div>
 
   <div class="card">
-    <h2>Assumptions and Provenance</h2>
+    <h2>Technical Appendix</h2>
     <p>{{ review.summary_json.assumptions_summary or review.summary_json.provenance_manifest.assumptions_summary or "Assumptions summary not recorded." }}</p>
     <p>{{ review.summary_json.known_limitations_summary or review.summary_json.provenance_manifest.known_limitations_summary or "Known limitations summary not recorded." }}</p>
     <table>
@@ -144,7 +147,7 @@
   </div>
 
   <div class="card">
-    <h2>Technical Details</h2>
+    <h2>Structured Appendix</h2>
     <code>{{ review.summary_json }}</code>
   </div>
 </body>

@@ -1,0 +1,322 @@
+scenario:
+  name: latest test
+  map_size:
+  - 12
+  - 10
+  weather: windy
+  num_drones: 8
+  last_known_position:
+  - 8
+  - 2
+  target_assumptions:
+    behavior: trail_biased
+    target_move_probability: 0.34
+    target_speed: 1
+    drift_sigma: 5
+  target_start_radius: 4
+  max_steps: 40
+  strategy: sector_search
+  search_pattern: sector_split
+  scenario_family: obstacle_heavy
+  last_known_status: known
+  base_position:
+  - 5
+  - 0
+  mission_area:
+    location_display_name: Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia
+    location_source: live_geocoder
+    location_query: Murrindindi, Shire of Murrindindi, Victoria, 3717, Australia
+    center:
+      latitude: -37.369336
+      longitude: 145.5822701
+    preview_span_km: 18
+    shape_type: rectangle
+    rectangle:
+      north: -37.34316593935669
+      south: -37.37130622729662
+      east: 145.61718611055147
+      west: 145.56421754965288
+    polygon:
+    - latitude: -37.34316593935669
+      longitude: 145.56421754965288
+    - latitude: -37.34316593935669
+      longitude: 145.61718611055147
+    - latitude: -37.37130622729662
+      longitude: 145.61718611055147
+    - latitude: -37.37130622729662
+      longitude: 145.56421754965288
+    bounds:
+      north: -37.34316593935669
+      south: -37.37130622729662
+      east: 145.61718611055147
+      west: 145.56421754965288
+    width_km: 4.69
+    height_km: 3.13
+    area_sq_km: 14.68
+    shape_ratio: 1.5
+    requested_grid_resolution_m: 500
+    grid_resolution_m: 500
+    cell_size_m: 500
+    grid_size:
+    - 12
+    - 10
+    grid_cols: 12
+    grid_rows: 10
+    max_safe_cells: 4900
+    warnings: []
+    terrain_hint: mixed
+    requested_environment_type: obstacle_heavy
+    last_known_status: known
+    environment_type: obstacle_heavy
+    weather_summary:
+      source: live_weather
+      provider: open-meteo
+      recommended_weather: windy
+      condition_label: Overcast
+      temperature_c: 13.4
+      wind_speed_kph: 21.3
+      precipitation_mm: 0
+      cloud_cover_pct: 100
+      visibility_label: Reduced
+      operator_summary: Current weather shows overcast with winds around 21 kph.
+      fallback_note: null
+      fetched_at: '2026-04-03T06:55:19.518426+00:00'
+    center_grid_position:
+    - 6
+    - 5
+    shape_summary: Rectangle AOI
+    aoi_outline_grid:
+    - - 0
+      - 0
+    - - 1
+      - 0
+    - - 2
+      - 0
+    - - 3
+      - 0
+    - - 4
+      - 0
+    - - 5
+      - 0
+    - - 6
+      - 0
+    - - 7
+      - 0
+    - - 8
+      - 0
+    - - 9
+      - 0
+    - - 10
+      - 0
+    - - 11
+      - 0
+    - - 11
+      - 1
+    - - 11
+      - 2
+    - - 11
+      - 3
+    - - 11
+      - 4
+    - - 11
+      - 5
+    - - 11
+      - 6
+    - - 11
+      - 7
+    - - 11
+      - 8
+    - - 11
+      - 9
+    - - 10
+      - 9
+    - - 9
+      - 9
+    - - 8
+      - 9
+    - - 7
+      - 9
+    - - 6
+      - 9
+    - - 5
+      - 9
+    - - 4
+      - 9
+    - - 3
+      - 9
+    - - 2
+      - 9
+    - - 1
+      - 9
+    - - 0
+      - 9
+    - - 0
+      - 8
+    - - 0
+      - 7
+    - - 0
+      - 6
+    - - 0
+      - 5
+    - - 0
+      - 4
+    - - 0
+      - 3
+    - - 0
+      - 2
+    - - 0
+      - 1
+    - - 0
+      - 0
+    staging:
+      latitude: -37.34368079545057
+      longitude: 145.58778315429754
+      label: Primary staging point
+      placement: map
+      grid_position:
+      - 5
+      - 0
+    staging_distance_to_center_km: 2.9
+    staging_summary: Base is positioned inside the selected search area.
+    last_known_location:
+      latitude: -37.34951558447108
+      longitude: 145.60378182167102
+      label: Last known location
+      placement: map
+      grid_position:
+      - 8
+      - 2
+    last_known_inside_aoi: true
+    last_known_grid_position:
+    - 8
+    - 2
+    last_known_summary: Last known point is placed inside the search area.
+    area_metrics_summary: AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly
+      500 m cells.
+    operator_summary: AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500
+      m cells.
+    grid_summary:
+      map_size:
+      - 12
+      - 10
+      cell_size_m: 500
+      shape_label: Rectangle AOI
+      operator_summary: Grid resolves to 12 by 10 cells.
+    area_metrics:
+      area_sq_km: 14.68
+      width_km: 4.69
+      height_km: 3.13
+      grid_cols: 12
+      grid_rows: 10
+      grid_resolution_m: 500
+      staging_offset_km: 2.9
+      last_known_inside_aoi: true
+      operator_summary: AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly
+        500 m cells. Grid resolves to 12 by 10 cells.
+    terrain_summary:
+      source_mode: local_first_deterministic
+      dominant_terrain: hill country
+      terrain_mix:
+        open terrain: 0.15
+        forest: 0.092
+        hill country: 0.583
+        urban edge: 0
+        water / no-go: 0.175
+      elevation_range_m:
+      - 0
+      - 837.1
+      mean_elevation_m: 416.8
+      slope_burden: elevated
+      trail_access: good
+      trail_coverage_pct: 0.3
+      obstacle_coverage_pct: 0.233
+      water_coverage_pct: 0.175
+      suggested_scenario_family: obstacle_heavy
+      terrain_burden_label: Trail-accessible hill country
+      terrain_burden_summary: Hill country dominates, but usable access corridors
+        should help movement and recovery routes.
+      slope_summary:
+        value: steep
+        label: Steep terrain
+        operator_summary: Steep terrain will slow coverage, stretch returns to base,
+          and justify stronger reserve margin.
+      operator_summary: The selected area reads as trail-accessible hill country,
+        with steep terrain and good access.
+    terrain_burden_summary: Hill country dominates, but usable access corridors should
+      help movement and recovery routes.
+    slope_summary:
+      value: steep
+      label: Steep terrain
+      operator_summary: Steep terrain will slow coverage, stretch returns to base,
+        and justify stronger reserve margin.
+    slope_elevation_summary: Steep terrain will slow coverage, stretch returns to
+      base, and justify stronger reserve margin.
+    environment_summary:
+      value: obstacle_heavy
+      label: Obstacle-heavy
+      operator_summary: Obstacle-heavy ground is the dominant character of the selected
+        area.
+    environment_label: Obstacle-heavy
+    planner_ready: true
+    planner_status_summary: Planning context is ready for recommendation and simulation.
+    context_summary: 'Location: Murrindindi, Shire of Murrindindi, Victoria, 3717,
+      Australia. AOI covers about 14.7 km^2 across 4.7 by 3.1 km at roughly 500 m
+      cells. Grid resolves to 12 by 10 cells. Environment reads as obstacle-heavy.
+      Hill country dominates, but usable access corridors should help movement and
+      recovery routes. Steep terrain will slow coverage, stretch returns to base,
+      and justify stronger reserve margin. Base is positioned inside the selected
+      search area. Last known point is placed inside the search area. Current weather
+      shows overcast with winds around 21 kph. Planning context is ready for recommendation
+      and simulation.'
+  communication:
+    coordination_mode: centralized
+  battery_policy:
+    return_threshold: 30
+  render:
+    save_frames: false
+    frame_stride: 3
+  mission_intent: broad_area_coverage
+  asset_package:
+    package_name: latest test fleet
+    uniform_fleet: true
+    staging_location: Primary staging point
+    notes: ''
+    drone_types:
+    - display_name: General purpose drone
+      model_name: General purpose drone
+      count: 8
+      max_endurance_minutes: 45.0
+      estimated_max_range_km: 41.0
+      cruise_speed_kph: 65.0
+      sensor_capability_level: standard
+      thermal_capability_level: assisted
+      detection_capability_proxy: 1.0
+      turnaround_time_minutes: 5.0
+      notes: ''
+    fleet_composition: &id001
+      mix_type: uniform
+      total_drones: 8
+      drone_type_count: 1
+      aggregate_endurance_minutes: 45.0
+      aggregate_range_km: 41.0
+      aggregate_speed_kph: 65.0
+      sensor_score: 1.0
+      thermal_score: 1.0
+      detection_score: 1.0
+      endurance_score: 0.45
+      coverage_score: 1.45
+      coordination_complexity: low
+      average_turnaround_minutes: 5.0
+    operator_summary: 8 General purpose drone staged from Primary staging point available
+      for this mission.
+  drone:
+    battery: 60.0
+    speed: 2
+    sensor_range: 5.31
+    fov: 130.0
+    estimated_max_range_km: 41.0
+    cruise_speed_kph: 65.0
+    sensor_capability_level: standard
+    thermal_capability_level: assisted
+    turnaround_time_minutes: 5.0
+    fleet_composition: *id001
