@@ -138,6 +138,7 @@ export interface MissionAreaSummary {
   shape_summary?: string;
   rectangle?: Record<string, number>;
   polygon?: Array<Record<string, number>>;
+  aoi_outline_grid?: [number, number][];
   bounds?: Record<string, number>;
   width_km?: number;
   height_km?: number;

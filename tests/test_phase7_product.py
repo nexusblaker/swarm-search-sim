@@ -302,6 +302,7 @@ def test_geospatial_resolution_preview_and_plan_persistence(tmp_path: Path) -> N
     assert mission_area["slope_summary"]["label"]
     assert mission_area["planner_status_summary"]
     assert "Location:" in mission_area["context_summary"]
+    assert mission_area["aoi_outline_grid"]
     assert mission_area["weather_summary"]["condition_label"]
     assert mission_area["staging"]["grid_position"]
     assert mission_area["last_known_location"]["placement"] == "map"
@@ -375,10 +376,12 @@ def test_aoi_backed_run_replay_review_and_report_keep_mission_area_context(tmp_p
     assert completed["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]
     assert completed["summary_json"]["mission_area_summary"]
     assert completed["summary_json"]["mission_area"]["terrain_burden_summary"]
+    assert completed["latest_snapshot_json"]["mission_area"]["aoi_outline_grid"]
     assert completed["latest_snapshot_json"]["mission_area"]["staging"]["grid_position"] == mission_area["staging"]["grid_position"]
     assert completed["latest_snapshot_json"]["mission_area"]["last_known_location"]["placement"] == "map"
     assert replay.status_code == 200
     assert replay.json()["replay"][-1]["mission_area"]["grid_size"] == mission_area["grid_size"]
+    assert replay.json()["replay"][-1]["mission_area"]["aoi_outline_grid"]
     assert replay.json()["replay"][-1]["mission_area"]["context_summary"]
     assert report.status_code == 200
     assert report.json()["summary_json"]["mission_area"]["location_display_name"] == mission_area["location_display_name"]

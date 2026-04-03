@@ -328,6 +328,10 @@ def preview_mission_area(
     mission_area["shape_summary"] = (
         "Irregular polygon AOI" if shape == "polygon" else "Rectangle AOI"
     )
+    mission_area["aoi_outline_grid"] = _polygon_to_grid_outline(
+        normalized_polygon,
+        mission_area,
+    )
 
     staging_point = _normalize_staging_point(staging, mission_area)
     mission_area["staging"] = staging_point
@@ -552,6 +556,7 @@ def build_environment_from_mission_area(
         trail_layer=layers["trail_layer"],
         elevation_layer=layers["elevation_layer"],
         wind_layer=layers["wind_layer"],
+        cell_size_m=float(mission_area.get("grid_resolution_m") or mission_area.get("cell_size_m") or 1.0),
     )
 
 
@@ -746,6 +751,26 @@ def _point_to_grid(point: dict[str, Any], mission_area: dict[str, Any]) -> tuple
     x = int(round(((float(point["longitude"]) - bounds["west"]) / lon_span) * (width - 1)))
     y = int(round(((bounds["north"] - float(point["latitude"])) / lat_span) * (height - 1)))
     return max(0, min(width - 1, x)), max(0, min(height - 1, y))
+
+
+def _polygon_to_grid_outline(
+    polygon: list[dict[str, float]],
+    mission_area: dict[str, Any],
+) -> list[list[int]]:
+    if len(polygon) < 2:
+        return []
+
+    grid_points = [_point_to_grid(point, mission_area) for point in polygon]
+    outline: list[list[int]] = []
+    pairs = list(zip(grid_points, grid_points[1:] + [grid_points[0]]))
+    for start, end in pairs:
+        for x, y in _line_points(start, end):
+            point = [int(x), int(y)]
+            if not outline or outline[-1] != point:
+                outline.append(point)
+    if outline and outline[0] != outline[-1]:
+        outline.append(list(outline[0]))
+    return outline
 
 
 def _build_aoi_mask(mission_area: dict[str, Any], width: int, height: int) -> np.ndarray:

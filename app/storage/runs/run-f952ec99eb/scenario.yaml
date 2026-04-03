@@ -208,7 +208,7 @@ scenario:
       detection_capability_proxy: 1.0
       turnaround_time_minutes: 5.0
       notes: ''
-    fleet_composition: &id001
+    fleet_composition:
       mix_type: uniform
       total_drones: 4
       drone_type_count: 1
@@ -234,4 +234,17 @@ scenario:
     sensor_capability_level: standard
     thermal_capability_level: assisted
     turnaround_time_minutes: 5.0
-    fleet_composition: *id001
+    fleet_composition:
+      mix_type: uniform
+      total_drones: 4
+      drone_type_count: 1
+      aggregate_endurance_minutes: 50.0
+      aggregate_range_km: 41.0
+      aggregate_speed_kph: 60.0
+      sensor_score: 1.0
+      thermal_score: 1.0
+      detection_score: 1.0
+      endurance_score: 0.5
+      coverage_score: 1.45
+      coordination_complexity: low
+      average_turnaround_minutes: 5.0

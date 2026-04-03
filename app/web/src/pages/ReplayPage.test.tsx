@@ -15,6 +15,17 @@ const snapshot = {
   search_pattern_rebalance_reason: "possible contact activity",
   coordination_mode: "centralized",
   run_phase: "Battery rotation underway",
+  mission_area: {
+    location_display_name: "Katoomba, NSW",
+    aoi_outline_grid: [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [0, 0],
+    ],
+    last_known_grid_position: [1, 1],
+  },
   base_position: [0, 0],
   terrain_grid: [
     [0, 0],
@@ -141,6 +152,8 @@ describe("ReplayPage", () => {
     expect(screen.getByText("Fleet roster")).toBeInTheDocument();
     expect(screen.getByText(/Step 4 \| Inspection Started/i)).toBeInTheDocument();
     expect(screen.getByText("Frame summary")).toBeInTheDocument();
+    expect(screen.getByText("Terrain legend")).toBeInTheDocument();
+    expect(screen.getByText(/Grid colors show terrain categories rather than elevation/i)).toBeInTheDocument();
     expect(screen.getAllByText("Adaptive Rebalance").length).toBeGreaterThan(0);
   });
 });

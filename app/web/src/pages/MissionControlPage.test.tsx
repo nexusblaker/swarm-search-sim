@@ -13,6 +13,17 @@ const snapshot = {
   search_pattern_label: "Broad Area Sweep",
   search_pattern_summary: "Spreads the fleet across evenly spaced lanes to maximize early area coverage.",
   coordination_mode: "centralized",
+  mission_area: {
+    location_display_name: "Katoomba, NSW",
+    aoi_outline_grid: [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+      [0, 0],
+    ],
+    last_known_grid_position: [1, 1],
+  },
   base_position: [0, 0],
   terrain_grid: [
     [0, 0],
@@ -130,6 +141,8 @@ describe("MissionControlPage", () => {
     expect(screen.getByText("Launch mission run")).toBeInTheDocument();
     expect(screen.getByText("Contact workflow")).toBeInTheDocument();
     expect(screen.getByText("Fleet roster")).toBeInTheDocument();
+    expect(screen.getByText("Terrain legend")).toBeInTheDocument();
+    expect(screen.getByText("Plain")).toBeInTheDocument();
     expect(screen.getAllByText("Broad Area Sweep").length).toBeGreaterThan(0);
   });
 });

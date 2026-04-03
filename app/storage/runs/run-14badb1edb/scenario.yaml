@@ -1,0 +1,251 @@
+scenario:
+  name: New search mission
+  map_size:
+  - 12
+  - 13
+  weather: windy
+  num_drones: 6
+  last_known_position:
+  - 4
+  - 3
+  target_assumptions:
+    behavior: trail_biased
+    target_move_probability: 0.25
+    target_speed: 1
+    drift_sigma: 3.4
+  target_start_radius: 2
+  max_steps: 52
+  strategy: sector_search
+  search_pattern: sector_split
+  scenario_family: obstacle_heavy
+  last_known_status: known
+  base_position:
+  - 11
+  - 7
+  mission_area:
+    location_display_name: Katoomba, NSW
+    location_source: local_gazetteer
+    location_query: Katoomba, NSW
+    center:
+      latitude: -33.7126
+      longitude: 150.3119
+    preview_span_km: 20
+    shape_type: rectangle
+    rectangle:
+      north: -33.68801969287318
+      south: -33.74853244699964
+      east: 150.28854646930006
+      west: 150.2364965337179
+    polygon:
+    - latitude: -33.68801969287318
+      longitude: 150.2364965337179
+    - latitude: -33.68801969287318
+      longitude: 150.28854646930006
+    - latitude: -33.74853244699964
+      longitude: 150.28854646930006
+    - latitude: -33.74853244699964
+      longitude: 150.2364965337179
+    bounds:
+      north: -33.68801969287318
+      south: -33.74853244699964
+      east: 150.28854646930006
+      west: 150.2364965337179
+    width_km: 4.82
+    height_km: 6.74
+    area_sq_km: 32.47
+    shape_ratio: 1.4
+    requested_grid_resolution_m: 500
+    grid_resolution_m: 500
+    cell_size_m: 500
+    grid_size:
+    - 12
+    - 13
+    grid_cols: 12
+    grid_rows: 13
+    max_safe_cells: 4900
+    warnings: []
+    terrain_hint: mountain
+    requested_environment_type: obstacle_heavy
+    last_known_status: known
+    environment_type: obstacle_heavy
+    weather_summary:
+      source: live_weather
+      provider: open-meteo
+      recommended_weather: windy
+      condition_label: Partly cloudy
+      temperature_c: 17.4
+      wind_speed_kph: 11.2
+      precipitation_mm: 0
+      cloud_cover_pct: 66
+      visibility_label: Good
+      operator_summary: Current weather shows partly cloudy with winds around 11 kph.
+      fallback_note: null
+      fetched_at: '2026-04-03T04:52:52.200569+00:00'
+    center_grid_position:
+    - 6
+    - 6
+    shape_summary: Rectangle AOI
+    staging:
+      latitude: -33.72324827539265
+      longitude: 150.28940822320044
+      label: Primary staging point
+      placement: map
+      grid_position:
+      - 11
+      - 7
+    staging_distance_to_center_km: 2.4
+    staging_summary: Base is positioned just east of the search area.
+    last_known_location:
+      latitude: -33.70391730558863
+      longitude: 150.25752332888686
+      label: Last known location
+      placement: map
+      grid_position:
+      - 4
+      - 3
+    last_known_inside_aoi: true
+    last_known_grid_position:
+    - 4
+    - 3
+    last_known_summary: Last known point is placed inside the search area.
+    area_metrics_summary: AOI covers about 32.5 km^2 across 4.8 by 6.7 km at roughly
+      500 m cells.
+    operator_summary: AOI covers about 32.5 km^2 across 4.8 by 6.7 km at roughly 500
+      m cells.
+    grid_summary:
+      map_size:
+      - 12
+      - 13
+      cell_size_m: 500
+      shape_label: Rectangle AOI
+      operator_summary: Grid resolves to 12 by 13 cells.
+    area_metrics:
+      area_sq_km: 32.47
+      width_km: 4.82
+      height_km: 6.74
+      grid_cols: 12
+      grid_rows: 13
+      grid_resolution_m: 500
+      staging_offset_km: 2.4
+      last_known_inside_aoi: true
+      operator_summary: AOI covers about 32.5 km^2 across 4.8 by 6.7 km at roughly
+        500 m cells. Grid resolves to 12 by 13 cells.
+    terrain_summary:
+      source_mode: local_first_deterministic
+      dominant_terrain: hill country
+      terrain_mix:
+        open terrain: 0.103
+        forest: 0.083
+        hill country: 0.647
+        urban edge: 0.006
+        water / no-go: 0.16
+      elevation_range_m:
+      - 0
+      - 1082.4
+      mean_elevation_m: 557.8
+      slope_burden: elevated
+      trail_access: good
+      trail_coverage_pct: 0.16
+      obstacle_coverage_pct: 0.256
+      water_coverage_pct: 0.16
+      suggested_scenario_family: obstacle_heavy
+      terrain_burden_label: Trail-accessible hill country
+      terrain_burden_summary: Hill country dominates, but usable access corridors
+        should help movement and recovery routes.
+      slope_summary:
+        value: steep
+        label: Steep terrain
+        operator_summary: Steep terrain will slow coverage, stretch returns to base,
+          and justify stronger reserve margin.
+      operator_summary: The selected area reads as trail-accessible hill country,
+        with steep terrain and good access.
+    terrain_burden_summary: Hill country dominates, but usable access corridors should
+      help movement and recovery routes.
+    slope_summary:
+      value: steep
+      label: Steep terrain
+      operator_summary: Steep terrain will slow coverage, stretch returns to base,
+        and justify stronger reserve margin.
+    slope_elevation_summary: Steep terrain will slow coverage, stretch returns to
+      base, and justify stronger reserve margin.
+    environment_summary:
+      value: obstacle_heavy
+      label: Obstacle-heavy
+      operator_summary: Obstacle-heavy ground is the dominant character of the selected
+        area.
+    environment_label: Obstacle-heavy
+    planner_ready: true
+    planner_status_summary: Planning context is ready for recommendation and simulation.
+    context_summary: 'Location: Katoomba, NSW. AOI covers about 32.5 km^2 across 4.8
+      by 6.7 km at roughly 500 m cells. Grid resolves to 12 by 13 cells. Environment
+      reads as obstacle-heavy. Hill country dominates, but usable access corridors
+      should help movement and recovery routes. Steep terrain will slow coverage,
+      stretch returns to base, and justify stronger reserve margin. Base is positioned
+      just east of the search area. Last known point is placed inside the search area.
+      Current weather shows partly cloudy with winds around 11 kph. Planning context
+      is ready for recommendation and simulation.'
+  communication:
+    coordination_mode: centralized
+  battery_policy:
+    return_threshold: 28
+  render:
+    save_frames: false
+    frame_stride: 3
+  mission_intent: broad_area_coverage
+  asset_package:
+    package_name: New search mission fleet
+    uniform_fleet: true
+    staging_location: Primary staging point
+    notes: ''
+    drone_types:
+    - display_name: General purpose drone
+      model_name: General purpose drone
+      count: 6
+      max_endurance_minutes: 51.0
+      estimated_max_range_km: 41.0
+      cruise_speed_kph: 65.0
+      sensor_capability_level: standard
+      thermal_capability_level: assisted
+      detection_capability_proxy: 1.0
+      turnaround_time_minutes: 5.0
+      notes: ''
+    fleet_composition:
+      mix_type: uniform
+      total_drones: 6
+      drone_type_count: 1
+      aggregate_endurance_minutes: 51.0
+      aggregate_range_km: 41.0
+      aggregate_speed_kph: 65.0
+      sensor_score: 1.0
+      thermal_score: 1.0
+      detection_score: 1.0
+      endurance_score: 0.51
+      coverage_score: 1.45
+      coordination_complexity: low
+      average_turnaround_minutes: 5.0
+    operator_summary: 6 General purpose drone staged from Primary staging point available
+      for this mission.
+  drone:
+    battery: 60.0
+    speed: 2
+    sensor_range: 5.31
+    fov: 130.0
+    estimated_max_range_km: 41.0
+    cruise_speed_kph: 65.0
+    sensor_capability_level: standard
+    thermal_capability_level: assisted
+    turnaround_time_minutes: 5.0
+    fleet_composition:
+      mix_type: uniform
+      total_drones: 6
+      drone_type_count: 1
+      aggregate_endurance_minutes: 51.0
+      aggregate_range_km: 41.0
+      aggregate_speed_kph: 65.0
+      sensor_score: 1.0
+      thermal_score: 1.0
+      detection_score: 1.0
+      endurance_score: 0.51
+      coverage_score: 1.45
+      coordination_complexity: low
+      average_turnaround_minutes: 5.0

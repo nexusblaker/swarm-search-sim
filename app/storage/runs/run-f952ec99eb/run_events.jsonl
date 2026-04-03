@@ -1,0 +1,102 @@
+{"event_type": "search_pattern_selected", "step": 0, "pattern": "expanding_ring", "pattern_label": "Expanding Ring", "base_pattern": null, "base_pattern_label": null, "reason": "A precise last known point is available, so starting tight and expanding outward keeps the search anchored around the best early clue. Donvale, City of Manningham, Victoria, 3111, Australia spans about 1.6 by 2.3 km with mostly hill country. Staging sits about 1.4 km from the area centre. A last known point has been placed inside the area.", "summary": "Starts near the most likely origin area and grows outward over time."}
+{"event_type": "battery_return_ordered", "step": 1, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 1, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 1, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 3}
+{"event_type": "critical_battery_margin", "step": 1, "drone_id": 1, "battery": 60.0, "return_required": 106.77}
+{"event_type": "battery_return_ordered", "step": 1, "drone_id": 1, "battery": 60.0, "energy_to_base": 76.591, "reserve_required": 30.179, "continue_required": 125.363, "previous_goal": [2, 1], "reserve_preset": "balanced", "reason": "Battery margin is critical for a safe return."}
+{"event_type": "low_battery_return", "step": 1, "drone_id": 1, "battery": 60.0, "cost_home": 76.591}
+{"event_type": "coverage_rebalance_triggered", "step": 1, "drone_id": 1, "previous_goal": [2, 1], "active_search_drones": 2}
+{"event_type": "critical_battery_margin", "step": 1, "drone_id": 2, "battery": 60.0, "return_required": 202.546}
+{"event_type": "battery_return_ordered", "step": 1, "drone_id": 2, "battery": 60.0, "energy_to_base": 158.735, "reserve_required": 43.811, "continue_required": 202.546, "previous_goal": [7, 2], "reserve_preset": "balanced", "reason": "Battery margin is critical for a safe return."}
+{"event_type": "low_battery_return", "step": 1, "drone_id": 2, "battery": 60.0, "cost_home": 158.735}
+{"event_type": "coverage_rebalance_triggered", "step": 1, "drone_id": 2, "previous_goal": [7, 2], "active_search_drones": 1}
+{"event_type": "critical_battery_margin", "step": 1, "drone_id": 3, "battery": 60.0, "return_required": 360.716}
+{"event_type": "battery_return_ordered", "step": 1, "drone_id": 3, "battery": 60.0, "energy_to_base": 282.693, "reserve_required": 78.023, "continue_required": 360.716, "previous_goal": [6, 2], "reserve_preset": "balanced", "reason": "Battery margin is critical for a safe return."}
+{"event_type": "low_battery_return", "step": 1, "drone_id": 3, "battery": 60.0, "cost_home": 282.693}
+{"event_type": "coverage_rebalance_triggered", "step": 1, "drone_id": 3, "previous_goal": [6, 2], "active_search_drones": 0}
+{"event_type": "coverage_gap", "step": 1, "active_search_drones": 0, "threshold": 3}
+{"event_type": "return_to_base", "step": 1, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 1, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_unavailable", "step": 1, "drone_id": 3, "position": [10, 1], "battery": 13.170116405246326}
+{"event_type": "task_reassignment", "step": 2, "drone_id": 3, "previous_goal": [0, 2], "new_goal": [10, 1]}
+{"event_type": "battery_unavailable", "step": 2, "drone_id": 1, "position": [1, 3], "battery": 9.92799046972723}
+{"event_type": "battery_unavailable", "step": 2, "drone_id": 2, "position": [4, 0], "battery": 6.003421117416387}
+{"event_type": "battery_service_completed", "step": 3, "drone_id": 0, "battery": 60.0}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 1, "previous_goal": [0, 2], "new_goal": [1, 3]}
+{"event_type": "task_reassignment", "step": 3, "drone_id": 2, "previous_goal": [0, 2], "new_goal": [4, 0]}
+{"event_type": "drone_redeployed", "step": 4, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 4, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 4, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 4, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 4, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 4, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 6, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 7, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 7, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 7, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 7, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 7, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 7, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 9, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 10, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 10, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 10, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 10, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 10, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 10, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 12, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 13, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 13, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 13, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 13, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 13, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 13, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 15, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 16, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 16, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 16, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 16, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 16, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 16, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 18, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 19, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 19, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 19, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 19, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 19, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 19, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 21, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 22, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 22, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 22, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 22, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 22, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 22, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 24, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 25, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 25, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 25, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 25, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 25, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 25, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 27, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 28, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 28, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 28, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 28, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 28, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 28, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 30, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 31, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 31, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 31, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 31, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 31, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 31, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}
+{"event_type": "battery_service_completed", "step": 33, "drone_id": 0, "battery": 60.0}
+{"event_type": "drone_redeployed", "step": 34, "drone_id": 0, "target": [4, 5], "reserve_preset": "balanced"}
+{"event_type": "battery_return_ordered", "step": 34, "drone_id": 0, "battery": 60.0, "energy_to_base": 0.0, "reserve_required": 28.755, "continue_required": 75.819, "previous_goal": [4, 5], "reserve_preset": "balanced", "reason": "Continuing the task would cut into the safe return margin."}
+{"event_type": "low_battery_return", "step": 34, "drone_id": 0, "battery": 60.0, "cost_home": 0.0}
+{"event_type": "coverage_rebalance_triggered", "step": 34, "drone_id": 0, "previous_goal": [4, 5], "active_search_drones": 0}
+{"event_type": "return_to_base", "step": 34, "drone_id": 0}
+{"event_type": "battery_service_started", "step": 34, "drone_id": 0, "turnaround_steps": 2, "turnaround_minutes": 5.0}

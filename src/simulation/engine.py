@@ -498,6 +498,7 @@ class SimulationEngine:
         self.entropy_history.append(self.probability_map.total_entropy())
 
         self._enqueue_communications()
+        self._update_coverage_gap_status()
 
         if self.current_step >= self.config.max_steps or not self._has_future_mission_capacity():
             self.done = True
@@ -836,7 +837,6 @@ class SimulationEngine:
                 resolved_goal = proposed_goal
             drone.intended_target = resolved_goal
             resolved[drone.id] = resolved_goal
-        self._update_coverage_gap_status()
         return resolved
 
     def _seed_redeploy_goals(self, proposed_goals: dict[int, Position]) -> dict[int, Position]:
@@ -930,9 +930,11 @@ class SimulationEngine:
         if drone.lifecycle_state in {LIFECYCLE_RECHARGING, LIFECYCLE_READY, LIFECYCLE_UNAVAILABLE}:
             drone.planned_path = [drone.position]
             return
+        if drone.position != drone.base_position:
+            drone.sortie_active = True
         if not drone.is_operational or len(drone.planned_path) <= 1:
             if drone.returning_to_base and drone.position == drone.base_position and not drone.return_completed:
-                self._start_turnaround(drone)
+                self._handle_base_arrival(drone)
             return
 
         steps_taken = 0
@@ -954,11 +956,13 @@ class SimulationEngine:
                     )
                 break
             drone.move_to(next_position, movement_cost)
+            if drone.position != drone.base_position:
+                drone.sortie_active = True
             self.unique_visited_cells.add(next_position)
             steps_taken += 1
 
         if drone.returning_to_base and drone.position == drone.base_position and not drone.return_completed:
-            self._start_turnaround(drone)
+            self._handle_base_arrival(drone)
             return
 
         if steps_taken > 0 and starting_state in {LIFECYCLE_DEPLOYING, LIFECYCLE_REDEPLOYING} and drone.position != drone.base_position:
@@ -1057,7 +1061,7 @@ class SimulationEngine:
         drone.return_eta_steps = decision.return_eta_steps
         if drone.lifecycle_state == LIFECYCLE_RECHARGING:
             drone.return_service_eta_steps = drone.turnaround_remaining_steps
-        elif drone.lifecycle_state == LIFECYCLE_RETURNING or decision.should_return:
+        elif drone.lifecycle_state == LIFECYCLE_RETURNING:
             drone.return_service_eta_steps = decision.return_eta_steps + self._turnaround_steps()
         else:
             drone.return_service_eta_steps = 0
@@ -1084,12 +1088,23 @@ class SimulationEngine:
             )
 
     def _order_return_to_base(self, drone: Drone, decision: BatteryDecision, proposed_goal: Position) -> None:
+        if drone.position == drone.base_position and not drone.sortie_active:
+            drone.returning_to_base = False
+            drone.forced_return_triggered = False
+            drone.return_completed = False
+            drone.return_eta_steps = 0
+            drone.return_service_eta_steps = 0
+            drone.reserve_reason = f"{decision.reason} Launch is being held at base."
+            self._set_drone_state(drone, LIFECYCLE_DEPLOYING, operator_status="Holding at Base")
+            return
+
         previous_state = drone.lifecycle_state
         drone.forced_return_triggered = True
         drone.returning_to_base = True
         drone.return_completed = False
         drone.ready_since_step = None
         drone.redeploy_target = None
+        drone.return_service_eta_steps = decision.return_eta_steps + self._turnaround_steps()
         self.forced_return_events += 1
         self._set_drone_state(drone, LIFECYCLE_RETURNING)
         self.logger.record(
@@ -1133,6 +1148,7 @@ class SimulationEngine:
             drone.returning_to_base = False
             drone.forced_return_triggered = False
             drone.return_completed = False
+            drone.sortie_active = False
             drone.energy_required_to_base = 0.0
             drone.reserve_required = 0.0
             drone.continue_margin_required = 0.0
@@ -1150,12 +1166,32 @@ class SimulationEngine:
                 battery=drone.battery,
             )
 
+    def _handle_base_arrival(self, drone: Drone) -> None:
+        if not drone.sortie_active:
+            drone.returning_to_base = False
+            drone.forced_return_triggered = False
+            drone.return_completed = False
+            drone.return_eta_steps = 0
+            drone.return_service_eta_steps = 0
+            if drone.lifecycle_state == LIFECYCLE_RETURNING:
+                self._set_drone_state(drone, LIFECYCLE_DEPLOYING, operator_status="Holding at Base")
+            return
+
+        self.logger.record(
+            "arrived_at_base",
+            self.current_step,
+            drone_id=drone.id,
+            battery=drone.battery,
+        )
+        self._start_turnaround(drone)
+
     def _start_turnaround(self, drone: Drone) -> None:
         drone.return_completed = True
         drone.returning_to_base = False
         drone.forced_return_triggered = False
         drone.ready_since_step = None
         drone.redeploy_target = None
+        drone.sortie_active = False
         drone.sorties_completed += 1
         drone.recharge_cycles += 1
         self.successful_return_events += 1

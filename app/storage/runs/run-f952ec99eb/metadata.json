@@ -1,0 +1,2100 @@
+{
+  "id": "run-f952ec99eb",
+  "scenario_id": "plan",
+  "status": "completed",
+  "created_at": 1775192996.7225797,
+  "updated_at": 1775192998.633643,
+  "completed_at": 1775192998.633643,
+  "config_json": {
+    "scenario": {
+      "name": "New search mission",
+      "map_size": [
+        12,
+        10
+      ],
+      "weather": "windy",
+      "num_drones": 4,
+      "last_known_position": [
+        7,
+        5
+      ],
+      "target_assumptions": {
+        "behavior": "terrain_biased",
+        "target_move_probability": 0.25,
+        "target_speed": 1,
+        "drift_sigma": 3.4
+      },
+      "target_start_radius": 2,
+      "max_steps": 35,
+      "strategy": "sector_search",
+      "search_pattern": "expanding_ring",
+      "scenario_family": "mixed_terrain",
+      "last_known_status": "known",
+      "base_position": [
+        0,
+        2
+      ],
+      "mission_area": {
+        "location_display_name": "Donvale, City of Manningham, Victoria, 3111, Australia",
+        "location_source": "live_geocoder",
+        "location_query": "Donvale, City of Manningham, Victoria, 3111, Australia",
+        "center": {
+          "latitude": -37.7898094,
+          "longitude": 145.1914915
+        },
+        "preview_span_km": 18,
+        "shape_type": "rectangle",
+        "rectangle": {
+          "north": -37.773439940830535,
+          "south": -37.79448450789068,
+          "east": 145.20713233329167,
+          "west": 145.18899241368894
+        },
+        "polygon": [
+          {
+            "latitude": -37.773439940830535,
+            "longitude": 145.18899241368894
+          },
+          {
+            "latitude": -37.773439940830535,
+            "longitude": 145.20713233329167
+          },
+          {
+            "latitude": -37.79448450789068,
+            "longitude": 145.20713233329167
+          },
+          {
+            "latitude": -37.79448450789068,
+            "longitude": 145.18899241368894
+          }
+        ],
+        "bounds": {
+          "north": -37.773439940830535,
+          "south": -37.79448450789068,
+          "east": 145.20713233329167,
+          "west": 145.18899241368894
+        },
+        "width_km": 1.6,
+        "height_km": 2.34,
+        "area_sq_km": 3.74,
+        "shape_ratio": 1.47,
+        "requested_grid_resolution_m": 500,
+        "grid_resolution_m": 500,
+        "cell_size_m": 500,
+        "grid_size": [
+          12,
+          10
+        ],
+        "grid_cols": 12,
+        "grid_rows": 10,
+        "max_safe_cells": 4900,
+        "warnings": [],
+        "terrain_hint": "mixed",
+        "requested_environment_type": "mixed_terrain",
+        "last_known_status": "known",
+        "environment_type": "mixed_terrain",
+        "weather_summary": {
+          "source": "live_weather",
+          "provider": "open-meteo",
+          "recommended_weather": "windy",
+          "condition_label": "Overcast",
+          "temperature_c": 18.4,
+          "wind_speed_kph": 15.6,
+          "precipitation_mm": 0,
+          "cloud_cover_pct": 100,
+          "visibility_label": "Reduced",
+          "operator_summary": "Current weather shows overcast with winds around 16 kph.",
+          "fallback_note": null,
+          "fetched_at": "2026-04-03T05:07:06.968801+00:00"
+        },
+        "center_grid_position": [
+          6,
+          5
+        ],
+        "shape_summary": "Rectangle AOI",
+        "staging": {
+          "latitude": -37.777794004307644,
+          "longitude": 145.18903550138396,
+          "label": "Primary staging point",
+          "placement": "map",
+          "grid_position": [
+            0,
+            2
+          ]
+        },
+        "staging_distance_to_center_km": 1.35,
+        "staging_summary": "Base is positioned inside the selected search area.",
+        "last_known_location": {
+          "latitude": -37.785140904935346,
+          "longitude": 145.20006595130866,
+          "label": "Last known location",
+          "placement": "map",
+          "grid_position": [
+            7,
+            5
+          ]
+        },
+        "last_known_inside_aoi": true,
+        "last_known_grid_position": [
+          7,
+          5
+        ],
+        "last_known_summary": "Last known point is placed inside the search area.",
+        "area_metrics_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells.",
+        "operator_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells.",
+        "grid_summary": {
+          "map_size": [
+            12,
+            10
+          ],
+          "cell_size_m": 500,
+          "shape_label": "Rectangle AOI",
+          "operator_summary": "Grid resolves to 12 by 10 cells."
+        },
+        "area_metrics": {
+          "area_sq_km": 3.74,
+          "width_km": 1.6,
+          "height_km": 2.34,
+          "grid_cols": 12,
+          "grid_rows": 10,
+          "grid_resolution_m": 500,
+          "staging_offset_km": 1.35,
+          "last_known_inside_aoi": true,
+          "operator_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells. Grid resolves to 12 by 10 cells."
+        },
+        "terrain_summary": {
+          "source_mode": "local_first_deterministic",
+          "dominant_terrain": "hill country",
+          "terrain_mix": {
+            "open terrain": 0.217,
+            "forest": 0.033,
+            "hill country": 0.6,
+            "urban edge": 0.017,
+            "water / no-go": 0.133
+          },
+          "elevation_range_m": [
+            0,
+            627.4
+          ],
+          "mean_elevation_m": 341.7,
+          "slope_burden": "elevated",
+          "trail_access": "good",
+          "trail_coverage_pct": 0.283,
+          "obstacle_coverage_pct": 0.217,
+          "water_coverage_pct": 0.133,
+          "suggested_scenario_family": "mixed_terrain",
+          "terrain_burden_label": "Trail-accessible hill country",
+          "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+          "slope_summary": {
+            "value": "steep",
+            "label": "Steep terrain",
+            "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+          },
+          "operator_summary": "The selected area reads as trail-accessible hill country, with steep terrain and good access."
+        },
+        "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+        "slope_summary": {
+          "value": "steep",
+          "label": "Steep terrain",
+          "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+        },
+        "slope_elevation_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.",
+        "environment_summary": {
+          "value": "mixed_terrain",
+          "label": "Elevated mixed terrain",
+          "operator_summary": "Elevated ground is a defining feature of the selected area."
+        },
+        "environment_label": "Elevated mixed terrain",
+        "planner_ready": true,
+        "planner_status_summary": "Planning context is ready for recommendation and simulation.",
+        "context_summary": "Location: Donvale, City of Manningham, Victoria, 3111, Australia. AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as elevated mixed terrain. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 16 kph. Planning context is ready for recommendation and simulation."
+      },
+      "communication": {
+        "coordination_mode": "centralized"
+      },
+      "battery_policy": {
+        "return_threshold": 28
+      },
+      "render": {
+        "save_frames": false,
+        "frame_stride": 3
+      },
+      "mission_intent": "broad_area_coverage",
+      "asset_package": {
+        "package_name": "New search mission fleet",
+        "uniform_fleet": true,
+        "staging_location": "Primary staging point",
+        "notes": "",
+        "drone_types": [
+          {
+            "display_name": "General purpose drone",
+            "model_name": "General purpose drone",
+            "count": 4,
+            "max_endurance_minutes": 50.0,
+            "estimated_max_range_km": 41.0,
+            "cruise_speed_kph": 60.0,
+            "sensor_capability_level": "standard",
+            "thermal_capability_level": "assisted",
+            "detection_capability_proxy": 1.0,
+            "turnaround_time_minutes": 5.0,
+            "notes": ""
+          }
+        ],
+        "fleet_composition": {
+          "mix_type": "uniform",
+          "total_drones": 4,
+          "drone_type_count": 1,
+          "aggregate_endurance_minutes": 50.0,
+          "aggregate_range_km": 41.0,
+          "aggregate_speed_kph": 60.0,
+          "sensor_score": 1.0,
+          "thermal_score": 1.0,
+          "detection_score": 1.0,
+          "endurance_score": 0.5,
+          "coverage_score": 1.45,
+          "coordination_complexity": "low",
+          "average_turnaround_minutes": 5.0
+        },
+        "operator_summary": "4 General purpose drone staged from Primary staging point available for this mission."
+      },
+      "drone": {
+        "battery": 60.0,
+        "speed": 2,
+        "sensor_range": 5.31,
+        "fov": 130.0,
+        "estimated_max_range_km": 41.0,
+        "cruise_speed_kph": 60.0,
+        "sensor_capability_level": "standard",
+        "thermal_capability_level": "assisted",
+        "turnaround_time_minutes": 5.0,
+        "fleet_composition": {
+          "mix_type": "uniform",
+          "total_drones": 4,
+          "drone_type_count": 1,
+          "aggregate_endurance_minutes": 50.0,
+          "aggregate_range_km": 41.0,
+          "aggregate_speed_kph": 60.0,
+          "sensor_score": 1.0,
+          "thermal_score": 1.0,
+          "detection_score": 1.0,
+          "endurance_score": 0.5,
+          "coverage_score": 1.45,
+          "coordination_complexity": "low",
+          "average_turnaround_minutes": 5.0
+        }
+      }
+    }
+  },
+  "summary_json": {
+    "strategy": "sector_search",
+    "mission_intent": "broad_area_coverage",
+    "search_pattern": "expanding_ring",
+    "search_pattern_label": "Expanding Ring",
+    "last_known_status": "known",
+    "scenario_family": "mixed_terrain",
+    "num_drones": 4,
+    "map_size": [
+      12,
+      10
+    ],
+    "weather": "windy",
+    "target_behavior": "terrain_biased",
+    "coordination_mode": "centralized",
+    "return_to_base_threshold": 28.0,
+    "reserve_preset": "balanced",
+    "drone_range_km": 41.0,
+    "turnaround_time_minutes": 5.0,
+    "coverage_overlap_margin": 0.18,
+    "mission_area": {
+      "location_display_name": "Donvale, City of Manningham, Victoria, 3111, Australia",
+      "location_source": "live_geocoder",
+      "location_query": "Donvale, City of Manningham, Victoria, 3111, Australia",
+      "center": {
+        "latitude": -37.7898094,
+        "longitude": 145.1914915
+      },
+      "preview_span_km": 18,
+      "shape_type": "rectangle",
+      "rectangle": {
+        "north": -37.773439940830535,
+        "south": -37.79448450789068,
+        "east": 145.20713233329167,
+        "west": 145.18899241368894
+      },
+      "polygon": [
+        {
+          "latitude": -37.773439940830535,
+          "longitude": 145.18899241368894
+        },
+        {
+          "latitude": -37.773439940830535,
+          "longitude": 145.20713233329167
+        },
+        {
+          "latitude": -37.79448450789068,
+          "longitude": 145.20713233329167
+        },
+        {
+          "latitude": -37.79448450789068,
+          "longitude": 145.18899241368894
+        }
+      ],
+      "bounds": {
+        "north": -37.773439940830535,
+        "south": -37.79448450789068,
+        "east": 145.20713233329167,
+        "west": 145.18899241368894
+      },
+      "width_km": 1.6,
+      "height_km": 2.34,
+      "area_sq_km": 3.74,
+      "shape_ratio": 1.47,
+      "requested_grid_resolution_m": 500,
+      "grid_resolution_m": 500,
+      "cell_size_m": 500,
+      "grid_size": [
+        12,
+        10
+      ],
+      "grid_cols": 12,
+      "grid_rows": 10,
+      "max_safe_cells": 4900,
+      "warnings": [],
+      "terrain_hint": "mixed",
+      "requested_environment_type": "mixed_terrain",
+      "last_known_status": "known",
+      "environment_type": "mixed_terrain",
+      "weather_summary": {
+        "source": "live_weather",
+        "provider": "open-meteo",
+        "recommended_weather": "windy",
+        "condition_label": "Overcast",
+        "temperature_c": 18.4,
+        "wind_speed_kph": 15.6,
+        "precipitation_mm": 0,
+        "cloud_cover_pct": 100,
+        "visibility_label": "Reduced",
+        "operator_summary": "Current weather shows overcast with winds around 16 kph.",
+        "fallback_note": null,
+        "fetched_at": "2026-04-03T05:07:06.968801+00:00"
+      },
+      "center_grid_position": [
+        6,
+        5
+      ],
+      "shape_summary": "Rectangle AOI",
+      "staging": {
+        "latitude": -37.777794004307644,
+        "longitude": 145.18903550138396,
+        "label": "Primary staging point",
+        "placement": "map",
+        "grid_position": [
+          0,
+          2
+        ]
+      },
+      "staging_distance_to_center_km": 1.35,
+      "staging_summary": "Base is positioned inside the selected search area.",
+      "last_known_location": {
+        "latitude": -37.785140904935346,
+        "longitude": 145.20006595130866,
+        "label": "Last known location",
+        "placement": "map",
+        "grid_position": [
+          7,
+          5
+        ]
+      },
+      "last_known_inside_aoi": true,
+      "last_known_grid_position": [
+        7,
+        5
+      ],
+      "last_known_summary": "Last known point is placed inside the search area.",
+      "area_metrics_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells.",
+      "operator_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells.",
+      "grid_summary": {
+        "map_size": [
+          12,
+          10
+        ],
+        "cell_size_m": 500,
+        "shape_label": "Rectangle AOI",
+        "operator_summary": "Grid resolves to 12 by 10 cells."
+      },
+      "area_metrics": {
+        "area_sq_km": 3.74,
+        "width_km": 1.6,
+        "height_km": 2.34,
+        "grid_cols": 12,
+        "grid_rows": 10,
+        "grid_resolution_m": 500,
+        "staging_offset_km": 1.35,
+        "last_known_inside_aoi": true,
+        "operator_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells. Grid resolves to 12 by 10 cells."
+      },
+      "terrain_summary": {
+        "source_mode": "local_first_deterministic",
+        "dominant_terrain": "hill country",
+        "terrain_mix": {
+          "open terrain": 0.217,
+          "forest": 0.033,
+          "hill country": 0.6,
+          "urban edge": 0.017,
+          "water / no-go": 0.133
+        },
+        "elevation_range_m": [
+          0,
+          627.4
+        ],
+        "mean_elevation_m": 341.7,
+        "slope_burden": "elevated",
+        "trail_access": "good",
+        "trail_coverage_pct": 0.283,
+        "obstacle_coverage_pct": 0.217,
+        "water_coverage_pct": 0.133,
+        "suggested_scenario_family": "mixed_terrain",
+        "terrain_burden_label": "Trail-accessible hill country",
+        "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+        "slope_summary": {
+          "value": "steep",
+          "label": "Steep terrain",
+          "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+        },
+        "operator_summary": "The selected area reads as trail-accessible hill country, with steep terrain and good access."
+      },
+      "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+      "slope_summary": {
+        "value": "steep",
+        "label": "Steep terrain",
+        "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+      },
+      "slope_elevation_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.",
+      "environment_summary": {
+        "value": "mixed_terrain",
+        "label": "Elevated mixed terrain",
+        "operator_summary": "Elevated ground is a defining feature of the selected area."
+      },
+      "environment_label": "Elevated mixed terrain",
+      "planner_ready": true,
+      "planner_status_summary": "Planning context is ready for recommendation and simulation.",
+      "context_summary": "Location: Donvale, City of Manningham, Victoria, 3111, Australia. AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as elevated mixed terrain. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 16 kph. Planning context is ready for recommendation and simulation."
+    },
+    "mission_area_summary": "Location: Donvale, City of Manningham, Victoria, 3111, Australia. AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as elevated mixed terrain. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 16 kph. Planning context is ready for recommendation and simulation.",
+    "metrics": {
+      "time_to_detection": null,
+      "area_covered_pct": 0.0,
+      "probability_mass_covered": 0.0,
+      "overlap_ratio": 0.0,
+      "battery_used": 150.89847200761005,
+      "successful_returns_to_base": 12,
+      "forced_low_battery_returns": 15,
+      "approaching_reserve_events": 0,
+      "critical_battery_events": 3,
+      "recharge_cycles_started": 12,
+      "recharge_cycles_completed": 11,
+      "redeployments": 11,
+      "rejoined_search_events": 0,
+      "coverage_gap_events": 1,
+      "coverage_gap_steps": 35,
+      "average_active_search_drones": 0.1111111111111111,
+      "battery_margin_min": -300.716,
+      "battery_margin_average": -133.2696875,
+      "comms_failures": 0,
+      "stale_information_events": 0,
+      "path_efficiency": 0.2696518634228422,
+      "average_overlap_per_step": 0.0,
+      "detection_under_comms_mode": "centralized",
+      "entropy_reduction_over_time": 0.0,
+      "information_gain_per_step": 1.936496981489455e-05,
+      "belief_peak_accuracy": 0.007836080117073686,
+      "time_to_first_candidate_detection": null,
+      "time_to_confirmed_detection": null,
+      "candidate_detection_count": 0,
+      "inspections_initiated": 0,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "false_alarm_count": 0,
+      "reroute_count": 3,
+      "coordination_efficiency": 0.0,
+      "return_to_base_efficiency": 0.8,
+      "mission_success": false
+    },
+    "run_phase": "Mission complete",
+    "search_pattern_summary": "Starts near the most likely origin area and grows outward over time.",
+    "search_pattern_reason": "A precise last known point is available, so starting tight and expanding outward keeps the search anchored around the best early clue. Donvale, City of Manningham, Victoria, 3111, Australia spans about 1.6 by 2.3 km with mostly hill country. Staging sits about 1.4 km from the area centre. A last known point has been placed inside the area.",
+    "search_pattern_fit_summary": "Best when the last known area is credible and the search should build outward. Current spacing is built around an effective swath of about 5.4 cells. Hill Country is the dominant ground type.",
+    "search_pattern_base": "expanding_ring",
+    "search_pattern_base_label": "Expanding Ring",
+    "search_pattern_rebalanced": false,
+    "search_pattern_rebalance_reason": null,
+    "search_pattern_geometry": {
+      "weather_factor": 0.9,
+      "visibility_modifier": 0.889,
+      "sensor_mode_factor": 1.08,
+      "fleet_coverage_factor": 1.0,
+      "area_sq_km": 3.74,
+      "shape_ratio": 1.47,
+      "staging_distance_to_center_km": 1.35,
+      "slope_burden": "elevated",
+      "dominant_terrain": "hill country",
+      "area_cells": 120,
+      "effective_swath_cells": 5.42,
+      "lane_spacing_cells": 4.44,
+      "overlap_margin": 0.18,
+      "sector_rows": 2,
+      "sector_cols": 2,
+      "sector_count": 4,
+      "ring_step_cells": 4,
+      "perimeter_spacing_cells": 4,
+      "coverage_depth": "balanced"
+    },
+    "lifecycle_summary": {
+      "run_phase": "Mission complete",
+      "reserve_preset": "balanced",
+      "drone_state_counts": {
+        "recharging_or_swapping": 1,
+        "unavailable": 3
+      },
+      "active_search_drones": 0,
+      "returning_drones": 0,
+      "recharging_drones": 1,
+      "ready_to_redeploy": 0,
+      "coverage_gap_active": true,
+      "coverage_gap_steps": 35
+    },
+    "sensing_summary": {
+      "candidate_detection_count": 0,
+      "inspections_initiated": 0,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "active_candidate_contacts": 0,
+      "contacts_under_inspection": 0,
+      "confirmation_pending": 0,
+      "operator_summary": "No active contacts are awaiting confirmation."
+    },
+    "drone_statuses": [
+      {
+        "id": 0,
+        "operator_status": "Recharging",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Returning Now",
+        "battery_pct": 100.0,
+        "return_service_eta_steps": 1,
+        "contributing_to_search": false
+      },
+      {
+        "id": 1,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 16.5,
+        "return_service_eta_steps": 3,
+        "contributing_to_search": false
+      },
+      {
+        "id": 2,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 10.0,
+        "return_service_eta_steps": 7,
+        "contributing_to_search": false
+      },
+      {
+        "id": 3,
+        "operator_status": "Unavailable",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "reserve_status_label": "Critical Battery Margin",
+        "battery_pct": 22.0,
+        "return_service_eta_steps": 13,
+        "contributing_to_search": false
+      }
+    ],
+    "error": null,
+    "plan_id": "new-search-mission",
+    "comparison_id": null,
+    "candidate_id": null
+  },
+  "latest_snapshot_json": {
+    "step": 35,
+    "done": true,
+    "paused": false,
+    "weather": "windy",
+    "strategy": "sector_search",
+    "mission_area": {
+      "location_display_name": "Donvale, City of Manningham, Victoria, 3111, Australia",
+      "location_source": "live_geocoder",
+      "location_query": "Donvale, City of Manningham, Victoria, 3111, Australia",
+      "center": {
+        "latitude": -37.7898094,
+        "longitude": 145.1914915
+      },
+      "preview_span_km": 18,
+      "shape_type": "rectangle",
+      "rectangle": {
+        "north": -37.773439940830535,
+        "south": -37.79448450789068,
+        "east": 145.20713233329167,
+        "west": 145.18899241368894
+      },
+      "polygon": [
+        {
+          "latitude": -37.773439940830535,
+          "longitude": 145.18899241368894
+        },
+        {
+          "latitude": -37.773439940830535,
+          "longitude": 145.20713233329167
+        },
+        {
+          "latitude": -37.79448450789068,
+          "longitude": 145.20713233329167
+        },
+        {
+          "latitude": -37.79448450789068,
+          "longitude": 145.18899241368894
+        }
+      ],
+      "bounds": {
+        "north": -37.773439940830535,
+        "south": -37.79448450789068,
+        "east": 145.20713233329167,
+        "west": 145.18899241368894
+      },
+      "width_km": 1.6,
+      "height_km": 2.34,
+      "area_sq_km": 3.74,
+      "shape_ratio": 1.47,
+      "requested_grid_resolution_m": 500,
+      "grid_resolution_m": 500,
+      "cell_size_m": 500,
+      "grid_size": [
+        12,
+        10
+      ],
+      "grid_cols": 12,
+      "grid_rows": 10,
+      "max_safe_cells": 4900,
+      "warnings": [],
+      "terrain_hint": "mixed",
+      "requested_environment_type": "mixed_terrain",
+      "last_known_status": "known",
+      "environment_type": "mixed_terrain",
+      "weather_summary": {
+        "source": "live_weather",
+        "provider": "open-meteo",
+        "recommended_weather": "windy",
+        "condition_label": "Overcast",
+        "temperature_c": 18.4,
+        "wind_speed_kph": 15.6,
+        "precipitation_mm": 0,
+        "cloud_cover_pct": 100,
+        "visibility_label": "Reduced",
+        "operator_summary": "Current weather shows overcast with winds around 16 kph.",
+        "fallback_note": null,
+        "fetched_at": "2026-04-03T05:07:06.968801+00:00"
+      },
+      "center_grid_position": [
+        6,
+        5
+      ],
+      "shape_summary": "Rectangle AOI",
+      "staging": {
+        "latitude": -37.777794004307644,
+        "longitude": 145.18903550138396,
+        "label": "Primary staging point",
+        "placement": "map",
+        "grid_position": [
+          0,
+          2
+        ]
+      },
+      "staging_distance_to_center_km": 1.35,
+      "staging_summary": "Base is positioned inside the selected search area.",
+      "last_known_location": {
+        "latitude": -37.785140904935346,
+        "longitude": 145.20006595130866,
+        "label": "Last known location",
+        "placement": "map",
+        "grid_position": [
+          7,
+          5
+        ]
+      },
+      "last_known_inside_aoi": true,
+      "last_known_grid_position": [
+        7,
+        5
+      ],
+      "last_known_summary": "Last known point is placed inside the search area.",
+      "area_metrics_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells.",
+      "operator_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells.",
+      "grid_summary": {
+        "map_size": [
+          12,
+          10
+        ],
+        "cell_size_m": 500,
+        "shape_label": "Rectangle AOI",
+        "operator_summary": "Grid resolves to 12 by 10 cells."
+      },
+      "area_metrics": {
+        "area_sq_km": 3.74,
+        "width_km": 1.6,
+        "height_km": 2.34,
+        "grid_cols": 12,
+        "grid_rows": 10,
+        "grid_resolution_m": 500,
+        "staging_offset_km": 1.35,
+        "last_known_inside_aoi": true,
+        "operator_summary": "AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells. Grid resolves to 12 by 10 cells."
+      },
+      "terrain_summary": {
+        "source_mode": "local_first_deterministic",
+        "dominant_terrain": "hill country",
+        "terrain_mix": {
+          "open terrain": 0.217,
+          "forest": 0.033,
+          "hill country": 0.6,
+          "urban edge": 0.017,
+          "water / no-go": 0.133
+        },
+        "elevation_range_m": [
+          0,
+          627.4
+        ],
+        "mean_elevation_m": 341.7,
+        "slope_burden": "elevated",
+        "trail_access": "good",
+        "trail_coverage_pct": 0.283,
+        "obstacle_coverage_pct": 0.217,
+        "water_coverage_pct": 0.133,
+        "suggested_scenario_family": "mixed_terrain",
+        "terrain_burden_label": "Trail-accessible hill country",
+        "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+        "slope_summary": {
+          "value": "steep",
+          "label": "Steep terrain",
+          "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+        },
+        "operator_summary": "The selected area reads as trail-accessible hill country, with steep terrain and good access."
+      },
+      "terrain_burden_summary": "Hill country dominates, but usable access corridors should help movement and recovery routes.",
+      "slope_summary": {
+        "value": "steep",
+        "label": "Steep terrain",
+        "operator_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin."
+      },
+      "slope_elevation_summary": "Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin.",
+      "environment_summary": {
+        "value": "mixed_terrain",
+        "label": "Elevated mixed terrain",
+        "operator_summary": "Elevated ground is a defining feature of the selected area."
+      },
+      "environment_label": "Elevated mixed terrain",
+      "planner_ready": true,
+      "planner_status_summary": "Planning context is ready for recommendation and simulation.",
+      "context_summary": "Location: Donvale, City of Manningham, Victoria, 3111, Australia. AOI covers about 3.7 km^2 across 1.6 by 2.3 km at roughly 500 m cells. Grid resolves to 12 by 10 cells. Environment reads as elevated mixed terrain. Hill country dominates, but usable access corridors should help movement and recovery routes. Steep terrain will slow coverage, stretch returns to base, and justify stronger reserve margin. Base is positioned inside the selected search area. Last known point is placed inside the search area. Current weather shows overcast with winds around 16 kph. Planning context is ready for recommendation and simulation."
+    },
+    "last_known_position": [
+      7,
+      5
+    ],
+    "last_known_status": "known",
+    "coordination_mode": "centralized",
+    "run_phase": "Mission complete",
+    "base_position": [
+      0,
+      2
+    ],
+    "terrain_grid": [
+      [
+        2,
+        0,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0
+      ],
+      [
+        2,
+        2,
+        2,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        3,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        3,
+        0,
+        0,
+        2,
+        4,
+        4,
+        4,
+        4,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        4,
+        0,
+        2,
+        2,
+        2,
+        2,
+        4,
+        0,
+        0
+      ],
+      [
+        4,
+        4,
+        1,
+        1,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        0,
+        4
+      ],
+      [
+        2,
+        2,
+        2,
+        1,
+        1,
+        0,
+        0,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        2
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        0,
+        4,
+        4,
+        4,
+        4
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        4,
+        4,
+        4
+      ]
+    ],
+    "obstacle_mask": [
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true
+      ],
+      [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true
+      ]
+    ],
+    "probability_map": [
+      [
+        0.0029472364831574973,
+        0.0024732191293755073,
+        0.0031333439603648877,
+        0.006916504581427176,
+        0.013607190063176641,
+        0.007628863111742711,
+        0.0037182819899617857,
+        0.0,
+        0.0,
+        0.002508876229555179,
+        0.002365476614445181,
+        0.0025326162345981006
+      ],
+      [
+        0.003553138014463027,
+        0.0065106334668378766,
+        0.006607655294196463,
+        0.004798893046420407,
+        0.012640254220510006,
+        0.016420685418434805,
+        0.013435695080858946,
+        0.009019736060327715,
+        0.005912746567614845,
+        0.0,
+        0.003930679808502099,
+        0.002810973592338974
+      ],
+      [
+        0.00432906021431098,
+        0.004703814749633505,
+        0.00556289412348617,
+        0.005817234576191664,
+        0.006005714797499375,
+        0.009219645360692917,
+        0.025842204347007052,
+        0.03754417942038909,
+        0.012867489304102333,
+        0.007498985849729065,
+        0.0,
+        0.0
+      ],
+      [
+        0.0068086652561267025,
+        0.007752944210790265,
+        0.004584434127162856,
+        0.0050941056936201394,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.015035977192513117,
+        0.013548423981984626,
+        0.009741678316621215,
+        0.005710153860156249
+      ],
+      [
+        0.002706326929567498,
+        0.005632750812626448,
+        0.008924244179822204,
+        0.0,
+        0.008998658463255585,
+        0.00811796328753925,
+        0.0,
+        0.0,
+        0.003959165743790021,
+        0.0,
+        0.011373297073044726,
+        0.007553728276218895
+      ],
+      [
+        0.0,
+        0.0,
+        0.01330943817089593,
+        0.0461963347466147,
+        0.05715649581474218,
+        0.012288859502882337,
+        0.007533354656680811,
+        0.0,
+        0.0,
+        0.005955792053498829,
+        0.005681972022036561,
+        0.0
+      ],
+      [
+        0.000928739534259502,
+        0.00296469383388332,
+        0.007955602750392402,
+        0.024135011037954596,
+        0.035110631468876725,
+        0.017609013258936095,
+        0.010711397805388226,
+        0.013181661015923116,
+        0.009379284033736621,
+        0.0,
+        0.007699552362214999,
+        0.0066437697726734754
+      ],
+      [
+        0.004619318659661219,
+        0.006923119886896432,
+        0.00868308138743646,
+        0.010509376107944566,
+        0.01192928555176075,
+        0.007793810879767895,
+        0.011608367665916093,
+        0.018321734963894953,
+        0.012790224468205238,
+        0.006163659337405504,
+        0.007970639228997208,
+        0.0059088294103892755
+      ],
+      [
+        0.013863651107255563,
+        0.03838987094218674,
+        0.018564509066468567,
+        0.010961779969550271,
+        0.009028665682536468,
+        0.010309743554556699,
+        0.013598584060875668,
+        0.0096996254554279,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.00691250029175504,
+        0.014858915441455029,
+        0.026225316617238703,
+        0.013524912668337307,
+        0.00840898566003945,
+        0.007836080117073686,
+        0.007928115016630616,
+        0.007872918991214771,
+        0.005946334851339795,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "shared_searched_cells": [],
+    "entropy_map": [
+      [
+        0.02011610403993735,
+        0.017314999841987987,
+        0.02119420856670113,
+        0.04129415026383511,
+        0.0719864207436499,
+        0.04479662528611071,
+        0.0245132651981867,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.017528677378309748,
+        0.016666183293167817,
+        0.017670658753199987
+      ],
+      [
+        0.02358624691310803,
+        0.0392659957906097,
+        0.03975307674862833,
+        0.03041042547524012,
+        0.06780891998136071,
+        0.08376122300121211,
+        0.07125072930204393,
+        0.05144692133422886,
+        0.03623143429566086,
+        2.8630998994207924e-11,
+        0.02569475551846668,
+        0.019319308710885007
+      ],
+      [
+        0.027880174376763055,
+        0.029902271942444228,
+        0.034427918193165354,
+        0.035741182399748724,
+        0.03670713850098954,
+        0.05238413169412048,
+        0.11997792333736096,
+        0.1600592990383144,
+        0.06879718756308532,
+        0.044163241839196635,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11
+      ],
+      [
+        0.040757671711811806,
+        0.04539966032147668,
+        0.029261493465437674,
+        0.031976311534975585,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.0780330154950555,
+        0.07173456996961168,
+        0.054811115949448354,
+        0.035189672737789994
+      ],
+      [
+        0.01870290729522839,
+        0.034789759813705044,
+        0.050997666413297976,
+        2.8630998994207924e-11,
+        0.051347846942664636,
+        0.047162168003312355,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.0258523219186838,
+        2.8630998994207924e-11,
+        0.062220791405476115,
+        0.044430482952901834
+      ],
+      [
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.07070768685980104,
+        0.18715948490475848,
+        0.21907075417530036,
+        0.06627249706202967,
+        0.044331070045818086,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        0.0364518728812944,
+        0.03504419051618344,
+        2.8630998994207924e-11
+      ],
+      [
+        0.007412472425340733,
+        0.02021772277527406,
+        0.04638029256149996,
+        0.11372238541877666,
+        0.15208123828025444,
+        0.08858192540018293,
+        0.059245512103888016,
+        0.07015686976589018,
+        0.05312939968976669,
+        2.8630998994207924e-11,
+        0.045140422734918605,
+        0.039934015733252545
+      ],
+      [
+        0.02944905647004066,
+        0.04132700466785522,
+        0.049858467392708786,
+        0.05832928918409663,
+        0.06468977691864493,
+        0.04559783293111006,
+        0.06326795234089423,
+        0.09143370019072626,
+        0.06846161495678348,
+        0.03751200883718938,
+        0.04645284265992483,
+        0.036211358677571366
+      ],
+      [
+        0.0730825253050602,
+        0.16279287116557672,
+        0.0923985950989756,
+        0.06037572555527267,
+        0.0514888796662566,
+        0.057420046372679355,
+        0.07194955454903887,
+        0.05461667465614181,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11
+      ],
+      [
+        0.041274260173128734,
+        0.07729145248645422,
+        0.1213655527170132,
+        0.07163373643203755,
+        0.04855548534387728,
+        0.045802579742751995,
+        0.046247591820030194,
+        0.04598083510222761,
+        0.036403468872143324,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11,
+        2.8630998994207924e-11
+      ]
+    ],
+    "target_position": [
+      5,
+      9
+    ],
+    "target_trail": [
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        7,
+        8
+      ],
+      [
+        6,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        5,
+        9
+      ]
+    ],
+    "target_detected": false,
+    "visited_cells": [
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        11,
+        1
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        7,
+        2
+      ]
+    ],
+    "searched_cells": [],
+    "last_searched_cells": [],
+    "scan_footprints": {},
+    "communication_links": [
+      [
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      [
+        [
+          1,
+          3
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      [
+        [
+          4,
+          0
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      [
+        [
+          10,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ]
+    ],
+    "reserved_paths": {
+      "0": [
+        [
+          0,
+          2
+        ]
+      ],
+      "1": [
+        [
+          1,
+          3
+        ]
+      ],
+      "2": [
+        [
+          4,
+          0
+        ]
+      ],
+      "3": [
+        [
+          10,
+          1
+        ]
+      ]
+    },
+    "global_objectives": {
+      "0": [
+        3,
+        5
+      ],
+      "1": [
+        4,
+        5
+      ],
+      "2": [
+        7,
+        2
+      ],
+      "3": [
+        4,
+        6
+      ]
+    },
+    "search_pattern": "expanding_ring",
+    "search_pattern_label": "Expanding Ring",
+    "search_pattern_summary": "Starts near the most likely origin area and grows outward over time.",
+    "search_pattern_reason": "A precise last known point is available, so starting tight and expanding outward keeps the search anchored around the best early clue. Donvale, City of Manningham, Victoria, 3111, Australia spans about 1.6 by 2.3 km with mostly hill country. Staging sits about 1.4 km from the area centre. A last known point has been placed inside the area.",
+    "search_pattern_fit_summary": "Best when the last known area is credible and the search should build outward. Current spacing is built around an effective swath of about 5.4 cells. Hill Country is the dominant ground type.",
+    "search_pattern_base": "expanding_ring",
+    "search_pattern_base_label": "Expanding Ring",
+    "search_pattern_rebalanced": false,
+    "search_pattern_rebalance_reason": null,
+    "search_pattern_geometry": {
+      "weather_factor": 0.9,
+      "visibility_modifier": 0.889,
+      "sensor_mode_factor": 1.08,
+      "fleet_coverage_factor": 1.0,
+      "area_sq_km": 3.74,
+      "shape_ratio": 1.47,
+      "staging_distance_to_center_km": 1.35,
+      "slope_burden": "elevated",
+      "dominant_terrain": "hill country",
+      "area_cells": 120,
+      "effective_swath_cells": 5.42,
+      "lane_spacing_cells": 4.44,
+      "overlap_margin": 0.18,
+      "sector_rows": 2,
+      "sector_cols": 2,
+      "sector_count": 4,
+      "ring_step_cells": 4,
+      "perimeter_spacing_cells": 4,
+      "coverage_depth": "balanced"
+    },
+    "manual_targets": {},
+    "forced_return_overrides": [],
+    "priority_zones": [],
+    "exclusion_zones": [],
+    "returning_drones": [
+      1,
+      2,
+      3
+    ],
+    "active_search_drones": [],
+    "lifecycle_summary": {
+      "run_phase": "Mission complete",
+      "reserve_preset": "balanced",
+      "drone_state_counts": {
+        "recharging_or_swapping": 1,
+        "unavailable": 3
+      },
+      "active_search_drones": 0,
+      "returning_drones": 0,
+      "recharging_drones": 1,
+      "ready_to_redeploy": 0,
+      "coverage_gap_active": true,
+      "coverage_gap_steps": 35
+    },
+    "sensing_summary": {
+      "candidate_detection_count": 0,
+      "inspections_initiated": 0,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "active_candidate_contacts": 0,
+      "contacts_under_inspection": 0,
+      "confirmation_pending": 0,
+      "operator_summary": "No active contacts are awaiting confirmation."
+    },
+    "candidate_contacts": [],
+    "detection_event": null,
+    "drones": [
+      {
+        "id": 0,
+        "position": [
+          0,
+          2
+        ],
+        "battery": 60.0,
+        "battery_pct": 100.0,
+        "visited_cells": [
+          [
+            0,
+            2
+          ]
+        ],
+        "path_history": [
+          [
+            0,
+            2
+          ]
+        ],
+        "planned_path": [
+          [
+            0,
+            2
+          ]
+        ],
+        "intended_target": [
+          0,
+          2
+        ],
+        "reserved_goal": [
+          0,
+          2
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "recharging_or_swapping",
+        "operator_status": "Recharging",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "returning_now",
+        "reserve_status_label": "Returning Now",
+        "reserve_reason": "Continuing the task would cut into the safe return margin.",
+        "energy_required_to_base": 0.0,
+        "reserve_required": 28.755,
+        "continue_margin_required": 75.819,
+        "battery_margin": -15.819,
+        "return_eta_steps": 0,
+        "return_service_eta_steps": 1,
+        "turnaround_remaining_steps": 1,
+        "sorties_completed": 12,
+        "recharge_cycles": 12,
+        "redeployments": 11,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": false
+      },
+      {
+        "id": 1,
+        "position": [
+          1,
+          3
+        ],
+        "battery": 9.92799046972723,
+        "battery_pct": 16.5,
+        "visited_cells": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "path_history": [
+          [
+            3,
+            2
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "planned_path": [
+          [
+            1,
+            3
+          ]
+        ],
+        "intended_target": [
+          1,
+          3
+        ],
+        "reserved_goal": [
+          1,
+          3
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 26.519,
+        "reserve_required": 29.339,
+        "continue_margin_required": 98.321,
+        "battery_margin": -88.394,
+        "return_eta_steps": 1,
+        "return_service_eta_steps": 3,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 2,
+        "position": [
+          4,
+          0
+        ],
+        "battery": 6.003421117416387,
+        "battery_pct": 10.0,
+        "visited_cells": [
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            7,
+            2
+          ]
+        ],
+        "path_history": [
+          [
+            7,
+            2
+          ],
+          [
+            6,
+            2
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            4,
+            0
+          ]
+        ],
+        "planned_path": [
+          [
+            4,
+            0
+          ]
+        ],
+        "intended_target": [
+          4,
+          0
+        ],
+        "reserved_goal": [
+          4,
+          0
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 121.885,
+        "reserve_required": 40.086,
+        "continue_margin_required": 198.821,
+        "battery_margin": -175.671,
+        "return_eta_steps": 5,
+        "return_service_eta_steps": 7,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      },
+      {
+        "id": 3,
+        "position": [
+          10,
+          1
+        ],
+        "battery": 13.170116405246326,
+        "battery_pct": 22.0,
+        "visited_cells": [
+          [
+            10,
+            1
+          ],
+          [
+            11,
+            1
+          ]
+        ],
+        "path_history": [
+          [
+            11,
+            1
+          ],
+          [
+            10,
+            1
+          ]
+        ],
+        "planned_path": [
+          [
+            10,
+            1
+          ]
+        ],
+        "intended_target": [
+          10,
+          1
+        ],
+        "reserved_goal": [
+          10,
+          1
+        ],
+        "detections": [],
+        "comms_online": true,
+        "stale_steps": 0,
+        "lifecycle_state": "unavailable",
+        "operator_status": "Unavailable",
+        "sensing_state": "searching",
+        "sensing_status": "Searching",
+        "assigned_contact_id": null,
+        "active_contact_position": null,
+        "reserve_status": "critical_battery_margin",
+        "reserve_status_label": "Critical Battery Margin",
+        "reserve_reason": "Battery exhausted before reaching base.",
+        "energy_required_to_base": 282.693,
+        "reserve_required": 78.023,
+        "continue_margin_required": 360.716,
+        "battery_margin": -300.716,
+        "return_eta_steps": 11,
+        "return_service_eta_steps": 13,
+        "turnaround_remaining_steps": 0,
+        "sorties_completed": 0,
+        "recharge_cycles": 0,
+        "redeployments": 0,
+        "investigations_started": 0,
+        "contacts_confirmed": 0,
+        "contacts_rejected": 0,
+        "contributing_to_search": false,
+        "returning_to_base": true
+      }
+    ],
+    "metrics": {
+      "time_to_detection": null,
+      "area_covered_pct": 0.0,
+      "probability_mass_covered": 0.0,
+      "overlap_ratio": 0.0,
+      "battery_used": 150.89847200761005,
+      "successful_returns_to_base": 12,
+      "forced_low_battery_returns": 15,
+      "approaching_reserve_events": 0,
+      "critical_battery_events": 3,
+      "recharge_cycles_started": 12,
+      "recharge_cycles_completed": 11,
+      "redeployments": 11,
+      "rejoined_search_events": 0,
+      "coverage_gap_events": 1,
+      "coverage_gap_steps": 35,
+      "average_active_search_drones": 0.1111111111111111,
+      "battery_margin_min": -300.716,
+      "battery_margin_average": -133.2696875,
+      "comms_failures": 0,
+      "stale_information_events": 0,
+      "path_efficiency": 0.2696518634228422,
+      "average_overlap_per_step": 0.0,
+      "detection_under_comms_mode": "centralized",
+      "entropy_reduction_over_time": 0.0,
+      "information_gain_per_step": 1.936496981489455e-05,
+      "belief_peak_accuracy": 0.007836080117073686,
+      "time_to_first_candidate_detection": null,
+      "time_to_confirmed_detection": null,
+      "candidate_detection_count": 0,
+      "inspections_initiated": 0,
+      "inspections_completed": 0,
+      "confirmed_contact_count": 0,
+      "rejected_contact_count": 0,
+      "false_alarm_count": 0,
+      "reroute_count": 3,
+      "coordination_efficiency": 0.0,
+      "return_to_base_efficiency": 0.8,
+      "mission_success": false
+    }
+  },
+  "output_dir": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-f952ec99eb",
+  "job_id": "job-run-263d1a2905",
+  "plan_id": "new-search-mission",
+  "comparison_id": null,
+  "candidate_id": null,
+  "artifact_paths": {
+    "final_state": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-f952ec99eb\\final_state.png",
+    "events": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-f952ec99eb\\run_events.jsonl",
+    "replay": "C:\\Users\\blake\\OneDrive\\Desktop\\Projects\\swarm_search_sim\\swarm_search_sim\\app\\storage\\runs\\run-f952ec99eb\\run_replay.json"
+  },
+  "job": {
+    "id": "job-run-263d1a2905",
+    "job_type": "mission_run",
+    "owner_type": "run",
+    "owner_id": "run-f952ec99eb",
+    "status": "running",
+    "progress": 0.99,
+    "created_at": 1775192996.7460992,
+    "updated_at": 1775192998.2404828,
+    "completed_at": null,
+    "error": null,
+    "summary_json": {
+      "step": 35
+    }
+  },
+  "interventions": []
+}

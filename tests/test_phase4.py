@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from math import ceil
 from pathlib import Path
 
 import numpy as np
@@ -144,6 +145,61 @@ def test_mission_area_preview_builds_deterministic_real_grid_layers() -> None:
     assert layers["elevation_layer"].shape == environment.shape
     assert layers["terrain_summary"]["operator_summary"]
     assert np.isfinite(layers["wind_layer"]).all()
+
+
+def test_aoi_backed_environment_keeps_movement_costs_in_battery_scale() -> None:
+    location = resolve_location_input(query="Katoomba")
+    mission_area = preview_mission_area(
+        location=location,
+        grid_resolution_m=500.0,
+        environment_type="dense_forest",
+        weather="windy",
+    )
+    environment = build_environment_from_mission_area(
+        mission_area,
+        scenario_family="dense_forest",
+        weather="windy",
+    )
+
+    assert float(environment.movement_cost.min()) >= 0.65
+    assert float(environment.movement_cost.max()) < 4.0
+    assert np.isfinite(environment.movement_cost).all()
+
+
+def test_aoi_backed_battery_decision_uses_normalized_route_energy() -> None:
+    location = resolve_location_input(query="Katoomba")
+    mission_area = preview_mission_area(
+        location=location,
+        grid_resolution_m=500.0,
+        environment_type="dense_forest",
+        weather="windy",
+        last_known_status="known",
+        last_known_location={
+            "latitude": location["latitude"] + 0.004,
+            "longitude": location["longitude"] + 0.003,
+        },
+    )
+    config = replace(
+        load_scenario_config(),
+        mission_area=mission_area,
+        map_size=tuple(mission_area["grid_size"]),
+        base_position=tuple(mission_area["staging"]["grid_position"]),
+        last_known_position=tuple(mission_area["last_known_grid_position"]),
+        scenario_family="dense_forest",
+        weather="windy",
+        drone_battery=60.0,
+        num_drones=1,
+        max_steps=1,
+    )
+    engine = SimulationEngine(config)
+    drone = engine.drones[0]
+    goal = engine._resolve_open_cell(tuple(mission_area["center_grid_position"]))
+
+    decision = engine._evaluate_battery_decision(drone, goal)
+
+    assert decision.energy_to_base < drone.initial_battery
+    assert decision.continue_required < drone.initial_battery
+    assert not decision.should_return
 
 
 def test_low_battery_drones_eventually_return_to_base() -> None:
@@ -297,6 +353,30 @@ def test_battery_policy_prevents_unsafe_overextension() -> None:
     assert drone.lifecycle_state == LIFECYCLE_RETURNING
 
 
+def test_return_order_at_base_does_not_start_service_before_departure() -> None:
+    config = replace(load_scenario_config(), max_steps=1, num_drones=1)
+    engine = SimulationEngine(config)
+    drone = engine.drones[0]
+    drone.position = drone.base_position
+    drone.path_history = [drone.base_position]
+    drone.visited_cells = {drone.base_position}
+    drone.local_known_visited = {drone.base_position}
+    drone.sortie_active = False
+    goal = engine._resolve_open_cell((min(engine.environment.width - 1, drone.base_position[0] + 4), drone.base_position[1]))
+    decision = engine._evaluate_battery_decision(drone, goal)
+
+    engine._order_return_to_base(drone, decision, goal)
+    engine._plan_and_execute_routes({drone.id: drone.base_position})
+
+    event_types = {event["event_type"] for event in engine.logger.events}
+
+    assert "battery_service_started" not in event_types
+    assert not drone.sortie_active
+    assert not drone.returning_to_base
+    assert drone.lifecycle_state != LIFECYCLE_RECHARGING
+    assert drone.operator_status == "Holding at Base"
+
+
 def test_force_return_cycle_records_recharge_and_redeploy_events() -> None:
     config = replace(
         load_scenario_config(),
@@ -331,6 +411,30 @@ def test_force_return_cycle_records_recharge_and_redeploy_events() -> None:
     assert LIFECYCLE_READY in seen_states or engine.drones[0].redeployments > 0
     assert engine.drones[0].redeployments >= 1
     assert {"return_to_base", "battery_service_started", "battery_service_completed", "drone_redeployed"} <= event_types
+
+
+def test_first_step_replay_snapshot_reflects_committed_coverage_state() -> None:
+    config = replace(
+        load_scenario_config(),
+        max_steps=1,
+        false_negative_rate=1.0,
+        visual_false_negative_rate=1.0,
+        false_positive_rate=0.0,
+    )
+    engine = SimulationEngine(config)
+
+    snapshot = engine.step()
+    coverage_gap_events = [
+        event
+        for event in engine.logger.events
+        if event["event_type"] == "coverage_gap" and event["step"] == snapshot["step"]
+    ]
+    active_search = int(snapshot["lifecycle_summary"]["active_search_drones"])
+    threshold = max(1, int(ceil(config.num_drones * 0.6)))
+
+    assert active_search == len(snapshot["active_search_drones"])
+    if active_search >= threshold:
+        assert not coverage_gap_events
 
 
 def test_engine_snapshot_and_events_expose_search_pattern_state() -> None:

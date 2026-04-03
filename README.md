@@ -365,6 +365,7 @@ The simulation core is still preserved. Where the core expects a uniform fleet, 
 Slice 2 adds a more operationally believable battery lifecycle without rewriting the simulation core. The simulator now models:
 
 - path-aware return-to-base decisions instead of a flat battery percentage trigger
+- one normalized internal energy scale for battery, route cost, reserve margin, and movement penalties
 - reserve presets:
   - `conservative`
   - `balanced`
@@ -380,6 +381,7 @@ Slice 2 adds a more operationally believable battery lifecycle without rewriting
   - unavailable
 - turnaround time driven by fleet metadata such as `turnaround_time_minutes`
 - automatic redeploy and rejoin behavior after service completes
+- service only begins after a drone actually reaches base, rather than when a return is merely ordered
 
 The current Slice 2 model stays intentionally lightweight:
 
@@ -427,6 +429,8 @@ Mission Control is the live operator view. It supports:
 - subtle live refresh behavior while the run is active
 - active search-pattern visibility with plain-language pattern status
 - real mission-area context, including AOI label, area size, grid resolution, and staging point
+- AOI outline, base marker, and last known marker overlays in the mission visual
+- a compact terrain legend so the grid colors read as terrain categories rather than elevation
 - readable rebalance context when coverage shifts because of candidate contacts, confirmations, returns to base, or redeploys
 
 Supported interventions include:
@@ -455,6 +459,9 @@ Replay supports:
 - a fixed playback workstation layout with collapsible event and roster panels
 - search-pattern change markers and rebalance summaries when the mission shifts coverage
 - AOI-backed mission context so replay reflects the selected real mission area instead of only a generic grid
+- AOI outline, base marker, and last known marker overlays in the replay visual
+- a compact terrain legend that explains terrain colors, belief shading, and blocked / no-go masking
+- committed step-end snapshots so replay frames reflect a stable mission state rather than mid-step transitions
 
 ### Experiments
 

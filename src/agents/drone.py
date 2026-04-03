@@ -55,6 +55,7 @@ class Drone:
     return_eta_steps: int | None = None
     return_service_eta_steps: int | None = None
     turnaround_remaining_steps: int = 0
+    sortie_active: bool = False
     ready_since_step: int | None = None
     redeploy_target: Position | None = None
     last_lifecycle_change_step: int = 0

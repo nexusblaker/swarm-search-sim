@@ -44,6 +44,7 @@ class GridEnvironment:
         trail_layer: np.ndarray | None = None,
         elevation_layer: np.ndarray | None = None,
         wind_layer: np.ndarray | None = None,
+        cell_size_m: float = 1.0,
     ) -> None:
         self.terrain_grid = terrain_grid.astype(int)
         self.movement_cost = movement_cost.astype(float)
@@ -64,6 +65,7 @@ class GridEnvironment:
             if wind_layer is not None
             else np.zeros_like(self.movement_cost, dtype=float)
         )
+        self.cell_size_m = max(float(cell_size_m), 1.0)
         self.height, self.width = self.terrain_grid.shape
 
     @classmethod
@@ -138,6 +140,7 @@ class GridEnvironment:
         trail_layer: np.ndarray | None = None,
         elevation_layer: np.ndarray | None = None,
         wind_layer: np.ndarray | None = None,
+        cell_size_m: float = 1.0,
     ) -> "GridEnvironment":
         """Build an environment from externally defined layers."""
 
@@ -155,7 +158,10 @@ class GridEnvironment:
             movement_cost[terrain_mask] = move_cost
             detection_modifier[terrain_mask] = detect_mod
 
-        slope_penalty = cls._compute_slope_penalty(elevation_layer)
+        slope_penalty = cls._compute_slope_penalty(
+            elevation_layer,
+            cell_size_m=cell_size_m,
+        )
         movement_cost += slope_penalty
         movement_cost[trail_layer.astype(bool)] = np.maximum(0.65, movement_cost[trail_layer.astype(bool)] - 0.35)
         detection_modifier[trail_layer.astype(bool)] = np.minimum(
@@ -171,6 +177,7 @@ class GridEnvironment:
             trail_layer=trail_layer,
             elevation_layer=elevation_layer,
             wind_layer=wind_layer,
+            cell_size_m=cell_size_m,
         )
 
     @classmethod
@@ -333,9 +340,20 @@ class GridEnvironment:
                     yield position
 
     @staticmethod
-    def _compute_slope_penalty(elevation_layer: np.ndarray) -> np.ndarray:
-        grad_y, grad_x = np.gradient(elevation_layer.astype(float))
-        return 0.35 * np.hypot(grad_x, grad_y)
+    def _compute_slope_penalty(
+        elevation_layer: np.ndarray,
+        *,
+        cell_size_m: float = 1.0,
+    ) -> np.ndarray:
+        spacing_m = max(float(cell_size_m), 1.0)
+        grad_y, grad_x = np.gradient(
+            elevation_layer.astype(float),
+            spacing_m,
+            spacing_m,
+        )
+        slope_ratio = np.hypot(grad_x, grad_y)
+        normalized = np.clip(slope_ratio, 0.0, 0.6) / 0.6
+        return 0.85 * normalized
 
     @staticmethod
     def _load_array(path: str | Path, dtype: type[int] | type[float]) -> np.ndarray:
